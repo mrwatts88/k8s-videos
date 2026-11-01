@@ -124,6 +124,27 @@ Choices, and why:
 | HTTP status codes | three oh two, four oh four | How engineers say them |
 | go.corp.internal | go dot corp dot internal | |
 
+### Words Whisper cannot catch
+
+Whisper writes "lives" whichever way it was said, so two kinds of mistake need
+their own guard:
+
+- Heteronyms. espeak picks the sense from context and often gets it wrong: it
+  says "pods live on nodes" with the live of "a live demo", and "k3s uses
+  SQLite" with the noun "uses". Every word under `heteronyms` in the lexicon
+  (live, lives, use, uses, read, close, lead, record, object and others) must
+  have its sense named on the line, as `"senses": {"lives": "verb"}`.
+  `check:scripts` fails otherwise, and narration speaks that sense's `ipa`.
+  Prefer rewording when it reads just as well.
+- Plurals in -ies. espeak clips some of them ("copies" comes out "copiz").
+  Every narration word ending in -ies must be a lexicon term or listed in
+  `pluralsChecked`. Check a new one with `tools/pronounce.py --phonemes`: if it
+  ends in `ɪz`, add a term with `ipa` ending in `iz`; otherwise list it.
+
+When the listener reports a word that sounded off, find the phonemes with
+`tools/pronounce.py --phonemes` and fix the cause in the lexicon, so later
+episodes inherit the fix.
+
 ### Checking without listening
 
 `npm run check:narration -- <id>` transcribes every line of the episode's
@@ -150,9 +171,9 @@ the phonemes are wrong, change `say` or add `ipa`.
 | --- | --- | --- |
 | `npm run typecheck` | TypeScript | yes |
 | `npm run lint` | ESLint (Remotion config) | yes |
-| `npm run check:scripts` | every narration line sits in a scene; `at` indexes, code files and line ranges are valid; episodes are registered; lexicon is well formed | yes |
+| `npm run check:scripts` | every narration line sits in a scene; `at` indexes, code files, line ranges and diagrams are valid; episodes are registered; heteronyms have senses and -ies plurals are checked; lexicon is well formed | yes |
 | `npm run check:timing` | `src/lib/timeline.ts` and `tools/layout.py` lay out every script identically | yes |
-| `python3 tools/test_pronounce.py` | lexicon rewriting rules | yes |
+| `python3 tools/test_pronounce.py` | lexicon rewriting rules and heteronym senses | yes |
 | `npm run check:manifests` | kubeconform (strict, Kubernetes 1.33) on every manifest, and `kubectl kustomize` on every kustomization | yes |
 | `npm run smoke` | renders a still from every scene and a 1 second MP4 of every episode | yes |
 | `npm run check:narration -- <id>` | transcription and caption alignment | no (needs models and narration; run locally) |

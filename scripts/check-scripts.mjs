@@ -20,6 +20,42 @@ const TONES = ["neutral", "accent", "good", "bad", "warn"];
 const BOX_KINDS = ["group", "component", "pod", "note"];
 const { diagram } = JSON.parse(readFileSync(join(root, "src", "timing.json"), "utf8"));
 
+// Pronunciation guards that need no speech model: heteronyms must name their
+// sense, and -ies plurals must be ones someone has checked (see narration/lexicon.json).
+let lexiconData = { terms: [], heteronyms: [], pluralsChecked: [] };
+try {
+  lexiconData = JSON.parse(readFileSync(join(root, "narration", "lexicon.json"), "utf8"));
+} catch {
+  // Reported with the lexicon checks below.
+}
+const heteronyms = new Map((lexiconData.heteronyms ?? []).map((h) => [h.word.toLowerCase(), Object.keys(h.senses ?? {})]));
+const termWords = new Set((lexiconData.terms ?? []).map((t) => t.match.toLowerCase()));
+const pluralsChecked = new Set((lexiconData.pluralsChecked ?? []).map((w) => w.toLowerCase()));
+const wordsOf = (text) => (text.match(/[A-Za-z][A-Za-z'-]*/g) ?? []).map((w) => w.toLowerCase());
+
+const checkPronunciation = (where, line) => {
+  const words = wordsOf(line.say ?? line.text ?? "");
+  const senses = line.senses ?? {};
+  if (typeof senses !== "object" || Array.isArray(senses)) {
+    fail(where, "senses must be an object like {\"lives\": \"verb\"}");
+    return;
+  }
+  for (const word of new Set(words)) {
+    const options = heteronyms.get(word);
+    if (options && !options.includes(senses[word]))
+      fail(where, `"${word}" can be said ${options.length} ways; add "senses": {"${word}": one of ${options.join(", ")}}`);
+    if (word.length >= 6 && word.endsWith("ies") && !termWords.has(word) && !pluralsChecked.has(word))
+      fail(
+        where,
+        `"${word}": check it with tools/pronounce.py --phonemes, then add a lexicon term with ipa (if it ends in ɪz) or list it in pluralsChecked`,
+      );
+  }
+  for (const word of Object.keys(senses)) {
+    if (!heteronyms.has(word.toLowerCase())) fail(where, `senses: "${word}" is not a heteronym in narration/lexicon.json`);
+    else if (!words.includes(word.toLowerCase())) fail(where, `senses: "${word}" is not in this line`);
+  }
+};
+
 const ids = readdirSync(episodesDir, { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => d.name)
@@ -67,6 +103,7 @@ for (const id of ids) {
         fail(`${at} line ${i}`, "pauseAfter must be a number of seconds, 0 or more");
       if (line.say !== undefined && (typeof line.say !== "string" || !line.say.trim()))
         fail(`${at} line ${i}`, "say must be non-empty text");
+      checkPronunciation(`${at} line ${i}`, line);
     });
     const validAt = (n) => isInt(n) && n >= 0 && n < scene.lines.length;
 
@@ -186,6 +223,12 @@ try {
     if (seen.has(t.match)) fail(at, "duplicate match");
     seen.add(t.match);
     if (!Array.isArray(t.heard) || t.heard.length === 0) fail(at, "needs at least one heard form for the check");
+  });
+  (lexicon.heteronyms ?? []).forEach((h, i) => {
+    const at = `narration/lexicon.json heteronym ${i} (${h.word ?? "?"})`;
+    const senses = Object.entries(h.senses ?? {});
+    if (!h.word || senses.length < 2) fail(at, "needs a word and at least two senses");
+    for (const [name, sense] of senses) if (!sense?.ipa) fail(at, `sense "${name}" needs ipa`);
   });
   (lexicon.rules ?? []).forEach((r, i) => {
     try {

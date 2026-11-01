@@ -517,6 +517,24 @@
       ]
     },
     {
+      "match": "copies",
+      "say": "copies",
+      "ipa": "kˈɑːpiz",
+      "heard": [
+        "copies"
+      ],
+      "ignoreCase": true
+    },
+    {
+      "match": "queries",
+      "say": "queries",
+      "ipa": "kwˈɪɹiz",
+      "heard": [
+        "queries"
+      ],
+      "ignoreCase": true
+    },
+    {
       "match": "standup",
       "say": "standup",
       "heard": [
@@ -613,5 +631,263 @@
       "pattern": "/(?=\\w)",
       "replace": " slash "
     }
+  ],
+  "_heteronymsDoc": "Words with two pronunciations that espeak often picks wrongly from context (it says 'pods live on nodes' with the live of 'live demo'). Every narration line that uses one must name its sense, as \"senses\": {\"lives\": \"verb\"}; check:scripts fails otherwise and narration speaks the named sense's ipa.",
+  "heteronyms": [
+    {
+      "word": "live",
+      "senses": {
+        "verb": {
+          "ipa": "lˈɪv",
+          "example": "pods live on nodes"
+        },
+        "adjective": {
+          "ipa": "lˈaɪv",
+          "example": "a live demo"
+        }
+      }
+    },
+    {
+      "word": "lives",
+      "senses": {
+        "verb": {
+          "ipa": "lˈɪvz",
+          "example": "it lives on node-2"
+        },
+        "noun": {
+          "ipa": "lˈaɪvz",
+          "example": "nine lives"
+        }
+      }
+    },
+    {
+      "word": "use",
+      "senses": {
+        "verb": {
+          "ipa": "jˈuːz",
+          "example": "we use kubectl"
+        },
+        "noun": {
+          "ipa": "jˈuːs",
+          "example": "in use"
+        }
+      }
+    },
+    {
+      "word": "uses",
+      "senses": {
+        "verb": {
+          "ipa": "jˈuːzᵻz",
+          "example": "k3s uses SQLite"
+        },
+        "noun": {
+          "ipa": "jˈuːsᵻz",
+          "example": "two uses"
+        }
+      }
+    },
+    {
+      "word": "read",
+      "senses": {
+        "present": {
+          "ipa": "ɹˈiːd",
+          "example": "we read the file"
+        },
+        "past": {
+          "ipa": "ɹˈɛd",
+          "example": "it read the file yesterday"
+        }
+      }
+    },
+    {
+      "word": "close",
+      "senses": {
+        "verb": {
+          "ipa": "klˈoʊz",
+          "example": "close the connection"
+        },
+        "adjective": {
+          "ipa": "klˈoʊs",
+          "example": "close to the node"
+        }
+      }
+    },
+    {
+      "word": "lead",
+      "senses": {
+        "verb": {
+          "ipa": "lˈiːd",
+          "example": "lead the team"
+        },
+        "metal": {
+          "ipa": "lˈɛd",
+          "example": "lead pipe"
+        }
+      }
+    },
+    {
+      "word": "record",
+      "senses": {
+        "noun": {
+          "ipa": "ɹˈɛkɚd",
+          "example": "a DNS record"
+        },
+        "verb": {
+          "ipa": "ɹᵻkˈɔːɹd",
+          "example": "record the event"
+        }
+      }
+    },
+    {
+      "word": "records",
+      "senses": {
+        "noun": {
+          "ipa": "ɹˈɛkɚdz",
+          "example": "DNS records"
+        },
+        "verb": {
+          "ipa": "ɹᵻkˈɔːɹdz",
+          "example": "it records events"
+        }
+      }
+    },
+    {
+      "word": "object",
+      "senses": {
+        "noun": {
+          "ipa": "ˈɑːbdʒɛkt",
+          "example": "an API object"
+        },
+        "verb": {
+          "ipa": "əbdʒˈɛkt",
+          "example": "they object"
+        }
+      }
+    },
+    {
+      "word": "present",
+      "senses": {
+        "noun": {
+          "ipa": "pɹˈɛzənt",
+          "example": "present in the spec"
+        },
+        "verb": {
+          "ipa": "pɹᵻzˈɛnt",
+          "example": "present a certificate"
+        }
+      }
+    },
+    {
+      "word": "minute",
+      "senses": {
+        "time": {
+          "ipa": "mˈɪnɪt",
+          "example": "one minute"
+        },
+        "tiny": {
+          "ipa": "maɪnˈuːt",
+          "example": "a minute change"
+        }
+      }
+    },
+    {
+      "word": "content",
+      "senses": {
+        "noun": {
+          "ipa": "kˈɑːntɛnt",
+          "example": "the file's content"
+        },
+        "adjective": {
+          "ipa": "kəntˈɛnt",
+          "example": "content to wait"
+        }
+      }
+    },
+    {
+      "word": "project",
+      "senses": {
+        "noun": {
+          "ipa": "pɹˈɑːdʒɛkt",
+          "example": "a project"
+        },
+        "verb": {
+          "ipa": "pɹədʒˈɛkt",
+          "example": "project the volume"
+        }
+      }
+    },
+    {
+      "word": "invalid",
+      "senses": {
+        "adjective": {
+          "ipa": "ɪnvˈælɪd",
+          "example": "an invalid token"
+        },
+        "noun": {
+          "ipa": "ˈɪnvəlɪd",
+          "example": "an invalid in bed"
+        }
+      }
+    },
+    {
+      "word": "separate",
+      "senses": {
+        "adjective": {
+          "ipa": "sˈɛpɹət",
+          "example": "a separate namespace"
+        },
+        "verb": {
+          "ipa": "sˈɛpɚɹˌeɪt",
+          "example": "separate the teams"
+        }
+      }
+    },
+    {
+      "word": "wind",
+      "senses": {
+        "air": {
+          "ipa": "wˈɪnd",
+          "example": "the wind"
+        },
+        "turn": {
+          "ipa": "wˈaɪnd",
+          "example": "wind down"
+        }
+      }
+    },
+    {
+      "word": "tear",
+      "senses": {
+        "rip": {
+          "ipa": "tˈɛɹ",
+          "example": "tear down"
+        },
+        "cry": {
+          "ipa": "tˈɪɹ",
+          "example": "a tear"
+        }
+      }
+    }
+  ],
+  "_pluralsDoc": "espeak sometimes clips the ending of plurals in -ies (copies comes out kˈɑːpɪz). A narration word ending in -ies must be a lexicon term or listed in pluralsChecked: check it with tools/pronounce.py --phonemes, add a term with ipa ending in iz if it ends in ɪz, otherwise add it here.",
+  "pluralsChecked": [
+    "authorities",
+    "binaries",
+    "bodies",
+    "dependencies",
+    "directories",
+    "entries",
+    "identities",
+    "libraries",
+    "policies",
+    "priorities",
+    "properties",
+    "proxies",
+    "registries",
+    "replies",
+    "retries",
+    "secretaries",
+    "series",
+    "species"
   ]
 }

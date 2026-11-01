@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from pronounce import Lexicon  # noqa: E402
+from pronounce import Lexicon, MissingSense  # noqa: E402
 
 
 class PronounceTest(unittest.TestCase):
@@ -33,6 +33,18 @@ class PronounceTest(unittest.TestCase):
     def test_rules(self):
         self.assertEqual(self.say("Type go/standup."), "Type go slash standup.")
         self.assertIn("slash", self.say("Call /readyz."))
+
+    def test_heteronym_needs_a_sense(self):
+        with self.assertRaises(MissingSense):
+            self.lex.prepare("Each pod lives on a node.")
+
+    def test_heteronym_sense_becomes_ipa(self):
+        verb = self.lex.prepare("Each pod lives on a node.", {"lives": "verb"})
+        noun = self.lex.prepare("A cat has nine lives.", {"lives": "noun"})
+        self.assertIn(("ipa", "lˈɪvz"), verb.pieces)
+        self.assertIn(("ipa", "lˈaɪvz"), noun.pieces)
+        # Case does not matter, and the caption text is unchanged.
+        self.assertEqual(self.lex.prepare("Live traffic.", {"live": "adjective"}).text, "live traffic.")
 
     def test_ipa_pieces(self):
         spoken = self.lex.prepare("The API answers.")

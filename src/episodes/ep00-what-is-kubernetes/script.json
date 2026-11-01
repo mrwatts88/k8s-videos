@@ -198,7 +198,10 @@
           "text": "You have a handful of servers, and a bunch of apps that need to run somewhere."
         },
         {
-          "text": "The old way, you pick a server for each app, and the app lives there."
+          "text": "The old way, you pick a server for each app, and the app lives there.",
+          "senses": {
+            "lives": "verb"
+          }
         },
         {
           "text": "When that server dies, the app goes with it, and someone gets paged to move it by hand."
@@ -257,7 +260,10 @@
           "text": "And it says which container image to run, and on which port."
         },
         {
-          "text": "Notice what it doesn't say: which server to use, or the steps to get there."
+          "text": "Notice what it doesn't say: which server to use, or the steps to get there.",
+          "senses": {
+            "use": "verb"
+          }
         },
         {
           "text": "On its own, this file does nothing at all.",
@@ -527,7 +533,10 @@
           "text": "It compares that with what's actually running."
         },
         {
-          "text": "Then it acts to close the gap, for example by asking for a missing pod."
+          "text": "Then it acts to close the gap, for example by asking for a missing pod.",
+          "senses": {
+            "close": "verb"
+          }
         },
         {
           "text": "And then it does it again, and again, forever."

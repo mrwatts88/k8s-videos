@@ -6,6 +6,11 @@ export type NarrationLine = {
   text: string;
   /** Optional spoken override when the caption should not be read literally. */
   say?: string;
+  /**
+   * Which sense each heteronym in the line means, for example { lives: "verb" }.
+   * Required for every word listed under heteronyms in narration/lexicon.json.
+   */
+  senses?: Record<string, string>;
   /** Extra seconds of silence after this line, on top of the usual gap. */
   pauseAfter?: number;
 };
