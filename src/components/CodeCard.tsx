@@ -54,8 +54,11 @@ export const CodeCard: React.FC<{
 
   // Keep the band roughly centered when the file is longer than the view.
   const maxScroll = Math.max(0, lines.length - VIEW_ROWS) * LINE_HEIGHT;
-  const scrollFor = (b: { top: number; height: number } | null) =>
-    b ? Math.min(maxScroll, Math.max(0, b.top + b.height / 2 - (VIEW_ROWS * LINE_HEIGHT) / 2)) : 0;
+  const scrollFor = (b: { top: number; height: number } | null) => {
+    // No scroll while the band already sits inside the first screen with a line to spare.
+    if (!b || b.top + b.height <= (VIEW_ROWS - 1) * LINE_HEIGHT) return 0;
+    return Math.min(maxScroll, Math.max(0, b.top + b.height / 2 - (VIEW_ROWS * LINE_HEIGHT) / 2));
+  };
   const scroll = scrollFor(from) + (scrollFor(to) - scrollFor(from)) * moveProgress;
 
   const inBand = (n: number) => active && n >= active.lines[0] && n <= active.lines[1];
