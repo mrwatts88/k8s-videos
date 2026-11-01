@@ -535,6 +535,51 @@
       "ignoreCase": true
     },
     {
+      "match": "golinks",
+      "say": "go links",
+      "heard": [
+        "go links",
+        "golinks",
+        "go-links",
+        "golink"
+      ]
+    },
+    {
+      "match": "kube-public",
+      "say": "cube public",
+      "heard": [
+        "cube public",
+        "kube public",
+        "q public"
+      ]
+    },
+    {
+      "match": "kube-node-lease",
+      "say": "cube node lease",
+      "heard": [
+        "cube node lease",
+        "kube node lease",
+        "q node lease"
+      ]
+    },
+    {
+      "match": "svclb",
+      "say": "S V C L B",
+      "heard": [
+        "s v c l b",
+        "svclb",
+        "svc lb"
+      ]
+    },
+    {
+      "match": "local-path",
+      "say": "local path",
+      "heard": [
+        "local path",
+        "local-path"
+      ]
+    },
+    {
       "match": "standup",
       "say": "standup",
       "heard": [
@@ -767,9 +812,13 @@
     {
       "word": "present",
       "senses": {
+        "adjective": {
+          "ipa": "pɹˈɛzənt",
+          "example": "the field is present"
+        },
         "noun": {
           "ipa": "pɹˈɛzənt",
-          "example": "present in the spec"
+          "example": "a present"
         },
         "verb": {
           "ipa": "pɹᵻzˈɛnt",
