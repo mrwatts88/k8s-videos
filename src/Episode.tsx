@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AbsoluteFill, Audio, Sequence, continueRender, delayRender, interpolate, staticFile, useCurrentFrame } from "remotion";
 import { Captions } from "./components/Captions";
 import { CodeCard } from "./components/CodeCard";
+import { DiagramCard } from "./components/DiagramCard";
 import { TerminalCard } from "./components/TerminalCard";
 import { TitleCard } from "./components/TitleCard";
 import { episodes } from "./episodes/registry";
@@ -92,6 +93,17 @@ const SceneView: React.FC<{ scene: Scene; timing: SceneTiming }> = ({ scene, tim
           source={readRepoFile(scene.file)}
           range={scene.range}
           highlights={(scene.highlights ?? []).map((h) => ({ startFrame: startOf(h.at), lines: h.lines }))}
+        />
+      );
+      break;
+    case "diagram":
+      body = (
+        <DiagramCard
+          frame={frame}
+          title={scene.title}
+          boxes={scene.boxes}
+          arrows={scene.arrows ?? []}
+          steps={(scene.steps ?? []).map((s) => ({ ...s, startFrame: startOf(s.at) }))}
         />
       );
       break;

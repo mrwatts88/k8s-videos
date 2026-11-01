@@ -52,7 +52,61 @@ export type CodeScene = SceneBase & {
   highlights?: CodeHighlight[];
 };
 
-export type Scene = TitleScene | TerminalScene | CodeScene;
+export type DiagramTone = "neutral" | "accent" | "good" | "bad" | "warn";
+
+export type DiagramBox = {
+  id: string;
+  /**
+   * group: dashed outline with its label at the top, drawn behind everything.
+   * component: a solid box (the default). pod: a small pill. note: text only.
+   */
+  kind?: "group" | "component" | "pod" | "note";
+  label: string;
+  /** Smaller second line, in monospace. */
+  sublabel?: string;
+  /** Top-left corner and size on the diagram canvas (size in src/timing.json, 1600 by 800). */
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  tone?: DiagramTone;
+  /** Starts hidden; a step shows it. */
+  hidden?: boolean;
+};
+
+export type DiagramArrow = {
+  id: string;
+  from: string;
+  to: string;
+  label?: string;
+  /** Bends the arrow sideways by this many pixels at its middle. */
+  curve?: number;
+  tone?: DiagramTone;
+  hidden?: boolean;
+};
+
+export type DiagramStep = {
+  /** Index of the narration line (in this scene) that triggers this step. */
+  at: number;
+  show?: string[];
+  hide?: string[];
+  /** Changes the color of boxes or arrows. */
+  tone?: Record<string, DiagramTone>;
+  /** Highlights these and dims everything else. An empty list clears the focus. */
+  focus?: string[];
+  /** Arrows that carry a moving dot from now on. An empty list stops them. */
+  flow?: string[];
+};
+
+export type DiagramScene = SceneBase & {
+  type: "diagram";
+  title?: string;
+  boxes: DiagramBox[];
+  arrows?: DiagramArrow[];
+  steps?: DiagramStep[];
+};
+
+export type Scene = TitleScene | TerminalScene | CodeScene | DiagramScene;
 
 export type EpisodeScript = {
   id: string;

@@ -1,0 +1,1298 @@
+{
+  "id": "ep00-what-is-kubernetes",
+  "number": 0,
+  "title": "What Kubernetes actually is",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 0",
+      "title": "What Kubernetes actually is",
+      "subtitle": "A spec for what you want, and controllers that make it true",
+      "lines": [
+        {
+          "text": "Before we write any real YAML, let's get the big idea of Kubernetes straight."
+        },
+        {
+          "text": "Kubernetes is a description of what you want, plus a crowd of small programs that keep making it true.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "servers",
+      "type": "diagram",
+      "title": "The problem",
+      "boxes": [
+        {
+          "id": "you",
+          "label": "You",
+          "x": 120,
+          "y": 140,
+          "w": 320,
+          "h": 130,
+          "sublabel": "run 3 copies",
+          "hidden": true
+        },
+        {
+          "id": "k8s",
+          "label": "Kubernetes",
+          "x": 600,
+          "y": 140,
+          "w": 400,
+          "h": 130,
+          "sublabel": "one API for the pool",
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "pool",
+          "label": "Your servers",
+          "x": 600,
+          "y": 735,
+          "w": 400,
+          "h": 50,
+          "kind": "note"
+        },
+        {
+          "id": "srv1",
+          "label": "server-1",
+          "x": 140,
+          "y": 420,
+          "w": 400,
+          "h": 300,
+          "kind": "group"
+        },
+        {
+          "id": "srv2",
+          "label": "server-2",
+          "x": 600,
+          "y": 420,
+          "w": 400,
+          "h": 300,
+          "kind": "group"
+        },
+        {
+          "id": "srv3",
+          "label": "server-3",
+          "x": 1060,
+          "y": 420,
+          "w": 400,
+          "h": 300,
+          "kind": "group"
+        },
+        {
+          "id": "p0",
+          "label": "go links",
+          "x": 190,
+          "y": 520,
+          "w": 300,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "p1",
+          "label": "go links",
+          "x": 650,
+          "y": 510,
+          "w": 300,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "label": "go links",
+          "x": 650,
+          "y": 600,
+          "w": 300,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "p3",
+          "label": "go links",
+          "x": 1110,
+          "y": 510,
+          "w": 300,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "ask",
+          "from": "you",
+          "to": "k8s",
+          "hidden": true
+        },
+        {
+          "id": "to2",
+          "from": "k8s",
+          "to": "srv2",
+          "hidden": true
+        },
+        {
+          "id": "to3",
+          "from": "k8s",
+          "to": "srv3",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "p0"
+          ]
+        },
+        {
+          "at": 2,
+          "hide": [
+            "p0"
+          ],
+          "tone": {
+            "srv1": "bad"
+          }
+        },
+        {
+          "at": 3,
+          "show": [
+            "k8s"
+          ],
+          "tone": {
+            "pool": "accent"
+          }
+        },
+        {
+          "at": 4,
+          "show": [
+            "you",
+            "ask"
+          ],
+          "flow": [
+            "ask"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "to2",
+            "to3",
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "flow": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "You have a handful of servers, and a bunch of apps that need to run somewhere."
+        },
+        {
+          "text": "The old way, you pick a server for each app, and the app lives there."
+        },
+        {
+          "text": "When that server dies, the app goes with it, and someone gets paged to move it by hand."
+        },
+        {
+          "text": "Kubernetes turns the whole pool of machines into one place you can ask for things."
+        },
+        {
+          "text": "You say: run three copies of this app."
+        },
+        {
+          "text": "It decides where they go, skips the broken server, and you stop caring which machine runs what.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "spec",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        1,
+        23
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            1,
+            2
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            9
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            18,
+            23
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "This is a spec, written in YAML: a Deployment for the go links API we'll build in this series."
+        },
+        {
+          "text": "It says we want two copies running."
+        },
+        {
+          "text": "And it says which container image to run, and on which port."
+        },
+        {
+          "text": "Notice what it doesn't say: which server to use, or the steps to get there."
+        },
+        {
+          "text": "On its own, this file does nothing at all.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "desired-state",
+      "type": "diagram",
+      "title": "Desired state",
+      "boxes": [
+        {
+          "id": "cli",
+          "label": "kubectl",
+          "x": 80,
+          "y": 280,
+          "w": 360,
+          "h": 140,
+          "sublabel": "apply -f deployment.yaml"
+        },
+        {
+          "id": "api",
+          "label": "API server",
+          "x": 620,
+          "y": 280,
+          "w": 360,
+          "h": 140,
+          "sublabel": "validates, then stores",
+          "tone": "accent"
+        },
+        {
+          "id": "db",
+          "label": "Datastore",
+          "x": 1160,
+          "y": 280,
+          "w": 360,
+          "h": 140,
+          "sublabel": "etcd, or SQLite",
+          "hidden": true
+        },
+        {
+          "id": "want",
+          "label": "desired: 2 copies",
+          "x": 1160,
+          "y": 460,
+          "w": 360,
+          "h": 60,
+          "kind": "note",
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "have",
+          "label": "running: 0",
+          "x": 1160,
+          "y": 530,
+          "w": 360,
+          "h": 60,
+          "kind": "note",
+          "tone": "bad",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "send",
+          "from": "cli",
+          "to": "api",
+          "label": "spec",
+          "hidden": true
+        },
+        {
+          "id": "save",
+          "from": "api",
+          "to": "db",
+          "label": "save",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "send"
+          ],
+          "flow": [
+            "send"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "save",
+            "db"
+          ],
+          "flow": [
+            "save"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "want"
+          ],
+          "flow": []
+        },
+        {
+          "at": 3,
+          "show": [
+            "have"
+          ]
+        },
+        {
+          "at": 4,
+          "focus": [
+            "want",
+            "have"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "You hand the spec to the cluster with kubectl, which sends it to the API server."
+        },
+        {
+          "text": "The API server checks that it's valid, then saves it in a datastore: etcd, or SQLite on a small k3s cluster."
+        },
+        {
+          "text": "That saved spec is called the desired state."
+        },
+        {
+          "text": "And saving it changes nothing: not a single copy is running yet."
+        },
+        {
+          "text": "Something has to notice that gap, and act on it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "reconcile-loop",
+      "type": "diagram",
+      "title": "The reconcile loop",
+      "boxes": [
+        {
+          "id": "ctl",
+          "label": "a controller",
+          "x": 600,
+          "y": 330,
+          "w": 400,
+          "h": 110,
+          "kind": "note",
+          "sublabel": "runs this forever",
+          "hidden": true
+        },
+        {
+          "id": "watch",
+          "label": "Watch",
+          "x": 620,
+          "y": 70,
+          "w": 360,
+          "h": 150,
+          "sublabel": "the desired state",
+          "hidden": true
+        },
+        {
+          "id": "compare",
+          "label": "Compare",
+          "x": 1100,
+          "y": 500,
+          "w": 360,
+          "h": 150,
+          "sublabel": "desired vs actual",
+          "hidden": true
+        },
+        {
+          "id": "act",
+          "label": "Act",
+          "x": 140,
+          "y": 500,
+          "w": 360,
+          "h": 150,
+          "sublabel": "close the gap",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "l1",
+          "from": "watch",
+          "to": "compare",
+          "curve": -90,
+          "hidden": true
+        },
+        {
+          "id": "l2",
+          "from": "compare",
+          "to": "act",
+          "curve": -90,
+          "hidden": true
+        },
+        {
+          "id": "l3",
+          "from": "act",
+          "to": "watch",
+          "curve": -90,
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "ctl"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "watch"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "compare",
+            "l1"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "act",
+            "l2"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "l3"
+          ],
+          "flow": [
+            "l1",
+            "l2",
+            "l3"
+          ]
+        },
+        {
+          "at": 5,
+          "tone": {
+            "ctl": "accent",
+            "watch": "accent",
+            "compare": "accent",
+            "act": "accent"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "text": "That's the second half of the idea: controllers."
+        },
+        {
+          "text": "A controller watches the desired state through the API server."
+        },
+        {
+          "text": "It compares that with what's actually running."
+        },
+        {
+          "text": "Then it acts to close the gap, for example by asking for a missing pod."
+        },
+        {
+          "text": "And then it does it again, and again, forever."
+        },
+        {
+          "text": "The spec doesn't do anything; controllers make it true.",
+          "pauseAfter": 0.8
+        }
+      ]
+    },
+    {
+      "id": "self-healing",
+      "type": "diagram",
+      "title": "Self-healing",
+      "boxes": [
+        {
+          "id": "rs",
+          "label": "ReplicaSet controller",
+          "x": 600,
+          "y": 80,
+          "w": 400,
+          "h": 140,
+          "sublabel": "desired: 3",
+          "tone": "accent"
+        },
+        {
+          "id": "n3",
+          "label": "running: 3",
+          "x": 1080,
+          "y": 120,
+          "w": 380,
+          "h": 60,
+          "kind": "note",
+          "tone": "good"
+        },
+        {
+          "id": "n2",
+          "label": "running: 2",
+          "x": 1080,
+          "y": 120,
+          "w": 380,
+          "h": 60,
+          "kind": "note",
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "n3b",
+          "label": "running: 3",
+          "x": 1080,
+          "y": 120,
+          "w": 380,
+          "h": 60,
+          "kind": "note",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "p1",
+          "label": "golinks-4xkqp",
+          "x": 230,
+          "y": 480,
+          "w": 320,
+          "h": 80,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "p2",
+          "label": "golinks-p2m8w",
+          "x": 640,
+          "y": 480,
+          "w": 320,
+          "h": 80,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "p3",
+          "label": "golinks-h8vzd",
+          "x": 1050,
+          "y": 480,
+          "w": 320,
+          "h": 80,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "p4",
+          "label": "golinks-x7r4n",
+          "x": 640,
+          "y": 480,
+          "w": 320,
+          "h": 80,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "rs",
+          "to": "p1"
+        },
+        {
+          "id": "a2",
+          "from": "rs",
+          "to": "p2"
+        },
+        {
+          "id": "a3",
+          "from": "rs",
+          "to": "p3"
+        },
+        {
+          "id": "a4",
+          "from": "rs",
+          "to": "p4",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "focus": [
+            "rs",
+            "n3"
+          ]
+        },
+        {
+          "at": 2,
+          "focus": [],
+          "tone": {
+            "p2": "bad",
+            "a2": "bad"
+          }
+        },
+        {
+          "at": 3,
+          "hide": [
+            "p2",
+            "a2",
+            "n3"
+          ],
+          "show": [
+            "n2"
+          ],
+          "focus": [
+            "rs",
+            "n2"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "p4",
+            "a4",
+            "n3b"
+          ],
+          "hide": [
+            "n2"
+          ],
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's a real controller at work: the one that keeps a set of pods running."
+        },
+        {
+          "text": "It wants three pods, three are running, so it has nothing to do."
+        },
+        {
+          "text": "Now one pod crashes, or the server under it disappears."
+        },
+        {
+          "text": "The controller sees two running, where the spec says three."
+        },
+        {
+          "text": "So it asks for a new pod, and a moment later there are three again."
+        },
+        {
+          "text": "Nobody got paged; the loop just closed the gap.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7d9c6b8f5d-4xkqp   1/1     Running   0          42m",
+            "golinks-7d9c6b8f5d-p2m8w   1/1     Running   0          42m",
+            "postgres-0                 1/1     Running   0          42m"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl delete pod golinks-7d9c6b8f5d-4xkqp -n golinks",
+          "output": [
+            "pod \"golinks-7d9c6b8f5d-4xkqp\" deleted"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7d9c6b8f5d-p2m8w   1/1     Running   0          42m",
+            "golinks-7d9c6b8f5d-x7r4n   1/1     Running   0          4s",
+            "postgres-0                 1/1     Running   0          42m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "You can watch this happen on a real cluster."
+        },
+        {
+          "text": "Delete one of the API pods by hand."
+        },
+        {
+          "text": "Ask again, and a new pod is already running in its place."
+        },
+        {
+          "text": "The name is new, but the count is back to two, because that's what the spec says.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "scheduler-kubelet",
+      "type": "diagram",
+      "title": "Scheduler and kubelet",
+      "boxes": [
+        {
+          "id": "sched",
+          "label": "Scheduler",
+          "x": 60,
+          "y": 80,
+          "w": 300,
+          "h": 130,
+          "sublabel": "picks a node"
+        },
+        {
+          "id": "api",
+          "label": "API server",
+          "x": 640,
+          "y": 80,
+          "w": 340,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "podA",
+          "label": "new pod",
+          "x": 1120,
+          "y": 105,
+          "w": 340,
+          "h": 80,
+          "kind": "pod",
+          "sublabel": "node: none",
+          "tone": "warn"
+        },
+        {
+          "id": "podB",
+          "label": "new pod",
+          "x": 1120,
+          "y": 105,
+          "w": 340,
+          "h": 80,
+          "kind": "pod",
+          "sublabel": "node: node-2",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "n1",
+          "label": "node-1",
+          "x": 100,
+          "y": 380,
+          "w": 440,
+          "h": 360,
+          "kind": "group"
+        },
+        {
+          "id": "n2",
+          "label": "node-2",
+          "x": 580,
+          "y": 380,
+          "w": 440,
+          "h": 360,
+          "kind": "group"
+        },
+        {
+          "id": "n3",
+          "label": "node-3",
+          "x": 1060,
+          "y": 380,
+          "w": 440,
+          "h": 360,
+          "kind": "group"
+        },
+        {
+          "id": "k1",
+          "label": "kubelet",
+          "x": 150,
+          "y": 460,
+          "w": 340,
+          "h": 100
+        },
+        {
+          "id": "k2",
+          "label": "kubelet",
+          "x": 630,
+          "y": 460,
+          "w": 340,
+          "h": 100
+        },
+        {
+          "id": "k3",
+          "label": "kubelet",
+          "x": 1110,
+          "y": 460,
+          "w": 340,
+          "h": 100
+        },
+        {
+          "id": "c2",
+          "label": "golinks container",
+          "x": 650,
+          "y": 610,
+          "w": 300,
+          "h": 70,
+          "kind": "pod",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "find",
+          "from": "api",
+          "to": "sched",
+          "curve": 60,
+          "hidden": true
+        },
+        {
+          "id": "bind",
+          "from": "sched",
+          "to": "api",
+          "label": "node-2",
+          "curve": 60,
+          "hidden": true
+        },
+        {
+          "id": "give",
+          "from": "api",
+          "to": "k2",
+          "hidden": true,
+          "curve": -70
+        },
+        {
+          "id": "report",
+          "from": "k2",
+          "to": "api",
+          "label": "running",
+          "curve": -70,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "find"
+          ],
+          "flow": [
+            "find"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "bind",
+            "podB"
+          ],
+          "hide": [
+            "podA"
+          ],
+          "flow": [
+            "bind"
+          ],
+          "focus": [
+            "sched",
+            "bind",
+            "n1",
+            "n2",
+            "n3",
+            "k1",
+            "k2",
+            "k3"
+          ]
+        },
+        {
+          "at": 3,
+          "hide": [
+            "find",
+            "bind"
+          ],
+          "show": [
+            "give"
+          ],
+          "flow": [
+            "give"
+          ],
+          "focus": [
+            "k2",
+            "give"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "c2"
+          ],
+          "focus": [
+            "k2",
+            "c2"
+          ],
+          "flow": []
+        },
+        {
+          "at": 5,
+          "show": [
+            "report"
+          ],
+          "flow": [
+            "report"
+          ],
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "Two more pieces turn a spec into running containers."
+        },
+        {
+          "text": "A new pod starts out with no node, and the scheduler watches for pods like that."
+        },
+        {
+          "text": "It weighs free CPU and memory, plus any rules you've set, then picks a node."
+        },
+        {
+          "text": "The kubelet on that node sees that the pod is now its job."
+        },
+        {
+          "text": "It has the container runtime pull the image and start the containers."
+        },
+        {
+          "text": "Then it reports back, so the API server always knows what's really running.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "the-map",
+      "type": "diagram",
+      "title": "The whole picture",
+      "boxes": [
+        {
+          "id": "cp",
+          "label": "Control plane",
+          "x": 60,
+          "y": 60,
+          "w": 1480,
+          "h": 290,
+          "kind": "group",
+          "sublabel": "k3s server"
+        },
+        {
+          "id": "store",
+          "label": "Datastore",
+          "x": 90,
+          "y": 130,
+          "w": 290,
+          "h": 150,
+          "sublabel": "etcd or SQLite"
+        },
+        {
+          "id": "api",
+          "label": "API server",
+          "x": 450,
+          "y": 130,
+          "w": 290,
+          "h": 150,
+          "tone": "accent"
+        },
+        {
+          "id": "sched",
+          "label": "Scheduler",
+          "x": 810,
+          "y": 130,
+          "w": 290,
+          "h": 150
+        },
+        {
+          "id": "cm",
+          "label": "Controller manager",
+          "x": 1170,
+          "y": 130,
+          "w": 330,
+          "h": 150,
+          "sublabel": "built-in controllers"
+        },
+        {
+          "id": "w1",
+          "label": "node-1",
+          "x": 60,
+          "y": 420,
+          "w": 720,
+          "h": 360,
+          "kind": "group"
+        },
+        {
+          "id": "w2",
+          "label": "node-2",
+          "x": 820,
+          "y": 420,
+          "w": 720,
+          "h": 360,
+          "kind": "group"
+        },
+        {
+          "id": "kl1",
+          "label": "kubelet",
+          "x": 100,
+          "y": 490,
+          "w": 180,
+          "h": 110
+        },
+        {
+          "id": "rt1",
+          "label": "Runtime",
+          "x": 300,
+          "y": 490,
+          "w": 200,
+          "h": 110,
+          "sublabel": "containerd"
+        },
+        {
+          "id": "px1",
+          "label": "kube-proxy",
+          "x": 520,
+          "y": 490,
+          "w": 230,
+          "h": 110
+        },
+        {
+          "id": "kl2",
+          "label": "kubelet",
+          "x": 860,
+          "y": 490,
+          "w": 180,
+          "h": 110
+        },
+        {
+          "id": "rt2",
+          "label": "Runtime",
+          "x": 1060,
+          "y": 490,
+          "w": 200,
+          "h": 110,
+          "sublabel": "containerd"
+        },
+        {
+          "id": "px2",
+          "label": "kube-proxy",
+          "x": 1280,
+          "y": 490,
+          "w": 230,
+          "h": 110
+        },
+        {
+          "id": "q1",
+          "label": "golinks",
+          "x": 120,
+          "y": 650,
+          "w": 280,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "q2",
+          "label": "postgres",
+          "x": 440,
+          "y": 650,
+          "w": 280,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "q3",
+          "label": "golinks",
+          "x": 880,
+          "y": 650,
+          "w": 280,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "q4",
+          "label": "traefik",
+          "x": 1200,
+          "y": 650,
+          "w": 280,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        }
+      ],
+      "arrows": [
+        {
+          "id": "e1",
+          "from": "api",
+          "to": "store",
+          "hidden": true
+        },
+        {
+          "id": "e2",
+          "from": "sched",
+          "to": "api",
+          "hidden": true
+        },
+        {
+          "id": "e3",
+          "from": "cm",
+          "to": "api",
+          "curve": -200,
+          "hidden": true
+        },
+        {
+          "id": "e4",
+          "from": "kl1",
+          "to": "api",
+          "hidden": true
+        },
+        {
+          "id": "e5",
+          "from": "kl2",
+          "to": "api",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "focus": [
+            "cp",
+            "store",
+            "api",
+            "sched",
+            "cm"
+          ]
+        },
+        {
+          "at": 2,
+          "focus": [
+            "w1",
+            "w2",
+            "kl1",
+            "rt1",
+            "px1",
+            "kl2",
+            "rt2",
+            "px2",
+            "q1",
+            "q2",
+            "q3",
+            "q4"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "e1",
+            "e2",
+            "e3",
+            "e4",
+            "e5"
+          ],
+          "flow": [
+            "e1",
+            "e2",
+            "e3",
+            "e4",
+            "e5"
+          ],
+          "focus": [
+            "api",
+            "e1",
+            "e2",
+            "e3",
+            "e4",
+            "e5"
+          ]
+        },
+        {
+          "at": 4,
+          "flow": [],
+          "focus": [],
+          "tone": {
+            "cp": "accent"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "text": "Put it all together, and every cluster has the same shape."
+        },
+        {
+          "text": "The control plane is the brain: the API server, the datastore, the scheduler, and the controller manager."
+        },
+        {
+          "text": "The worker nodes do the work: each runs a kubelet, a container runtime, and kube-proxy for Service networking."
+        },
+        {
+          "text": "Everything talks through the API server, and only the API server talks to the datastore."
+        },
+        {
+          "text": "On k3s, the whole control plane ships as one small binary, and that's what this series runs on.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "The go links service",
+      "subtitle": "go/standup, and the cluster that runs it",
+      "lines": [
+        {
+          "text": "Across this series, we'll run one small service end to end: internal go links."
+        },
+        {
+          "text": "Type go/standup in your browser, and you land on the team's standup notes."
+        },
+        {
+          "text": "Next time: a map of k3s, and everything it ships in one binary.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,7 @@ src/
   Episode.tsx               renders an episode: scenes, narration audio, captions
   episodes/<id>/script.json the episode: scenes, narration lines, what appears when
   episodes/registry.ts      list of episode scripts
-  components/               TitleCard, TerminalCard, CodeCard, Captions, Card
+  components/               TitleCard, TerminalCard, CodeCard, DiagramCard, Captions, Card
   lib/timeline.ts           timing helpers and the silent estimate
   lib/files.ts              loads manifests/ as text for code cards
   timing.json               fps, size, speed, lead-in, gaps, tail, terminal typing and beats (shared with Python)
@@ -54,6 +54,15 @@ Chromium from npm and prints its path; pass it as `REMOTION_BROWSER`.
      shown, and each highlight has `at` and inclusive `lines`. Line numbers are
      the file's own, so re-check highlights when a manifest changes.
    - `title` scenes: `kicker`, `title`, `subtitle`.
+   - `diagram` scenes: `boxes` and `arrows` laid out on a 1600 by 800 canvas
+     (size in `src/timing.json`), then `steps`, each with `at` and any of
+     `show`, `hide`, `tone` (neutral, accent, good, bad, warn), `focus` (dims
+     everything else; `[]` clears it) and `flow` (a dot travels the arrows;
+     `[]` stops it). Box kinds: `component` (default), `group` (dashed, drawn
+     behind), `pod` (pill) and `note` (text only). Mark boxes and arrows that
+     appear later with `hidden: true`. Episode 0 has examples of each. Render
+     a few stills to check the layout before a full render; see
+     `scripts/smoke.mjs` for how.
 4. Add or change manifests in `manifests/base/` and list them in its
    `kustomization.yaml`.
 5. `npm run narrate -- <id>` writes `public/narration/<id>/` (only changed lines
