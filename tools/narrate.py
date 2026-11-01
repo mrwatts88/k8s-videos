@@ -54,8 +54,8 @@ class Synth:
             self._kokoro = Kokoro(str(MODEL), str(VOICES))
         return self._kokoro
 
-    def line(self, text: str, voice: str, speed: float, lang: str) -> tuple[np.ndarray, dict]:
-        spoken = self.lexicon.prepare(text)
+    def line(self, text: str, voice: str, speed: float, lang: str, senses: dict | None = None) -> tuple[np.ndarray, dict]:
+        spoken = self.lexicon.prepare(text, senses)
         key_src = json.dumps([MODEL_TAG, PIPELINE_VERSION, voice, speed, lang, spoken.pieces])
         key = hashlib.sha256(key_src.encode()).hexdigest()[:20]
         path = CACHE / f"{key}.wav"
@@ -92,7 +92,7 @@ def narrate(episode_id: str, synth: Synth, timing: dict) -> dict:
         clips_by_line.append([])
         metas.append([])
         for line in scene["lines"]:
-            audio, meta = synth.line(line.get("say", line["text"]), voice, speed, lang)
+            audio, meta = synth.line(line.get("say", line["text"]), voice, speed, lang, line.get("senses"))
             clips_by_line[-1].append(audio)
             metas[-1].append(meta)
     line_frames = [[frames(len(a) / SAMPLE_RATE, fps) for a in scene] for scene in clips_by_line]
