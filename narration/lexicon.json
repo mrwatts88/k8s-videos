@@ -1,0 +1,606 @@
+{
+  "_doc": "How technical terms are spoken. Applied to every narration line before Kokoro. Captions keep the original text. 'say' is a plain respelling; 'ipa' (optional) overrides with phonemes when a respelling is not enough. 'heard' lists what Whisper may write when the term is said right, used by the pronunciation check. Matching is case-sensitive unless 'ignoreCase' is true. Longer matches win. See AGENTS.md for why each choice was made.",
+  "terms": [
+    {
+      "match": "kubectl",
+      "say": "cube control",
+      "ignoreCase": true,
+      "heard": [
+        "cube control",
+        "kube control",
+        "kubectl"
+      ]
+    },
+    {
+      "match": "k3s",
+      "say": "K three S",
+      "ignoreCase": true,
+      "heard": [
+        "k three s",
+        "k3s",
+        "k 3 s",
+        "k3 s"
+      ]
+    },
+    {
+      "match": "K3s",
+      "say": "K three S",
+      "heard": [
+        "k three s",
+        "k3s",
+        "k 3 s",
+        "k3 s"
+      ]
+    },
+    {
+      "match": "k8s",
+      "say": "Kubernetes",
+      "ignoreCase": true,
+      "heard": [
+        "kubernetes"
+      ]
+    },
+    {
+      "match": "Kubernetes",
+      "say": "Kubernetes",
+      "heard": [
+        "kubernetes"
+      ]
+    },
+    {
+      "match": "etcd",
+      "say": "et see dee",
+      "heard": [
+        "etcd",
+        "et see dee",
+        "etc d",
+        "et cd",
+        "etsy d",
+        "etsy dee",
+        "at cd"
+      ]
+    },
+    {
+      "match": "YAML",
+      "say": "yammel",
+      "ignoreCase": true,
+      "heard": [
+        "yaml",
+        "yammel",
+        "yamel",
+        "yamle",
+        "yamal"
+      ]
+    },
+    {
+      "match": "kubelet",
+      "say": "cube let",
+      "ignoreCase": true,
+      "heard": [
+        "kubelet",
+        "cube let",
+        "kube let",
+        "cubelet",
+        "cubed let",
+        "q blet",
+        "q billet"
+      ]
+    },
+    {
+      "match": "kube-proxy",
+      "say": "cube proxy",
+      "heard": [
+        "cube proxy",
+        "kube proxy"
+      ]
+    },
+    {
+      "match": "kube-system",
+      "say": "cube system",
+      "heard": [
+        "cube system",
+        "kube system"
+      ]
+    },
+    {
+      "match": "CoreDNS",
+      "say": "core D N S",
+      "heard": [
+        "core dns",
+        "coredns",
+        "core d n s",
+        "core d and s"
+      ]
+    },
+    {
+      "match": "Traefik",
+      "say": "traffic",
+      "heard": [
+        "traffic",
+        "traefik"
+      ]
+    },
+    {
+      "match": "Keycloak",
+      "say": "key cloak",
+      "heard": [
+        "keycloak",
+        "key cloak",
+        "key cloke"
+      ]
+    },
+    {
+      "match": "JWTs",
+      "say": "J W Ts",
+      "heard": [
+        "jwts",
+        "j w ts",
+        "jwt s",
+        "j w t s"
+      ]
+    },
+    {
+      "match": "JWT",
+      "say": "J W T",
+      "heard": [
+        "jwt",
+        "j w t"
+      ]
+    },
+    {
+      "match": "JWKS",
+      "say": "J W K S",
+      "heard": [
+        "jwks",
+        "j w k s"
+      ]
+    },
+    {
+      "match": "OIDC",
+      "say": "O I D C",
+      "heard": [
+        "oidc",
+        "o i d c"
+      ]
+    },
+    {
+      "match": "OAuth",
+      "say": "oh auth",
+      "heard": [
+        "oauth",
+        "o auth",
+        "oh auth"
+      ]
+    },
+    {
+      "match": "PVCs",
+      "say": "P V Cs",
+      "heard": [
+        "pvcs",
+        "p v cs",
+        "pvc s"
+      ]
+    },
+    {
+      "match": "PVC",
+      "say": "P V C",
+      "heard": [
+        "pvc",
+        "p v c"
+      ]
+    },
+    {
+      "match": "PVs",
+      "say": "P Vees",
+      "heard": [
+        "pvs",
+        "p vs",
+        "pv's"
+      ]
+    },
+    {
+      "match": "PV",
+      "say": "P V",
+      "heard": [
+        "pv",
+        "p v"
+      ]
+    },
+    {
+      "match": "Argo CD",
+      "say": "Argo C D",
+      "heard": [
+        "argo cd",
+        "argocd",
+        "argo c d"
+      ]
+    },
+    {
+      "match": "Kustomize",
+      "say": "customize",
+      "heard": [
+        "customize",
+        "kustomize",
+        "customise"
+      ]
+    },
+    {
+      "match": "nginx",
+      "say": "engine X",
+      "ignoreCase": true,
+      "heard": [
+        "engine x",
+        "nginx",
+        "engine ex"
+      ]
+    },
+    {
+      "match": "cert-manager",
+      "say": "cert manager",
+      "heard": [
+        "cert manager",
+        "cert-manager",
+        "search manager"
+      ]
+    },
+    {
+      "match": "ServiceLB",
+      "say": "service L B",
+      "heard": [
+        "service lb",
+        "servicelb",
+        "service l b"
+      ]
+    },
+    {
+      "match": "Flannel",
+      "say": "Flannel",
+      "heard": [
+        "flannel"
+      ]
+    },
+    {
+      "match": "Postgres",
+      "say": "post gress",
+      "ignoreCase": true,
+      "heard": [
+        "postgres",
+        "post gress",
+        "post grass",
+        "postgress",
+        "post grace"
+      ]
+    },
+    {
+      "match": "PostgreSQL",
+      "say": "post gress Q L",
+      "heard": [
+        "postgresql",
+        "post gress ql",
+        "postgres ql",
+        "postgres q l"
+      ]
+    },
+    {
+      "match": "psql",
+      "say": "P S Q L",
+      "heard": [
+        "psql",
+        "p s q l",
+        "p sql"
+      ]
+    },
+    {
+      "match": "SQLite",
+      "say": "S Q lite",
+      "heard": [
+        "sqlite",
+        "s q lite",
+        "sq lite",
+        "sql lite",
+        "sequel lite"
+      ]
+    },
+    {
+      "match": "RBAC",
+      "say": "are back",
+      "heard": [
+        "rbac",
+        "r back",
+        "are back",
+        "our back"
+      ]
+    },
+    {
+      "match": "CNI",
+      "say": "C N I",
+      "heard": [
+        "cni",
+        "c n i"
+      ]
+    },
+    {
+      "match": "TLS",
+      "say": "T L S",
+      "heard": [
+        "tls",
+        "t l s"
+      ]
+    },
+    {
+      "match": "DNS",
+      "say": "D N S",
+      "heard": [
+        "dns",
+        "d n s"
+      ]
+    },
+    {
+      "match": "CA",
+      "say": "C A",
+      "heard": [
+        "ca",
+        "c a",
+        "see it",
+        "see a"
+      ]
+    },
+    {
+      "match": "URI",
+      "say": "U R I",
+      "heard": [
+        "uri",
+        "u r i"
+      ]
+    },
+    {
+      "match": "URL",
+      "say": "U R L",
+      "heard": [
+        "url",
+        "u r l"
+      ]
+    },
+    {
+      "match": "API",
+      "say": "A P I",
+      "heard": [
+        "api",
+        "a p i"
+      ],
+      "ipa": "ˈeɪpˌiːˈaɪ"
+    },
+    {
+      "match": "APIs",
+      "say": "A P Is",
+      "heard": [
+        "apis",
+        "a p is",
+        "api s",
+        "api"
+      ],
+      "ipa": "ˈeɪpˌiːˈaɪz"
+    },
+    {
+      "match": "HTTPS",
+      "say": "H T T P S",
+      "heard": [
+        "https",
+        "h t t p s"
+      ]
+    },
+    {
+      "match": "HTTP",
+      "say": "H T T P",
+      "heard": [
+        "http",
+        "h t t p"
+      ]
+    },
+    {
+      "match": "ConfigMap",
+      "say": "config map",
+      "heard": [
+        "configmap",
+        "config map"
+      ]
+    },
+    {
+      "match": "ConfigMaps",
+      "say": "config maps",
+      "heard": [
+        "configmaps",
+        "config maps"
+      ]
+    },
+    {
+      "match": "StatefulSet",
+      "say": "stateful set",
+      "heard": [
+        "statefulset",
+        "stateful set"
+      ]
+    },
+    {
+      "match": "StatefulSets",
+      "say": "stateful sets",
+      "heard": [
+        "statefulsets",
+        "stateful sets"
+      ]
+    },
+    {
+      "match": "ReplicaSet",
+      "say": "replica set",
+      "heard": [
+        "replicaset",
+        "replica set"
+      ]
+    },
+    {
+      "match": "ReplicaSets",
+      "say": "replica sets",
+      "heard": [
+        "replicasets",
+        "replica sets"
+      ]
+    },
+    {
+      "match": "EndpointSlice",
+      "say": "endpoint slice",
+      "heard": [
+        "endpointslice",
+        "endpoint slice",
+        "and point slice"
+      ]
+    },
+    {
+      "match": "EndpointSlices",
+      "say": "endpoint slices",
+      "heard": [
+        "endpointslices",
+        "endpoint slices",
+        "and point slices"
+      ]
+    },
+    {
+      "match": "ClusterIP",
+      "say": "cluster I P",
+      "heard": [
+        "clusterip",
+        "cluster ip",
+        "cluster i p"
+      ]
+    },
+    {
+      "match": "ClusterIssuer",
+      "say": "cluster issuer",
+      "heard": [
+        "clusterissuer",
+        "cluster issuer"
+      ]
+    },
+    {
+      "match": "Istio",
+      "say": "iss-tee-oh",
+      "heard": [
+        "istio",
+        "is tio",
+        "iss tee oh",
+        "istio's"
+      ]
+    },
+    {
+      "match": "healthz",
+      "say": "health Z",
+      "heard": [
+        "healthz",
+        "health z",
+        "health zee",
+        "healthc",
+        "health c",
+        "health easy"
+      ]
+    },
+    {
+      "match": "readyz",
+      "say": "ready Z",
+      "heard": [
+        "readyz",
+        "ready z",
+        "ready zee",
+        "ready c",
+        "red easy",
+        "red e z"
+      ]
+    },
+    {
+      "match": "302",
+      "say": "three oh two",
+      "heard": [
+        "302",
+        "three oh two",
+        "3 o 2",
+        "three o two"
+      ]
+    },
+    {
+      "match": "401",
+      "say": "four oh one",
+      "heard": [
+        "401",
+        "four oh one",
+        "4 o 1",
+        "four o one"
+      ]
+    },
+    {
+      "match": "403",
+      "say": "four oh three",
+      "heard": [
+        "403",
+        "four oh three",
+        "4 o 3",
+        "four o three"
+      ]
+    },
+    {
+      "match": "404",
+      "say": "four oh four",
+      "heard": [
+        "404",
+        "four oh four",
+        "4 o 4",
+        "four o four"
+      ]
+    },
+    {
+      "match": "201",
+      "say": "two oh one",
+      "heard": [
+        "201",
+        "two oh one",
+        "2 o 1",
+        "two o one"
+      ]
+    },
+    {
+      "match": "200",
+      "say": "two hundred",
+      "heard": [
+        "200",
+        "two hundred"
+      ]
+    },
+    {
+      "match": "go.corp.internal",
+      "say": "go dot corp dot internal",
+      "heard": [
+        "go dot corp dot internal",
+        "go.corp.internal",
+        "go corp internal"
+      ]
+    },
+    {
+      "match": "sso.corp.internal",
+      "say": "S S O dot corp dot internal",
+      "heard": [
+        "sso dot corp dot internal",
+        "sso.corp.internal",
+        "s s o dot corp dot internal"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "_doc": "go links like go/standup are said 'go slash standup'.",
+      "pattern": "\\bgo/([a-z0-9-]+)",
+      "replace": "go slash $1"
+    },
+    {
+      "_doc": "Any remaining slash before a word, as in a path: /api/links is 'slash API slash links'.",
+      "pattern": "/(?=\\w)",
+      "replace": " slash "
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golinks
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: golinks
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: golinks
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: golinks
+    spec:
+      containers:
+        - name: golinks
+          image: registry.corp.internal/platform/golinks:0.1.0
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: golinks-config
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
