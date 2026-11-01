@@ -1,0 +1,13 @@
+# The base every later overlay builds on (Episode 9). Episodes add files here
+# as they introduce them.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - golinks-configmap.yaml
+  - postgres-secret.yaml
+  - postgres-service.yaml
+  - postgres-statefulset.yaml
+  - golinks-deployment.yaml
+  - golinks-service.yaml
+  - golinks-ingress.yaml

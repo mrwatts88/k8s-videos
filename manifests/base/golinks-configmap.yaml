@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: golinks-config
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: golinks
+data:
+  DATABASE_HOST: postgres-0.postgres.golinks.svc.cluster.local
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: golinks
+  DATABASE_USER: golinks
+  LOG_LEVEL: info
+  # Used from Episode 7 on: where tokens come from and who they are for.
+  OIDC_ISSUER_URL: https://sso.corp.internal/realms/corp
+  OIDC_AUDIENCE: golinks

@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, scripts, manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Episode scripts and lexicon
+        run: npm run check:scripts
+      - name: Pronunciation rules (unit tests)
+        run: python3 tools/test_pronounce.py
+      - name: Install kubeconform and kubectl
+        run: bash scripts/install-k8s-tools.sh
+      - name: Validate manifests
+        run: npm run check:manifests
+
+  smoke:
+    name: Smoke render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Remotion's headless browser
+        run: npx remotion browser ensure
+      - name: Render stills and a 1 second clip of every episode
+        run: npm run smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-render
+          path: out/smoke
+          if-no-files-found: ignore
+          retention-days: 7

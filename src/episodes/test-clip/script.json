@@ -1,0 +1,68 @@
+{
+  "id": "test-clip",
+  "number": null,
+  "title": "Pipeline test",
+  "voice": "af_heart",
+  "speed": 1.0,
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "k3s · go links",
+      "title": "Pipeline test",
+      "subtitle": "Terminal card, code card, narration and captions",
+      "lines": [
+        { "text": "This is a short test of the video pipeline for the go links series on k3s." }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/base",
+          "output": [
+            "namespace/golinks created",
+            "configmap/golinks-config created",
+            "secret/postgres-credentials created",
+            "service/golinks created",
+            "service/postgres created",
+            "deployment.apps/golinks created",
+            "statefulset.apps/postgres created",
+            "ingress.networking.k8s.io/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7d9c6b8f5d-4xkqp   1/1     Running   0          42s",
+            "golinks-7d9c6b8f5d-p2m8w   1/1     Running   0          42s",
+            "postgres-0                 1/1     Running   0          42s"
+          ]
+        }
+      ],
+      "lines": [
+        { "text": "First, we apply the base manifests with kubectl." },
+        { "text": "Then we check that both API pods and the database are running." }
+      ]
+    },
+    {
+      "id": "deployment",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [1, 48],
+      "highlights": [
+        { "at": 0, "lines": [9, 9] },
+        { "at": 1, "lines": [38, 42] }
+      ],
+      "lines": [
+        { "text": "Here is the Deployment that asked for those two replicas." },
+        { "text": "Its readiness probe calls /readyz, so traffic only reaches pods that can talk to Postgres." }
+      ]
+    }
+  ]
+}

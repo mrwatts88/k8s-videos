@@ -1,0 +1,17 @@
+# Headless (clusterIP: None): DNS returns each pod's own address, so
+# postgres-0.postgres.golinks.svc.cluster.local always means the same pod.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

@@ -1,0 +1,10 @@
+{
+  "_doc": "Shared by tools/narrate.py and src/lib/timeline.ts. Seconds are snapped to whole frames.",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "sceneLeadInSec": 0.5,
+  "lineGapSec": 0.35,
+  "sceneTailSec": 0.8,
+  "estimateWordsPerSec": 2.6
+}

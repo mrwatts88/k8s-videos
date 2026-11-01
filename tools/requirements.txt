@@ -1,0 +1,6 @@
+# Narration (Kokoro TTS) and the pronunciation check (Whisper via sherpa-onnx). CPU only.
+kokoro-onnx==0.6.1
+onnxruntime==1.31.1
+soundfile==0.14.0
+numpy==2.5.4
+sherpa-onnx==2.0.1
