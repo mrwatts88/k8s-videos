@@ -8,7 +8,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | --- | --- | --- | --- | --- |
 | – | Pipeline test clip | `test-clip` | rendered | 29 s at the slower pacing; proves narration, captions, terminal and code cards |
 | 0 | What Kubernetes actually is | `ep00-what-is-kubernetes` | rendered | About 4 min; 10 scenes, 6 of them diagrams; pronunciation check clean |
-| 1 | The map: k3s and what it ships | `ep01-k3s-map` | planned | `namespace.yaml` exists |
+| 1 | The map: k3s and what it ships | `ep01-k3s-map` | rendered | About 4 min 45 s; 11 scenes, 3 of them diagrams; pronunciation check clean apart from "a hundred" written as "100" |
 | 2 | Running the API: Deployment | `ep02-deployment` | planned | `golinks-deployment.yaml` exists |
 | 3 | Configuration: ConfigMap and Secret | `ep03-config` | planned | Manifests exist |
 | 4 | The database: Postgres StatefulSet | `ep04-postgres` | planned | Manifests exist |

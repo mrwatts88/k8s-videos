@@ -1,0 +1,900 @@
+{
+  "id": "ep01-k3s-map",
+  "number": 1,
+  "title": "The map: k3s and what it ships",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 1",
+      "title": "The map",
+      "subtitle": "k3s, and what it ships in one binary",
+      "lines": [
+        {
+          "text": "Last time we covered the big idea; now let's look at the cluster this series actually runs on."
+        },
+        {
+          "text": "It's k3s: a complete, certified Kubernetes, packed into a single binary of under a hundred megabytes.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "one-binary",
+      "type": "diagram",
+      "title": "One binary",
+      "boxes": [
+        {
+          "id": "srv",
+          "label": "k3s server",
+          "x": 60,
+          "y": 70,
+          "w": 700,
+          "h": 620,
+          "kind": "group",
+          "sublabel": "k3s-server-1",
+          "tone": "accent"
+        },
+        {
+          "id": "api",
+          "label": "API server",
+          "x": 420,
+          "y": 150,
+          "w": 300,
+          "h": 270
+        },
+        {
+          "id": "sched",
+          "label": "Scheduler",
+          "x": 100,
+          "y": 150,
+          "w": 300,
+          "h": 80
+        },
+        {
+          "id": "cm",
+          "label": "Controller manager",
+          "x": 100,
+          "y": 245,
+          "w": 300,
+          "h": 80
+        },
+        {
+          "id": "db",
+          "label": "Datastore",
+          "x": 100,
+          "y": 340,
+          "w": 300,
+          "h": 80,
+          "sublabel": "SQLite"
+        },
+        {
+          "id": "kl",
+          "label": "kubelet",
+          "x": 100,
+          "y": 450,
+          "w": 190,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "rt",
+          "label": "containerd",
+          "x": 310,
+          "y": 450,
+          "w": 200,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "fl",
+          "label": "Flannel",
+          "x": 530,
+          "y": 450,
+          "w": 190,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "srvpods",
+          "label": "your pods can run here too",
+          "x": 100,
+          "y": 580,
+          "w": 620,
+          "h": 60,
+          "kind": "note",
+          "hidden": true
+        },
+        {
+          "id": "a1",
+          "label": "k3s agent",
+          "x": 860,
+          "y": 70,
+          "w": 680,
+          "h": 280,
+          "kind": "group",
+          "sublabel": "k3s-agent-1",
+          "hidden": true
+        },
+        {
+          "id": "a1kl",
+          "label": "kubelet",
+          "x": 900,
+          "y": 170,
+          "w": 190,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "a1rt",
+          "label": "containerd",
+          "x": 1110,
+          "y": 170,
+          "w": 200,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "a1fl",
+          "label": "Flannel",
+          "x": 1330,
+          "y": 170,
+          "w": 170,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "label": "k3s agent",
+          "x": 860,
+          "y": 410,
+          "w": 680,
+          "h": 280,
+          "kind": "group",
+          "sublabel": "k3s-agent-2",
+          "hidden": true
+        },
+        {
+          "id": "a2kl",
+          "label": "kubelet",
+          "x": 900,
+          "y": 510,
+          "w": 190,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "a2rt",
+          "label": "containerd",
+          "x": 1110,
+          "y": 510,
+          "w": 200,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "a2fl",
+          "label": "Flannel",
+          "x": 1330,
+          "y": 510,
+          "w": 170,
+          "h": 100,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "j1",
+          "from": "a1kl",
+          "to": "api",
+          "label": "join",
+          "hidden": true
+        },
+        {
+          "id": "j2",
+          "from": "a2kl",
+          "to": "api",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "srv",
+            "api",
+            "sched",
+            "cm",
+            "db"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "kl",
+            "rt",
+            "fl",
+            "srvpods"
+          ],
+          "focus": [
+            "kl",
+            "rt",
+            "fl",
+            "srvpods"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "a1",
+            "a1kl",
+            "a1rt",
+            "a1fl",
+            "a2",
+            "a2kl",
+            "a2rt",
+            "a2fl",
+            "j1",
+            "j2"
+          ],
+          "flow": [
+            "j1",
+            "j2"
+          ],
+          "focus": []
+        },
+        {
+          "at": 3,
+          "flow": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "On a server node, one k3s process runs the whole control plane: the API server, scheduler, controller manager and datastore."
+        },
+        {
+          "text": "It also runs the node pieces, the kubelet, containerd and Flannel, so the server can run your pods too."
+        },
+        {
+          "text": "Agent nodes run a smaller k3s process with just the node pieces, and join the cluster by pointing at the server."
+        },
+        {
+          "text": "For this series, picture one server and two agents, on machines in your own rack, not in a cloud."
+        },
+        {
+          "text": "One server is fine for learning; for high availability you'd run three servers that share an embedded etcd.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "install",
+      "type": "terminal",
+      "title": "admin@k3s-server-1",
+      "steps": [
+        {
+          "at": 1,
+          "command": "curl -sfL https://get.k3s.io | sh -",
+          "output": [
+            "[INFO]  Finding release for channel stable",
+            "[INFO]  Using v1.33.5+k3s1 as release",
+            "[INFO]  Installing k3s to /usr/local/bin/k3s",
+            "[INFO]  systemd: Enabling k3s unit",
+            "[INFO]  systemd: Starting k3s"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "sudo cat /var/lib/rancher/k3s/server/node-token",
+          "output": [
+            "K10f3c9a1e7b2::server:8d41c07a6be95f2e"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Installing a server takes one command."
+        },
+        {
+          "text": "The install script downloads the binary and starts k3s as a system service."
+        },
+        {
+          "text": "The server also writes a join token, a shared secret that agents need before they're allowed in."
+        },
+        {
+          "text": "Treat it like a password, because anyone holding it can add a node to your cluster.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "type": "terminal",
+      "title": "admin@k3s-agent-1",
+      "steps": [
+        {
+          "at": 0,
+          "command": "export K3S_URL=https://k3s-server-1:6443",
+          "output": []
+        },
+        {
+          "at": 1,
+          "command": "export K3S_TOKEN=K10f3c9a1e7b2::server:8d41c07a6be95f2e",
+          "output": []
+        },
+        {
+          "at": 2,
+          "command": "curl -sfL https://get.k3s.io | sh -",
+          "output": [
+            "[INFO]  Using v1.33.5+k3s1 as release",
+            "[INFO]  Installing k3s to /usr/local/bin/k3s",
+            "[INFO]  systemd: Enabling k3s-agent unit",
+            "[INFO]  systemd: Starting k3s-agent"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "On each agent, set the server's address, on port 6443, where the API server listens."
+        },
+        {
+          "text": "Then set the token you just copied."
+        },
+        {
+          "text": "Run the same installer, and because those two settings are present, it installs an agent instead.",
+          "senses": {
+            "present": "adjective"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nodes",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "ssh k3s-server-1 sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/config",
+          "output": []
+        },
+        {
+          "at": 1,
+          "command": "sed -i 's/127.0.0.1/k3s-server-1/' ~/.kube/config",
+          "output": []
+        },
+        {
+          "at": 2,
+          "command": "kubectl get nodes",
+          "output": [
+            "NAME           STATUS   ROLES                  AGE   VERSION",
+            "k3s-server-1   Ready    control-plane,master   12d   v1.33.5+k3s1",
+            "k3s-agent-1    Ready    <none>                 12d   v1.33.5+k3s1",
+            "k3s-agent-2    Ready    <none>                 12d   v1.33.5+k3s1"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Back on your laptop, copy the kubeconfig file that k3s wrote on the server."
+        },
+        {
+          "text": "It points at the server's own loopback address, so swap in the server's name."
+        },
+        {
+          "text": "Now kubectl can talk to the API server, and the first thing to check is the nodes."
+        },
+        {
+          "text": "Three nodes, all Ready: the server has the control plane role, and the agents have none.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "add-ons",
+      "type": "diagram",
+      "title": "Batteries included",
+      "boxes": [
+        {
+          "id": "k3s",
+          "label": "k3s",
+          "x": 650,
+          "y": 330,
+          "w": 300,
+          "h": 120,
+          "tone": "accent",
+          "sublabel": "one binary"
+        },
+        {
+          "id": "flannel",
+          "label": "Flannel",
+          "x": 80,
+          "y": 80,
+          "w": 380,
+          "h": 130,
+          "sublabel": "pod network",
+          "hidden": true
+        },
+        {
+          "id": "coredns",
+          "label": "CoreDNS",
+          "x": 610,
+          "y": 80,
+          "w": 380,
+          "h": 130,
+          "sublabel": "names to addresses",
+          "hidden": true
+        },
+        {
+          "id": "traefik",
+          "label": "Traefik",
+          "x": 1140,
+          "y": 80,
+          "w": 380,
+          "h": 130,
+          "sublabel": "ingress controller",
+          "hidden": true
+        },
+        {
+          "id": "svclb",
+          "label": "ServiceLB",
+          "x": 240,
+          "y": 580,
+          "w": 380,
+          "h": 130,
+          "sublabel": "load balancer IPs",
+          "hidden": true
+        },
+        {
+          "id": "lp",
+          "label": "local-path",
+          "x": 980,
+          "y": 580,
+          "w": 380,
+          "h": 130,
+          "sublabel": "volumes on node disks",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "e1",
+          "from": "k3s",
+          "to": "flannel",
+          "hidden": true
+        },
+        {
+          "id": "e2",
+          "from": "k3s",
+          "to": "coredns",
+          "hidden": true
+        },
+        {
+          "id": "e3",
+          "from": "k3s",
+          "to": "traefik",
+          "hidden": true
+        },
+        {
+          "id": "e4",
+          "from": "k3s",
+          "to": "svclb",
+          "hidden": true
+        },
+        {
+          "id": "e5",
+          "from": "k3s",
+          "to": "lp",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "flannel",
+            "e1"
+          ],
+          "focus": [
+            "flannel",
+            "e1",
+            "k3s"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "coredns",
+            "e2"
+          ],
+          "focus": [
+            "coredns",
+            "e2",
+            "k3s"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "traefik",
+            "e3"
+          ],
+          "focus": [
+            "traefik",
+            "e3",
+            "k3s"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "svclb",
+            "e4"
+          ],
+          "focus": [
+            "svclb",
+            "e4",
+            "k3s"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "lp",
+            "e5"
+          ],
+          "focus": [
+            "lp",
+            "e5",
+            "k3s"
+          ]
+        },
+        {
+          "at": 6,
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "k3s also ships the add-ons a cluster needs on day one, so it works out of the box."
+        },
+        {
+          "text": "Flannel gives every pod its own IP address, and lets pods on different nodes reach each other."
+        },
+        {
+          "text": "CoreDNS lets pods find services by name, so the API can ask for Postgres instead of an IP address."
+        },
+        {
+          "text": "Traefik is the ingress controller: it takes HTTP traffic from outside and routes it to the right service."
+        },
+        {
+          "text": "ServiceLB gives load balancer services an address on your own nodes, since on-prem there's no cloud to hand one out."
+        },
+        {
+          "text": "And local-path storage carves volumes out of a node's disk, which is where our database will keep its data."
+        },
+        {
+          "text": "Each one gets a closer look later; for now, just know they're there.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "kube-system",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get pods -n kube-system",
+          "output": [
+            "NAME                                      READY   STATUS      RESTARTS   AGE",
+            "coredns-697968c856-7wqxk                  1/1     Running     0          12d",
+            "helm-install-traefik-crd-6kx8q            0/1     Completed   0          12d",
+            "helm-install-traefik-tq2fm                0/1     Completed   1          12d",
+            "local-path-provisioner-774c6665dc-m4tzl   1/1     Running     0          12d",
+            "metrics-server-6f4c6675d5-9pjbh           1/1     Running     0          12d",
+            "svclb-traefik-2b4e1c7a-6hx2r              2/2     Running     0          12d",
+            "svclb-traefik-2b4e1c7a-qw8lm              2/2     Running     0          12d",
+            "svclb-traefik-2b4e1c7a-zk5vn              2/2     Running     0          12d",
+            "traefik-c98fdf6fb-kq7xn                   1/1     Running     0          12d"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Most of those add-ons run as ordinary pods, in a namespace called kube-system."
+        },
+        {
+          "text": "The two helm install pods are one-off jobs that set up Traefik, so Completed is exactly what you want to see."
+        },
+        {
+          "text": "There's one svclb pod per node: that's ServiceLB, holding Traefik's ports open on every machine."
+        },
+        {
+          "text": "Notice what's missing: no API server, no scheduler and no Flannel, because those live inside the k3s process itself.",
+          "senses": {
+            "live": "verb"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "namespaces",
+      "type": "diagram",
+      "title": "Namespaces",
+      "boxes": [
+        {
+          "id": "ks",
+          "label": "kube-system",
+          "x": 60,
+          "y": 90,
+          "w": 460,
+          "h": 560,
+          "kind": "group",
+          "sublabel": "add-ons"
+        },
+        {
+          "id": "ks1",
+          "label": "coredns",
+          "x": 110,
+          "y": 190,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "ks2",
+          "label": "traefik",
+          "x": 110,
+          "y": 280,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "ks3",
+          "label": "local-path-provisioner",
+          "x": 110,
+          "y": 370,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "ks4",
+          "label": "metrics-server",
+          "x": 110,
+          "y": 460,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "tone": "good"
+        },
+        {
+          "id": "df",
+          "label": "default",
+          "x": 570,
+          "y": 90,
+          "w": 460,
+          "h": 560,
+          "kind": "group",
+          "sublabel": "the fallback"
+        },
+        {
+          "id": "dfn",
+          "label": "empty",
+          "x": 570,
+          "y": 330,
+          "w": 460,
+          "h": 60,
+          "kind": "note"
+        },
+        {
+          "id": "gl",
+          "label": "golinks",
+          "x": 1080,
+          "y": 90,
+          "w": 460,
+          "h": 560,
+          "kind": "group",
+          "sublabel": "our app",
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "gl1",
+          "label": "golinks API",
+          "x": 1130,
+          "y": 190,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "hidden": true
+        },
+        {
+          "id": "gl2",
+          "label": "postgres",
+          "x": 1130,
+          "y": 280,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "hidden": true
+        },
+        {
+          "id": "gl3",
+          "label": "config, secrets, services",
+          "x": 1130,
+          "y": 370,
+          "w": 360,
+          "h": 64,
+          "kind": "pod",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "focus": [
+            "ks",
+            "ks1",
+            "ks2",
+            "ks3",
+            "ks4"
+          ]
+        },
+        {
+          "at": 2,
+          "focus": [
+            "df",
+            "dfn"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "gl"
+          ],
+          "focus": [
+            "gl"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "gl1",
+            "gl2",
+            "gl3"
+          ],
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "Pods and the other objects in a cluster are grouped into namespaces, which work a lot like folders."
+        },
+        {
+          "text": "kube-system holds the cluster's own add-ons."
+        },
+        {
+          "text": "default is where things land when you don't name a namespace."
+        },
+        {
+          "text": "Our go links service gets a namespace of its own, called golinks."
+        },
+        {
+          "text": "Everything for it will live there: the API, the database, its config and its services.",
+          "senses": {
+            "live": "verb"
+          }
+        },
+        {
+          "text": "Namespaces also scope names and permissions, which later episodes lean on.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "namespace-yaml",
+      "type": "code",
+      "file": "manifests/base/namespace.yaml",
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            1,
+            2
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            5,
+            6
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the manifest: a Namespace, the simplest object there is.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "The one field it needs is a name: golinks."
+        },
+        {
+          "text": "The label marks it as part of the go links app, a convention we'll keep on everything we create.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/namespace.yaml",
+          "output": [
+            "namespace/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get namespaces",
+          "output": [
+            "NAME              STATUS   AGE",
+            "default           Active   12d",
+            "golinks           Active   3s",
+            "kube-node-lease   Active   12d",
+            "kube-public       Active   12d",
+            "kube-system       Active   12d"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply it, and the namespace exists."
+        },
+        {
+          "text": "List the namespaces, and golinks sits next to the built-in ones."
+        },
+        {
+          "text": "kube-public and kube-node-lease are two more that come with every cluster; you'll rarely touch them.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 2: Running the API",
+      "subtitle": "A Deployment, its ReplicaSet, and its pods",
+      "lines": [
+        {
+          "text": "That's the map: one binary, a handful of add-ons, and a namespace ready for our app."
+        },
+        {
+          "text": "Next time, we put the go links API in it with a Deployment.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
