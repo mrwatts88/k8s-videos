@@ -6,6 +6,8 @@ export type NarrationLine = {
   text: string;
   /** Optional spoken override when the caption should not be read literally. */
   say?: string;
+  /** Extra seconds of silence after this line, on top of the usual gap. */
+  pauseAfter?: number;
 };
 
 type SceneBase = {

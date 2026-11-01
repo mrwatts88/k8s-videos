@@ -18,8 +18,8 @@ src/
   components/               TitleCard, TerminalCard, CodeCard, Captions, Card
   lib/timeline.ts           timing helpers and the silent estimate
   lib/files.ts              loads manifests/ as text for code cards
-  timing.json               fps, size, lead-in, gap and tail between lines (shared with Python)
-tools/                      Python: narration (Kokoro) and the pronunciation check (Whisper)
+  timing.json               fps, size, speed, lead-in, gaps, tail, terminal typing and beats (shared with Python)
+tools/                      Python: narration (Kokoro), the timeline layout mirror (layout.py) and the pronunciation check (Whisper)
 scripts/                    Node and shell: checks, smoke render, render, tool installs
 public/narration/<id>/      generated narration.wav and timings.json (gitignored)
 ```
@@ -61,6 +61,18 @@ Chromium from npm and prints its path; pass it as `REMOTION_BROWSER`.
 6. `npm run check:narration -- <id>` and fix anything flagged (see below).
 7. `npm run studio` to preview, `npm run render -- <id>` for `out/<id>.mp4`.
 8. Update `STATUS.md`.
+
+## Pacing
+
+All pacing lives in `src/timing.json`: the default speech speed, the lead-in,
+the gap between lines and the tail of each scene, and how terminal cards type
+(characters per second, the beat with the cursor on the command line before
+output, the time the output stays on screen before the next line starts).
+Slow a single moment down with `"pauseAfter": <seconds>` on a narration line.
+
+The layout is computed twice, in `src/lib/timeline.ts` for the video and in
+`tools/layout.py` for the narration track. Change both together;
+`npm run check:timing` fails if they disagree.
 
 Without narration, compositions fall back to a silent estimate of the timing,
 which is what the CI smoke render uses.
@@ -130,6 +142,7 @@ the phonemes are wrong, change `say` or add `ipa`.
 | `npm run typecheck` | TypeScript | yes |
 | `npm run lint` | ESLint (Remotion config) | yes |
 | `npm run check:scripts` | every narration line sits in a scene; `at` indexes, code files and line ranges are valid; episodes are registered; lexicon is well formed | yes |
+| `npm run check:timing` | `src/lib/timeline.ts` and `tools/layout.py` lay out every script identically | yes |
 | `python3 tools/test_pronounce.py` | lexicon rewriting rules | yes |
 | `npm run check:manifests` | kubeconform (strict, Kubernetes 1.33) on every manifest, and `kubectl kustomize` on every kustomization | yes |
 | `npm run smoke` | renders a still from every scene and a 1 second MP4 of every episode | yes |

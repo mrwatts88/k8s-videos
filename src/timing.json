@@ -3,8 +3,18 @@
   "fps": 30,
   "width": 1920,
   "height": 1080,
-  "sceneLeadInSec": 0.5,
-  "lineGapSec": 0.35,
-  "sceneTailSec": 0.8,
-  "estimateWordsPerSec": 2.6
+  "defaultSpeed": 0.92,
+  "sceneLeadInSec": 0.6,
+  "lineGapSec": 0.5,
+  "sceneTailSec": 1.2,
+  "estimateWordsPerSec": 2.4,
+  "terminal": {
+    "_doc": "A command starts typing typeDelaySec after its narration line starts, types at typeCharsPerSec (at most maxTypeSec), waits outputBeatSec, then prints. The next line waits until the output has been on screen for outputReadSec.",
+    "typeDelaySec": 0.3,
+    "typeCharsPerSec": 18,
+    "maxTypeSec": 2.5,
+    "outputBeatSec": 0.7,
+    "outputStaggerSec": 0.07,
+    "outputReadSec": 1.4
+  }
 }

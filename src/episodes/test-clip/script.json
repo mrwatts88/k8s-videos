@@ -3,7 +3,6 @@
   "number": null,
   "title": "Pipeline test",
   "voice": "af_heart",
-  "speed": 1.0,
   "scenes": [
     {
       "id": "title",
@@ -12,7 +11,9 @@
       "title": "Pipeline test",
       "subtitle": "Terminal card, code card, narration and captions",
       "lines": [
-        { "text": "This is a short test of the video pipeline for the go links series on k3s." }
+        {
+          "text": "This is a short test of the video pipeline for the go links series on k3s."
+        }
       ]
     },
     {
@@ -46,22 +47,45 @@
         }
       ],
       "lines": [
-        { "text": "First, we apply the base manifests with kubectl." },
-        { "text": "Then we check that both API pods and the database are running." }
+        {
+          "text": "First, we apply the base manifests with kubectl."
+        },
+        {
+          "text": "Then we check that both API pods and the database are running."
+        }
       ]
     },
     {
       "id": "deployment",
       "type": "code",
       "file": "manifests/base/golinks-deployment.yaml",
-      "range": [1, 48],
+      "range": [
+        1,
+        62
+      ],
       "highlights": [
-        { "at": 0, "lines": [9, 9] },
-        { "at": 1, "lines": [38, 42] }
+        {
+          "at": 0,
+          "lines": [
+            9,
+            9
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            49,
+            56
+          ]
+        }
       ],
       "lines": [
-        { "text": "Here is the Deployment that asked for those two replicas." },
-        { "text": "Its readiness probe calls /readyz, so traffic only reaches pods that can talk to Postgres." }
+        {
+          "text": "Here is the Deployment that asked for those two replicas."
+        },
+        {
+          "text": "Its readiness probe calls /readyz, so traffic only reaches pods that can talk to Postgres."
+        }
       ]
     }
   ]

@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import sys
 import time
 from pathlib import Path
@@ -25,6 +24,7 @@ import numpy as np
 import soundfile as sf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import frames, layout  # noqa: E402
 from pronounce import Lexicon  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -37,10 +37,6 @@ MODEL_TAG = "kokoro-v1.0"
 # Bump when the way text becomes audio changes, so cached clips are rebuilt.
 PIPELINE_VERSION = 2
 SAMPLE_RATE = 24000
-
-
-def frames(seconds: float, fps: int) -> int:
-    return int(math.ceil(seconds * fps - 1e-9))
 
 
 class Synth:
@@ -84,44 +80,37 @@ def narrate(episode_id: str, synth: Synth, timing: dict) -> dict:
     script = json.loads(script_path.read_text())
     fps = timing["fps"]
     voice = script.get("voice", "af_heart")
-    speed = float(script.get("speed", 1.0))
+    speed = float(script.get("speed", timing["defaultSpeed"]))
     lang = script.get("lang", "en-us")
     spf = SAMPLE_RATE // fps  # samples per frame (800 at 24 kHz / 30 fps)
     assert spf * fps == SAMPLE_RATE
 
-    lead = frames(timing["sceneLeadInSec"], fps)
-    gap = frames(timing["lineGapSec"], fps)
-    tail = frames(timing["sceneTailSec"], fps)
+    t0 = time.time()
+    clips_by_line: list[list[np.ndarray]] = []
+    metas: list[list[dict]] = []
+    for scene in script["scenes"]:
+        clips_by_line.append([])
+        metas.append([])
+        for line in scene["lines"]:
+            audio, meta = synth.line(line.get("say", line["text"]), voice, speed, lang)
+            clips_by_line[-1].append(audio)
+            metas[-1].append(meta)
+    line_frames = [[frames(len(a) / SAMPLE_RATE, fps) for a in scene] for scene in clips_by_line]
+    scenes_out = layout(script["scenes"], line_frames, timing)
 
     clips: list[tuple[int, np.ndarray]] = []
-    scenes_out = []
-    cursor = 0
-    t0 = time.time()
-    for scene in script["scenes"]:
-        scene_start = cursor
-        cursor += lead
-        lines_out = []
+    for s, scene in enumerate(scenes_out):
         for i, line in enumerate(scene["lines"]):
-            if i > 0:
-                cursor += gap
-            audio, meta = synth.line(line.get("say", line["text"]), voice, speed, lang)
-            dur = frames(len(audio) / SAMPLE_RATE, fps)
-            clips.append((cursor, audio))
-            lines_out.append(
+            audio = clips_by_line[s][i]
+            clips.append((scene["from"] + line["from"], audio))
+            line.update(
                 {
-                    "text": line["text"],
-                    "spoken": meta["spoken"],
-                    "hash": meta["hash"],
-                    "from": cursor - scene_start,
-                    "durationInFrames": dur,
+                    "spoken": metas[s][i]["spoken"],
+                    "hash": metas[s][i]["hash"],
                     "audioSeconds": round(len(audio) / SAMPLE_RATE, 4),
                 }
             )
-            cursor += dur
-        cursor += tail
-        scenes_out.append(
-            {"id": scene["id"], "from": scene_start, "durationInFrames": cursor - scene_start, "lines": lines_out}
-        )
+    cursor = scenes_out[-1]["from"] + scenes_out[-1]["durationInFrames"]
 
     total = cursor
     track = np.zeros(total * spf, dtype=np.float32)

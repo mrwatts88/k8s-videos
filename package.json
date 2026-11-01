@@ -14,11 +14,12 @@
     "lint": "eslint src scripts webpack-override.mjs",
     "check:scripts": "node scripts/check-scripts.mjs",
     "check:manifests": "bash scripts/validate-manifests.sh",
-    "check": "npm run typecheck && npm run lint && npm run check:scripts && npm run check:manifests",
+    "check": "npm run typecheck && npm run lint && npm run check:scripts && npm run check:timing && npm run check:manifests",
     "setup:python": "python3 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt && bash tools/fetch_models.sh",
     "narrate": ".venv/bin/python tools/narrate.py",
     "check:narration": ".venv/bin/python tools/check_narration.py",
-    "check:lexicon": ".venv/bin/python tools/check_narration.py --lexicon"
+    "check:lexicon": ".venv/bin/python tools/check_narration.py --lexicon",
+    "check:timing": "node scripts/check-timing-parity.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",
@@ -34,6 +35,7 @@
     "@remotion/renderer": "4.0.539",
     "@types/react": "18.3.12",
     "@types/webpack-env": "1.18.5",
+    "esbuild": "0.28.1",
     "eslint": "9.39.5",
     "typescript": "5.6.3"
   }

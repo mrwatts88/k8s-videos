@@ -60,6 +60,8 @@ for (const id of ids) {
       if (typeof line.text !== "string" || !line.text.trim()) fail(`${at} line ${i}`, "empty text");
       else if (line.text.length > MAX_LINE_CHARS)
         fail(`${at} line ${i}`, `${line.text.length} characters; split it (max ${MAX_LINE_CHARS})`);
+      if (line.pauseAfter !== undefined && !(typeof line.pauseAfter === "number" && line.pauseAfter >= 0))
+        fail(`${at} line ${i}`, "pauseAfter must be a number of seconds, 0 or more");
       if (line.say !== undefined && (typeof line.say !== "string" || !line.say.trim()))
         fail(`${at} line ${i}`, "say must be non-empty text");
     });

@@ -1,5 +1,6 @@
 import React from "react";
 import { interpolate } from "remotion";
+import { terminalFrames, typingFrames } from "../lib/timeline";
 import { theme } from "../theme";
 import { Card } from "./Card";
 
@@ -10,17 +11,11 @@ export type TimedStep = {
   output: string[];
 };
 
-const TYPE_DELAY = 6; // frames after the narration line starts
-const CHARS_PER_FRAME = 1.6;
-const MAX_TYPE_FRAMES = 42;
-const OUTPUT_DELAY = 8; // frames between the last typed character and the output
-const OUTPUT_STAGGER = 2;
+// Typing speed, the beat before output and the stagger come from src/timing.json,
+// which the narration timeline also uses to hold the next line until output is readable.
 const MAX_VISIBLE_ROWS = 17;
 
-export const typingFrames = (command: string) =>
-  Math.min(MAX_TYPE_FRAMES, Math.ceil(command.length / CHARS_PER_FRAME));
-
-type Row = { kind: "command" | "output"; text: string; key: string; typing?: boolean };
+type Row = { kind: "command" | "output"; text: string; key: string; typing?: boolean; solid?: boolean };
 
 /**
  * A terminal that types each command when its narration line begins, then
@@ -36,7 +31,7 @@ export const TerminalCard: React.FC<{
   let cursorVisibleOnPrompt = true;
 
   steps.forEach((step, s) => {
-    const typeStart = step.startFrame + TYPE_DELAY;
+    const typeStart = step.startFrame + terminalFrames.typeDelay;
     if (frame < typeStart) return;
     const total = typingFrames(step.command);
     const progress = interpolate(frame, [typeStart, typeStart + total], [0, 1], {
@@ -44,15 +39,16 @@ export const TerminalCard: React.FC<{
       extrapolateRight: "clamp",
     });
     const typed = step.command.slice(0, Math.round(progress * step.command.length));
-    const typing = progress < 1;
-    rows.push({ kind: "command", text: typed, key: `c${s}`, typing });
-    if (typing) {
+    const outStart = typeStart + total + terminalFrames.beat;
+    // While typing, and during the beat before output, the cursor stays on the command line.
+    const busy = frame < outStart;
+    rows.push({ kind: "command", text: typed, key: `c${s}`, typing: busy, solid: progress < 1 });
+    if (busy) {
       cursorVisibleOnPrompt = false;
       return;
     }
-    const outStart = typeStart + total + OUTPUT_DELAY;
     step.output.forEach((line, i) => {
-      if (frame >= outStart + i * OUTPUT_STAGGER) rows.push({ kind: "output", text: line, key: `o${s}-${i}` });
+      if (frame >= outStart + i * terminalFrames.stagger) rows.push({ kind: "output", text: line, key: `o${s}-${i}` });
     });
   });
 
@@ -77,7 +73,7 @@ export const TerminalCard: React.FC<{
             <div key={row.key}>
               <span style={{ color: theme.prompt }}>{prompt} </span>
               <span>{row.text}</span>
-              {row.typing ? <Cursor on /> : null}
+              {row.typing ? <Cursor on={row.solid || frame % 30 < 20} /> : null}
             </div>
           ) : (
             <div key={row.key} style={{ color: outputColor(row.text) }}>

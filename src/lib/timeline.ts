@@ -1,35 +1,86 @@
 import timingConfig from "../timing.json";
-import type { EpisodeScript, EpisodeTiming, SceneTiming } from "../types";
+import type { EpisodeScript, EpisodeTiming, Scene, SceneTiming } from "../types";
 
 export const FPS = timingConfig.fps;
 
-const frames = (seconds: number) => Math.ceil(seconds * FPS - 1e-9);
+/** Seconds to whole frames, rounding up. tools/narrate.py uses the same rule. */
+export const toFrames = (seconds: number) => Math.ceil(seconds * FPS - 1e-9);
+
+const term = timingConfig.terminal;
+export const terminalFrames = {
+  typeDelay: toFrames(term.typeDelaySec),
+  beat: toFrames(term.outputBeatSec),
+  stagger: toFrames(term.outputStaggerSec),
+  read: toFrames(term.outputReadSec),
+};
+
+/** Frames it takes to type a command on a terminal card. */
+export const typingFrames = (command: string) =>
+  Math.min(toFrames(term.maxTypeSec), Math.ceil((command.length * FPS) / term.typeCharsPerSec - 1e-9));
 
 /**
- * A silent stand-in for tools/narrate.py's timings, built from word counts and
- * the same lead-in, gap and tail rules, so layouts can be previewed and
- * smoke-rendered without generating audio.
+ * Scene-relative frame by which line i's terminal output has been on screen
+ * long enough to read, or 0 when no command starts on that line.
+ */
+export const terminalHoldUntil = (scene: Scene, lineIndex: number, lineFrom: number): number => {
+  if (scene.type !== "terminal") return 0;
+  let until = 0;
+  for (const step of scene.steps) {
+    if (step.at !== lineIndex) continue;
+    const outputs = step.output?.length ?? 0;
+    const lastOutput =
+      lineFrom +
+      terminalFrames.typeDelay +
+      typingFrames(step.command) +
+      terminalFrames.beat +
+      Math.max(0, outputs - 1) * terminalFrames.stagger;
+    until = Math.max(until, lastOutput + terminalFrames.read);
+  }
+  return until;
+};
+
+/**
+ * Lays out lines on the timeline from their lengths in frames. tools/narrate.py
+ * mirrors this exactly; keep the two in step.
+ */
+export const layoutScenes = (scenes: Scene[], lineFrames: number[][]): SceneTiming[] => {
+  const lead = toFrames(timingConfig.sceneLeadInSec);
+  const gap = toFrames(timingConfig.lineGapSec);
+  const tail = toFrames(timingConfig.sceneTailSec);
+  let cursor = 0;
+  return scenes.map((scene, s) => {
+    const start = cursor;
+    let at = lead; // scene-relative
+    let holdUntil = 0;
+    const lines = scene.lines.map((line, i) => {
+      const from = Math.max(at, holdUntil);
+      const durationInFrames = lineFrames[s][i];
+      holdUntil = terminalHoldUntil(scene, i, from);
+      at = from + durationInFrames + gap + toFrames(line.pauseAfter ?? 0);
+      return { text: line.text, from, durationInFrames };
+    });
+    const last = lines[lines.length - 1];
+    const lastPause = toFrames(scene.lines[scene.lines.length - 1]?.pauseAfter ?? 0);
+    const end = Math.max(last ? last.from + last.durationInFrames + lastPause + tail : lead + tail, holdUntil);
+    cursor = start + end;
+    return { id: scene.id, from: start, durationInFrames: end, lines };
+  });
+};
+
+/**
+ * A silent stand-in for tools/narrate.py's timings, built from word counts,
+ * so layouts can be previewed and smoke-rendered without generating audio.
  */
 export const estimateTiming = (script: EpisodeScript): EpisodeTiming => {
-  const lead = frames(timingConfig.sceneLeadInSec);
-  const gap = frames(timingConfig.lineGapSec);
-  const tail = frames(timingConfig.sceneTailSec);
-  let cursor = 0;
-  const scenes: SceneTiming[] = script.scenes.map((scene) => {
-    const start = cursor;
-    cursor += lead;
-    const lines = scene.lines.map((line, i) => {
-      if (i > 0) cursor += gap;
+  const lineFrames = script.scenes.map((scene) =>
+    scene.lines.map((line) => {
       const words = (line.say ?? line.text).split(/\s+/).filter(Boolean).length;
-      const durationInFrames = frames(Math.max(1, words / timingConfig.estimateWordsPerSec));
-      const timing = { text: line.text, from: cursor - start, durationInFrames };
-      cursor += durationInFrames;
-      return timing;
-    });
-    cursor += tail;
-    return { id: scene.id, from: start, durationInFrames: cursor - start, lines };
-  });
-  return { durationInFrames: cursor, audio: null, scenes };
+      return toFrames(Math.max(1, words / timingConfig.estimateWordsPerSec));
+    }),
+  );
+  const scenes = layoutScenes(script.scenes, lineFrames);
+  const last = scenes[scenes.length - 1];
+  return { durationInFrames: last.from + last.durationInFrames, audio: null, scenes };
 };
 
 /** True when a generated timings.json still matches the script it came from. */
