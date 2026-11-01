@@ -321,8 +321,9 @@ manifests/
     a given narration line starts.
   - `code`: a manifest file from `manifests/` with line ranges highlighted in
     step with narration.
-  - Planned for Episode 0: a `diagram` scene for the control plane and node
-    picture and the reconcile loop.
+  - `diagram`: boxes and arrows that appear, change color, take focus or
+    carry a moving dot as narration goes, used for the control plane and
+    node picture and the reconcile loop.
 - Pacing is unhurried, for people learning. Every scene has a lead-in and
   tail, lines are separated by a half-second gap, and a line can add
   `pauseAfter` seconds of silence when a point needs to land.

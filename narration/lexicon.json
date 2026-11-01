@@ -69,7 +69,8 @@
         "yammel",
         "yamel",
         "yamle",
-        "yamal"
+        "yamal",
+        "yamil"
       ]
     },
     {
@@ -83,7 +84,8 @@
         "cubelet",
         "cubed let",
         "q blet",
-        "q billet"
+        "q billet",
+        "cublet"
       ]
     },
     {
@@ -512,6 +514,15 @@
         "ready c",
         "red easy",
         "red e z"
+      ]
+    },
+    {
+      "match": "standup",
+      "say": "standup",
+      "heard": [
+        "standup",
+        "stand up",
+        "stand-up"
       ]
     },
     {
