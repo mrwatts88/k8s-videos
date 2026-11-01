@@ -67,7 +67,7 @@ database, ingress, internal DNS, TLS and service-to-service auth.
 | `GET /healthz` | none | Liveness: the process is up |
 | `GET /readyz` | none | Readiness: the database answers |
 
-The "cool" machine-to-machine example for Episode 7: the release pipeline (another
+The "cool" machine-to-machine example for Episode 8: the release pipeline (another
 team's service) gets a token from Keycloak with client credentials and calls
 `PUT /api/links/release-notes` on every release, so `go/release-notes` always
 points at the newest notes.
@@ -139,7 +139,8 @@ of controllers that keep making it true. The spec itself does nothing.
 - Image, container port, labels and selectors.
 - Deployment → ReplicaSet → Pods, tying back to Episode 0's reconcile loop.
 - `replicas: 2`, rolling updates in one sentence.
-- Probes: liveness `/healthz`, readiness `/readyz` and why they are different.
+- Probes in one sentence each (startup, liveness, readiness) as a preview;
+  Episode 6 goes deep once the Service and database exist.
 - Resource requests and limits, and what the scheduler does with requests.
 - Checks: `kubectl get deploy,rs,pods -n golinks`, `kubectl describe pod`,
   `kubectl rollout status`.
@@ -179,7 +180,52 @@ of controllers that keep making it true. The spec itself does nothing.
   `curl -I http://go.corp.internal/standup`.
 - Manifests: `golinks-service.yaml`, `golinks-ingress.yaml`.
 
-### Episode 6: TLS (cert-manager and the internal CA)
+### Episode 6: Health checks (startup, liveness and readiness probes)
+
+Placed after networking on purpose: a failing readiness probe is easiest to see
+as pods leaving the Service's EndpointSlice, and the database from Episode 4 is
+the dependency readiness checks.
+
+- What a probe is: the kubelet on the pod's node calls an endpoint (HTTP, TCP,
+  gRPC or a command) on a schedule. Settings that matter: `periodSeconds`,
+  `timeoutSeconds`, `failureThreshold` (and `successThreshold` for readiness).
+  Time to act is roughly `periodSeconds × failureThreshold`.
+- Startup probe:
+  - Runs first; liveness and readiness wait until it succeeds once.
+  - On failure: after `failureThreshold` misses the kubelet kills and restarts
+    the container, like liveness.
+  - Use it for slow starts (database migrations, cache warm-up) so liveness can
+    stay strict afterwards. Ours allows 30 × 2 s = 60 s.
+- Liveness probe:
+  - "Is this process stuck beyond repair?"
+  - On failure: the container is restarted. Repeated restarts show as
+    `CrashLoopBackOff` with growing back-off.
+  - What `/healthz` should check: only the process itself (it can serve HTTP,
+    no deadlock). It must not check the database or other services; if it did,
+    a database blip would restart every pod at once and make things worse.
+- Readiness probe:
+  - "Should this pod get traffic right now?"
+  - On failure: the pod is marked not ready and removed from the Service's
+    EndpointSlices, so Traefik and other callers stop sending it requests. The
+    container is not restarted, and it comes back once the probe passes.
+  - What `/readyz` should check: the things a request needs, with short
+    timeouts (`SELECT 1` against Postgres), plus "am I shutting down?" so a pod
+    can drain cleanly during a rolling update.
+  - Rolling updates wait for new pods to become ready before removing old ones.
+- Common mistakes: liveness that checks dependencies, a missing startup probe
+  on a slow app (it gets killed before it boots), timeouts shorter than a slow
+  but healthy response, and identical liveness and readiness checks.
+- Demos:
+  - Stop Postgres: `/readyz` fails, `kubectl get pods` shows `0/1` READY,
+    `kubectl get endpointslices -n golinks` shows no ready endpoints, and
+    `curl` gets a `503` from Traefik; no restarts. Start Postgres; traffic returns.
+  - Freeze the process: liveness fails, the RESTARTS count climbs,
+    `kubectl describe pod` shows "Liveness probe failed" events.
+  - Slow start: with the startup probe the pod survives a 40 s migration;
+    without it, liveness kills it mid-migration.
+- Manifest: the probe section of `golinks-deployment.yaml`.
+
+### Episode 7: TLS (cert-manager and the internal CA)
 
 - Why browsers and other services need HTTPS even inside the company.
 - cert-manager: Issuer vs ClusterIssuer, a CA issuer backed by the company's
@@ -190,7 +236,7 @@ of controllers that keep making it true. The spec itself does nothing.
 - Checks: `kubectl get certificate,certificaterequest -n golinks`,
   `curl -v https://go.corp.internal/standup`.
 
-### Episode 7: Auth (Keycloak, kept light)
+### Episode 8: Auth (Keycloak, kept light)
 
 - The company has a Keycloak realm, `corp`. Keycloak issues tokens; the API
   checks them.
@@ -206,7 +252,7 @@ of controllers that keep making it true. The spec itself does nothing.
 - Checks: `curl` the token endpoint, then `PUT /api/links/release-notes` with
   and without the token (201 vs 401).
 
-### Episode 8: One request, end to end
+### Episode 9: One request, end to end
 
 - Follow `https://go.corp.internal/jira/1234` from a laptop: company DNS →
   ServiceLB node IP → Traefik (TLS) → Ingress rule → Service → EndpointSlice →
@@ -214,7 +260,7 @@ of controllers that keep making it true. The spec itself does nothing.
 - Then a write: release pipeline → Keycloak token → API middleware → database.
 - At each hop, the `kubectl` command that proves that piece works.
 
-### Episode 9: Kustomize
+### Episode 10: Kustomize
 
 - The problem: the same app in dev and prod with small differences.
 - Refactor the series' manifests into `manifests/base` plus
@@ -222,7 +268,7 @@ of controllers that keep making it true. The spec itself does nothing.
   hostnames, resource sizes, image tags).
 - `kubectl kustomize` to preview, `kubectl apply -k` to apply.
 
-### Episode 10: Argo CD (GitOps)
+### Episode 11: Argo CD (GitOps)
 
 - Git becomes the spec. Argo CD is a controller whose desired state is a path
   in a repository, which ties straight back to Episode 0's reconcile loop.
@@ -234,7 +280,7 @@ of controllers that keep making it true. The spec itself does nothing.
 ## Manifests layout
 
 `manifests/base/` holds one file per resource and a `kustomization.yaml` from
-day one, so Episode 9 only adds overlays instead of moving files. Episodes 2 to 5
+day one, so Episode 10 only adds overlays instead of moving files. Episodes 2 to 5
 add files to the base as they introduce them. cert-manager, Keycloak and Argo CD
 resources go in their own folders when their episodes are built.
 
@@ -250,7 +296,7 @@ manifests/
     golinks-ingress.yaml
     postgres-service.yaml
     postgres-statefulset.yaml
-  overlays/            (Episode 9)
+  overlays/            (Episode 10)
     dev/
     prod/
 ```
@@ -262,7 +308,8 @@ manifests/
   Mono for code; both are bundled from npm, so renders never depend on system
   fonts.
 - Narration: Kokoro-82M (ONNX, CPU) through `kokoro-onnx`, default voice
-  `af_heart` at speed 1.0, set per episode in `script.json`.
+  `af_heart` at speed 0.92 (`defaultSpeed` in `src/timing.json`), overridable
+  per episode in `script.json`.
 - One narration line is one sentence, short enough for a two-line caption.
   Captions show the current line, split into chunks if it is long.
 - Spoken text can differ from caption text. The `say` field on a line, and the
@@ -276,4 +323,11 @@ manifests/
     step with narration.
   - Planned for Episode 0: a `diagram` scene for the control plane and node
     picture and the reconcile loop.
-- Every scene has a short lead-in and tail so cuts never clip speech.
+- Pacing is unhurried, for people learning. Every scene has a lead-in and
+  tail, lines are separated by a half-second gap, and a line can add
+  `pauseAfter` seconds of silence when a point needs to land.
+- Terminal cards type each command, hold a beat with the cursor still on the
+  command line, then print the output. The next narration line waits until the
+  output has been on screen long enough to read. The constants live in
+  `src/timing.json`; `src/lib/timeline.ts` and `tools/layout.py` both read them
+  and CI checks that the two produce the same timeline.

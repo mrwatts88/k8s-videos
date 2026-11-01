@@ -30,16 +30,30 @@ spec:
                 secretKeyRef:
                   name: postgres-credentials
                   key: POSTGRES_PASSWORD
+          # Holds off the other two probes until the app has started
+          # (for example, while database migrations run).
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          # Failing restarts the container. Checks only the process itself.
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          # Failing takes the pod out of the Service. Checks the database too.
           readinessProbe:
             httpGet:
               path: /readyz
               port: http
             periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 2
           resources:
             requests:
               cpu: 100m

@@ -26,6 +26,8 @@ jobs:
         run: npm run lint
       - name: Episode scripts and lexicon
         run: npm run check:scripts
+      - name: Timeline layout matches between Python and TypeScript
+        run: npm run check:timing
       - name: Pronunciation rules (unit tests)
         run: python3 tools/test_pronounce.py
       - name: Install kubeconform and kubectl
