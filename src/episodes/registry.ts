@@ -4,8 +4,9 @@ import ep00 from "./ep00-what-is-kubernetes/script.json";
 import ep01 from "./ep01-k3s-map/script.json";
 import ep02 from "./ep02-running-the-api/script.json";
 import ep03 from "./ep03-config/script.json";
+import ep04 from "./ep04-database/script.json";
 import testClip from "./test-clip/script.json";
 
-const all = [testClip, ep00, ep01, ep02, ep03] as EpisodeScript[];
+const all = [testClip, ep00, ep01, ep02, ep03, ep04] as EpisodeScript[];
 
 export const episodes: Record<string, EpisodeScript> = Object.fromEntries(all.map((s) => [s.id, s]));

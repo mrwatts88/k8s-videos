@@ -11,7 +11,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 1 | The map: k3s and what it ships | `ep01-k3s-map` | rendered | About 4 min 45 s; 11 scenes, 3 of them diagrams; pronunciation check clean apart from "a hundred" written as "100" |
 | 2 | Running the API: Deployment | `ep02-running-the-api` | rendered | About 5 min 30 s; 13 scenes, 4 of them diagrams; pronunciation check clean apart from possessives written without the apostrophe |
 | 3 | Configuration: ConfigMap and Secret | `ep03-config` | rendered | About 4 min; 11 scenes, 3 of them diagrams; first `kubectl logs`; pronunciation check clean |
-| 4 | The database: Postgres StatefulSet | `ep04-postgres` | planned | Manifests exist |
+| 4 | The database: Postgres StatefulSet | `ep04-database` | rendered | About 6 min; 13 scenes, 2 of them diagrams; no operator, one replica; LOG_LEVEL restart demo; pronunciation check clean |
 | 5 | Reaching it: Service, Ingress, ServiceLB, DNS | `ep05-networking` | planned | Manifests exist |
 | 6 | Health checks: startup, liveness and readiness probes | `ep06-health-probes` | planned | Probes already in `golinks-deployment.yaml` |
 | 7 | Logs: where they go, on-prem | `ep07-logs` | planned | Loki, Alloy and Grafana; no manifests yet |

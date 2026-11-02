@@ -420,7 +420,8 @@
       "say": "stateful set",
       "heard": [
         "statefulset",
-        "stateful set"
+        "stateful set",
+        "state full set"
       ]
     },
     {
@@ -745,6 +746,152 @@
       "heard": [
         "string data",
         "stringdata"
+      ]
+    },
+    {
+      "match": "postgres-0.postgres",
+      "say": "post gress zero dot post gress",
+      "heard": [
+        "postgres-0.postgres",
+        "postgres 0.postgres",
+        "postgres zero dot postgres",
+        "post gress zero dot post gress",
+        "postgres-0 dot postgres",
+        "postgres0.postgres",
+        "postgres 0 dot postgres"
+      ]
+    },
+    {
+      "match": "data-postgres-0",
+      "say": "data post gress zero",
+      "heard": [
+        "data postgres zero",
+        "data-postgres-0",
+        "data postgres 0",
+        "data postgres-0",
+        "data post gress zero"
+      ]
+    },
+    {
+      "match": "postgres-0",
+      "say": "post gress zero",
+      "heard": [
+        "postgres zero",
+        "postgres-0",
+        "postgres 0",
+        "post gress zero",
+        "postgres0"
+      ]
+    },
+    {
+      "match": "postgres-1",
+      "say": "post gress one",
+      "heard": [
+        "postgres one",
+        "postgres-1",
+        "postgres 1",
+        "post gress one",
+        "postgres1"
+      ]
+    },
+    {
+      "match": "PersistentVolumeClaim",
+      "say": "persistent volume claim",
+      "heard": [
+        "persistentvolumeclaim",
+        "persistent volume claim"
+      ]
+    },
+    {
+      "match": "PersistentVolume",
+      "say": "persistent volume",
+      "heard": [
+        "persistentvolume",
+        "persistent volume"
+      ]
+    },
+    {
+      "match": "volumeClaimTemplates",
+      "say": "volume claim templates",
+      "heard": [
+        "volumeclaimtemplates",
+        "volume claim templates",
+        "volume claim template"
+      ]
+    },
+    {
+      "match": "serviceName",
+      "say": "service name",
+      "heard": [
+        "servicename",
+        "service name"
+      ]
+    },
+    {
+      "match": "clusterIP",
+      "say": "cluster I P",
+      "heard": [
+        "clusterip",
+        "cluster ip",
+        "cluster i p"
+      ]
+    },
+    {
+      "match": "ReadWriteOnce",
+      "say": "reed write once",
+      "heard": [
+        "readwriteonce",
+        "read write once",
+        "read-write once",
+        "read right once"
+      ]
+    },
+    {
+      "match": "PGDATA",
+      "say": "P G data",
+      "heard": [
+        "pgdata",
+        "pg data",
+        "p g data",
+        "pgdata"
+      ]
+    },
+    {
+      "match": "pg_isready",
+      "say": "P G is ready",
+      "heard": [
+        "pg_isready",
+        "pg is ready",
+        "p g is ready",
+        "pgis ready",
+        "pg isready"
+      ]
+    },
+    {
+      "match": "LOG_LEVEL",
+      "say": "log level",
+      "heard": [
+        "log_level",
+        "log level",
+        "loglevel"
+      ]
+    },
+    {
+      "match": "5432",
+      "say": "fifty-four thirty-two",
+      "heard": [
+        "5432",
+        "54 32",
+        "fifty-four thirty-two",
+        "fifty four thirty two"
+      ]
+    },
+    {
+      "match": "Longhorn",
+      "say": "long horn",
+      "heard": [
+        "longhorn",
+        "long horn"
       ]
     }
   ],
