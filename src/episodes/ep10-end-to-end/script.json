@@ -1,0 +1,1208 @@
+{
+  "id": "ep10-end-to-end",
+  "number": 10,
+  "title": "End to end",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 10",
+      "title": "End to end",
+      "subtitle": "One request, every hop",
+      "lines": [
+        {
+          "text": "Nine episodes, nine pieces. Today we put them together, and follow a single request all the way through."
+        },
+        {
+          "text": "At every hop, there's a command that proves that piece is doing its job.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "jira",
+      "type": "terminal",
+      "title": "laptop",
+      "steps": [
+        {
+          "at": 0,
+          "command": "cat jira.json",
+          "output": [
+            "{\"target\": \"https://jira.corp.internal/browse/{1}\"}"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "URL=https://go.corp.internal/api/links/jira"
+        },
+        {
+          "at": 2,
+          "command": "curl -si -T jira.json -H \"Authorization: Bearer $MY_TOKEN\" $URL | head -1",
+          "output": [
+            "HTTP/2 201"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "curl -sI https://go.corp.internal/jira/1234 | grep -E 'HTTP|loc'",
+          "output": [
+            "HTTP/2 302",
+            "location: https://jira.corp.internal/browse/1234"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "First, one more link: jira. Its target has a placeholder, number one, filled in from the path."
+        },
+        {
+          "text": "Its address in the links API, as in the last episode."
+        },
+        {
+          "text": "Create it with my own token, from signing in. 201."
+        },
+        {
+          "text": "Now go slash jira slash 1234 answers 302, straight to that ticket. That's the request we'll follow.",
+          "say": "Now go slash jira slash one two three four answers 302, straight to that ticket. That's the request we'll follow.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "type": "diagram",
+      "title": "The route",
+      "boxes": [
+        {
+          "id": "laptop",
+          "label": "laptop",
+          "sublabel": "curl or browser",
+          "x": 60,
+          "y": 110,
+          "w": 310,
+          "h": 120
+        },
+        {
+          "id": "dns",
+          "label": "company DNS",
+          "sublabel": "go.corp.internal",
+          "x": 450,
+          "y": 110,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "node",
+          "label": "a node, port 443",
+          "sublabel": "ServiceLB",
+          "x": 840,
+          "y": 110,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "traefik",
+          "label": "Traefik",
+          "sublabel": "TLS ends here",
+          "x": 1230,
+          "y": 110,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "ing",
+          "label": "Ingress rule",
+          "sublabel": "host and path",
+          "x": 1230,
+          "y": 470,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "eps",
+          "label": "EndpointSlice",
+          "sublabel": "ready pods",
+          "x": 840,
+          "y": 470,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "pod",
+          "label": "golinks pod",
+          "sublabel": "port 8080",
+          "x": 450,
+          "y": 470,
+          "w": 310,
+          "h": 120,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "pg",
+          "label": "Postgres",
+          "sublabel": "postgres-0",
+          "x": 60,
+          "y": 470,
+          "w": 310,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "back",
+          "kind": "note",
+          "label": "and the 302 travels back the same way",
+          "x": 300,
+          "y": 660,
+          "w": 1000,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "laptop",
+          "to": "dns",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "dns",
+          "to": "node",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "node",
+          "to": "traefik",
+          "hidden": true
+        },
+        {
+          "id": "a4",
+          "from": "traefik",
+          "to": "ing",
+          "hidden": true
+        },
+        {
+          "id": "a5",
+          "from": "ing",
+          "to": "eps",
+          "hidden": true
+        },
+        {
+          "id": "a6",
+          "from": "eps",
+          "to": "pod",
+          "hidden": true
+        },
+        {
+          "id": "a7",
+          "from": "pod",
+          "to": "pg",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "dns",
+            "a1",
+            "node",
+            "a2"
+          ],
+          "flow": [
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "traefik",
+            "a3",
+            "ing",
+            "a4"
+          ],
+          "flow": [
+            "a3",
+            "a4"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "eps",
+            "a5",
+            "pod",
+            "a6",
+            "pg",
+            "a7"
+          ],
+          "flow": [
+            "a5",
+            "a6",
+            "a7"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [],
+          "show": [
+            "back"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the route. The laptop asks company DNS for go.corp.internal, and connects to a node on port 443."
+        },
+        {
+          "text": "Traefik decrypts the request, and matches it against the Ingress rules."
+        },
+        {
+          "text": "The rule's Service leads to an EndpointSlice: the list of ready pods. One pod takes the request, and asks Postgres where jira points."
+        },
+        {
+          "text": "Then the answer goes back the same way. Eight hops. Let's take them one at a time.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "dns",
+      "type": "terminal",
+      "title": "laptop",
+      "steps": [
+        {
+          "at": 0,
+          "command": "dig +short go.corp.internal",
+          "output": [
+            "10.0.0.11",
+            "10.0.0.21",
+            "10.0.0.22"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "curl -sv https://go.corp.internal/jira/1234 2>&1 | grep Connected",
+          "output": [
+            "* Connected to go.corp.internal (10.0.0.22) port 443"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop one: the name. Company DNS answers with all three node addresses, from Episode 5."
+        },
+        {
+          "text": "This time curl chose the third address: agent 2, on port 443."
+        },
+        {
+          "text": "DNS doesn't check whether a node is up. If one is down, most clients try the next address, but only after a wait.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "svclb",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get po -n kube-system -o wide | awk '/^svclb|^traefik/{print $1,$7}'",
+          "output": [
+            "svclb-traefik-2b4e1c7a-6hx2r k3s-server-1",
+            "svclb-traefik-2b4e1c7a-qw8lm k3s-agent-1",
+            "svclb-traefik-2b4e1c7a-zk5vn k3s-agent-2",
+            "traefik-c98fdf6fb-kq7xn k3s-server-1"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop two: the node. Every node runs a small ServiceLB pod, and on agent 2, that pod holds port 443."
+        },
+        {
+          "text": "It forwards the connection to the Traefik Service, and the rules that kube-proxy set up pick a Traefik pod. There's only one, and it runs on the server."
+        },
+        {
+          "text": "So the request has already crossed from one machine to another. That's normal, and we'll see how next.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "tls",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl describe ingress golinks -n golinks | grep -A7 TLS",
+          "output": [
+            "TLS:",
+            "  golinks-tls terminates go.corp.internal",
+            "Rules:",
+            "  Host              Path  Backends",
+            "  ----              ----  --------",
+            "  go.corp.internal",
+            "                    /   golinks:http (10.42.1.21:8080,10.42.2.14:8080)"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop three is TLS. Traefik terminates it here, using the certificate in the Secret golinks-tls, which cert-manager keeps fresh."
+        },
+        {
+          "text": "From here to the pod, the request is plain HTTP on the pod network. Inside a cluster that's common. A service mesh can encrypt that leg too."
+        },
+        {
+          "text": "Hop four is the rule. For the host go.corp.internal and the path slash, it sends requests to the golinks Service, on its http port.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "eps",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get endpointslices -n golinks",
+          "output": [
+            "NAME             ADDRESSTYPE   PORTS   ENDPOINTS               AGE",
+            "golinks-x7k2m    IPv4          8080    10.42.1.21,10.42.2.14   5h",
+            "postgres-8hq4d   IPv4          5432    10.42.1.12              5h"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get pods -n golinks -o wide | awk '{print $1,$6,$7}' | column -t",
+          "output": [
+            "NAME                      IP          NODE",
+            "golinks-6c9d7f8b5c-n4hzx  10.42.2.14  k3s-agent-2",
+            "golinks-6c9d7f8b5c-r7tqw  10.42.1.21  k3s-agent-1",
+            "postgres-0                10.42.1.12  k3s-agent-1"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop five is the EndpointSlice. Traefik doesn't send traffic to the Service's own address. It reads the EndpointSlice and picks a pod itself, taking turns."
+        },
+        {
+          "text": "Only ready pods are listed. That's the readiness probe from Episode 6, deciding who gets traffic."
+        },
+        {
+          "text": "And here's where each pod runs. Both golinks pods are ready, one on each agent."
+        },
+        {
+          "text": "Postgres has its own slice, with its one pod.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "nodes",
+      "type": "diagram",
+      "title": "The same request, on the machines",
+      "boxes": [
+        {
+          "id": "laptop",
+          "label": "laptop",
+          "x": 100,
+          "y": 90,
+          "w": 390,
+          "h": 100
+        },
+        {
+          "id": "g2",
+          "kind": "group",
+          "label": "k3s-agent-2",
+          "x": 60,
+          "y": 250,
+          "w": 470,
+          "h": 500
+        },
+        {
+          "id": "gs",
+          "kind": "group",
+          "label": "k3s-server-1",
+          "x": 565,
+          "y": 250,
+          "w": 470,
+          "h": 500
+        },
+        {
+          "id": "g1",
+          "kind": "group",
+          "label": "k3s-agent-1",
+          "x": 1070,
+          "y": 250,
+          "w": 470,
+          "h": 500
+        },
+        {
+          "id": "lb2",
+          "kind": "pod",
+          "label": "svclb",
+          "sublabel": "10.0.0.22:443",
+          "x": 100,
+          "y": 330,
+          "w": 390,
+          "h": 100,
+          "tone": "accent"
+        },
+        {
+          "id": "gl2",
+          "kind": "pod",
+          "label": "golinks",
+          "sublabel": "n4hzx, 10.42.2.14",
+          "x": 100,
+          "y": 470,
+          "w": 390,
+          "h": 100
+        },
+        {
+          "id": "lbs",
+          "kind": "pod",
+          "label": "svclb",
+          "x": 605,
+          "y": 330,
+          "w": 390,
+          "h": 100
+        },
+        {
+          "id": "tr",
+          "kind": "pod",
+          "label": "traefik",
+          "sublabel": "10.42.0.6",
+          "x": 605,
+          "y": 470,
+          "w": 390,
+          "h": 100,
+          "tone": "accent"
+        },
+        {
+          "id": "lb1",
+          "kind": "pod",
+          "label": "svclb",
+          "x": 1110,
+          "y": 330,
+          "w": 390,
+          "h": 100
+        },
+        {
+          "id": "gl1",
+          "kind": "pod",
+          "label": "golinks",
+          "sublabel": "r7tqw, 10.42.1.21",
+          "x": 1110,
+          "y": 470,
+          "w": 390,
+          "h": 100,
+          "tone": "accent"
+        },
+        {
+          "id": "pg",
+          "kind": "pod",
+          "label": "postgres-0",
+          "sublabel": "10.42.1.12",
+          "x": 1110,
+          "y": 610,
+          "w": 390,
+          "h": 100,
+          "tone": "accent"
+        },
+        {
+          "id": "fl",
+          "kind": "note",
+          "label": "between nodes, Flannel wraps pod traffic in UDP",
+          "x": 600,
+          "y": 120,
+          "w": 940,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "n1",
+          "from": "laptop",
+          "to": "lb2"
+        },
+        {
+          "id": "n2",
+          "from": "lb2",
+          "to": "tr",
+          "hidden": true
+        },
+        {
+          "id": "n3",
+          "from": "tr",
+          "to": "gl1",
+          "hidden": true
+        },
+        {
+          "id": "n4",
+          "from": "gl1",
+          "to": "pg",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "n1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [
+            "n2"
+          ],
+          "show": [
+            "n2"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [
+            "n3"
+          ],
+          "show": [
+            "n3",
+            "fl"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [
+            "n4"
+          ],
+          "show": [
+            "n4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the same trip on the three machines. The laptop reaches agent 2's ServiceLB pod."
+        },
+        {
+          "text": "It goes over to Traefik, on the server."
+        },
+        {
+          "text": "This time Traefik picked the golinks pod on agent 1. Each pod has its own address, from its node's range, and Flannel carries the packets between machines, wrapped in UDP.",
+          "say": "This time Traefik picked the go links pod on agent 1. Each pod has its own address, from its node's range, and Flannel carries the packets between machines, wrapped in U D P."
+        },
+        {
+          "text": "And Postgres happens to be on agent 1 as well, so that last hop never leaves the machine.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pod",
+      "type": "terminal",
+      "title": "Grafana: Explore, Loki",
+      "prompt": ">",
+      "steps": [
+        {
+          "at": 0,
+          "command": "{namespace=\"golinks\"} |= \"jira\" | json | line_format \"{{.msg}} {{.status}}\"",
+          "output": [
+            "19:40:12  golinks-6c9d7f8b5c-r7tqw  GET /jira/1234 302"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop six: the pod. Loki, from Episode 7, has the line the app logged for this request."
+        },
+        {
+          "text": "The pod on agent 1, as the picture said. The app saw a plain GET over HTTP; the TLS was already gone.",
+          "say": "The pod on agent 1, as the picture said. The app saw a plain GET over H T T P; the T L S was already gone."
+        },
+        {
+          "text": "The JSON filter pulls out just the fields we want, so there's no need to know which pod to ask beforehand.",
+          "say": "The jason filter pulls out just the fields we want, so there's no need to know which pod to ask beforehand.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pgdns",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl run t --rm -i --image=busybox -- nslookup postgres-0.postgres.golinks",
+          "output": [
+            "Server:    10.43.0.10",
+            "Address:   10.43.0.10:53",
+            "",
+            "Name:      postgres-0.postgres.golinks.svc.cluster.local",
+            "Address:   10.42.1.12",
+            "",
+            "pod \"t\" deleted"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop seven: the database. The app knows Postgres by name, the stable name from Episode 4."
+        },
+        {
+          "text": "A throwaway pod asks CoreDNS the same question. Because the Service is headless, the answer is the pod's own address, not a Service address.",
+          "say": "A throwaway pod asks Core D N S the same question. Because the Service is headless, the answer is the pod's own address, not a Service address."
+        },
+        {
+          "text": "The app keeps a few connections open, so it doesn't look this up on every request.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pgrow",
+      "type": "terminal",
+      "title": "psql on postgres-0",
+      "prompt": "golinks=#",
+      "steps": [
+        {
+          "at": 0,
+          "command": "SELECT name, target, owner, hits FROM links WHERE name = 'jira';",
+          "output": [
+            " name |                target                 | owner | hits",
+            "------+---------------------------------------+-------+------",
+            " jira | https://jira.corp.internal/browse/{1} | sam   |    1",
+            "(1 row)"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Inside Postgres, with psql as in Episode 4, here's the row it read: the target, with its placeholder.",
+          "senses": {
+            "read": "past"
+          }
+        },
+        {
+          "text": "The owner came from my token. And the hit counter: one, for the request we just followed.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "back",
+      "type": "diagram",
+      "title": "The way back",
+      "boxes": [
+        {
+          "id": "pod",
+          "label": "golinks pod",
+          "sublabel": "302, location: .../browse/1234",
+          "x": 1100,
+          "y": 110,
+          "w": 440,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "tr",
+          "label": "Traefik",
+          "sublabel": "encrypts the reply",
+          "x": 580,
+          "y": 110,
+          "w": 440,
+          "h": 130
+        },
+        {
+          "id": "laptop",
+          "label": "laptop",
+          "sublabel": "follows the location",
+          "x": 60,
+          "y": 110,
+          "w": 440,
+          "h": 130
+        },
+        {
+          "id": "jira",
+          "label": "jira.corp.internal",
+          "sublabel": "ticket 1234",
+          "x": 60,
+          "y": 400,
+          "w": 440,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "note",
+          "kind": "note",
+          "label": "go is only the signpost: the ticket itself never passes through the cluster",
+          "x": 60,
+          "y": 620,
+          "w": 1480,
+          "h": 80,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "b1",
+          "from": "pod",
+          "to": "tr"
+        },
+        {
+          "id": "b2",
+          "from": "tr",
+          "to": "laptop"
+        },
+        {
+          "id": "b3",
+          "from": "laptop",
+          "to": "jira",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "b1",
+            "b2"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [
+            "b3"
+          ],
+          "show": [
+            "b3",
+            "jira"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [],
+          "show": [
+            "note"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Hop eight: the answer. The pod replies 302 with a location, and Traefik encrypts it for the trip back to the laptop."
+        },
+        {
+          "text": "The browser follows the location, straight to Jira."
+        },
+        {
+          "text": "go is just the signpost. The ticket itself never passes through our cluster.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "write",
+      "type": "diagram",
+      "title": "A write takes the same road",
+      "boxes": [
+        {
+          "id": "pipe",
+          "label": "release pipeline",
+          "x": 60,
+          "y": 110,
+          "w": 400,
+          "h": 120
+        },
+        {
+          "id": "kc",
+          "label": "Keycloak",
+          "sublabel": "outside the cluster",
+          "x": 60,
+          "y": 420,
+          "w": 400,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "road",
+          "kind": "note",
+          "label": "DNS, node, Traefik, rule, endpoints: the same hops",
+          "x": 560,
+          "y": 130,
+          "w": 520,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "pod",
+          "label": "golinks pod",
+          "sublabel": "checks the token",
+          "x": 1160,
+          "y": 110,
+          "w": 380,
+          "h": 120,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "keys",
+          "kind": "note",
+          "label": "keys cached, fetched over HTTPS with corp-root-ca",
+          "x": 520,
+          "y": 300,
+          "w": 560,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "pg",
+          "label": "Postgres",
+          "sublabel": "row updated",
+          "x": 1160,
+          "y": 440,
+          "w": 380,
+          "h": 120,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "w1",
+          "from": "pipe",
+          "to": "kc",
+          "label": "token",
+          "hidden": true
+        },
+        {
+          "id": "w2",
+          "from": "pipe",
+          "to": "road",
+          "hidden": true
+        },
+        {
+          "id": "w3",
+          "from": "road",
+          "to": "pod",
+          "hidden": true
+        },
+        {
+          "id": "w4",
+          "from": "pod",
+          "to": "pg",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "kc",
+            "w1"
+          ],
+          "flow": [
+            "w1"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "road",
+            "w2",
+            "w3",
+            "pod"
+          ],
+          "flow": [
+            "w2",
+            "w3"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [],
+          "show": [
+            "keys"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "pg",
+            "w4"
+          ],
+          "flow": [
+            "w4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now a write. The release pipeline gets a token from Keycloak, outside the cluster, as in Episode 9."
+        },
+        {
+          "text": "Its PUT takes exactly the same road in: DNS, a node, Traefik, the rule, the endpoints, a pod."
+        },
+        {
+          "text": "The pod checks the token with the public keys of Keycloak. It fetched them once, over HTTPS, trusting the company root CA, and keeps them."
+        },
+        {
+          "text": "Only then does it update the row.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "write-term",
+      "type": "terminal",
+      "title": "Grafana: Explore, Loki",
+      "prompt": ">",
+      "steps": [
+        {
+          "at": 0,
+          "command": "{namespace=\"golinks\"} |= \"PUT\" | json | line_format \"{{.status}} {{.caller}}\"",
+          "output": [
+            "19:44:03  golinks-6c9d7f8b5c-n4hzx  200 service-account-release-pipeline"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "In Loki, the pipeline's PUT. 200 this time, because the link already existed, so it was replaced, not created."
+        },
+        {
+          "text": "The app logged who called, from the token. And notice the pod: n4hzx, on agent 2. Traefik took turns, so this request went to the other pod.",
+          "say": "The app logged who called, from the token. And notice the pod: the one on agent 2. Traefik took turns, so this request went to the other pod.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "debug",
+      "type": "diagram",
+      "title": "When it breaks: read the symptom",
+      "boxes": [
+        {
+          "id": "s1",
+          "kind": "note",
+          "label": "could not resolve host",
+          "x": 60,
+          "y": 90,
+          "w": 700,
+          "h": 75
+        },
+        {
+          "id": "h1",
+          "kind": "note",
+          "label": "company DNS",
+          "x": 840,
+          "y": 90,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "s2",
+          "kind": "note",
+          "label": "connection timed out",
+          "x": 60,
+          "y": 190,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "h2",
+          "kind": "note",
+          "label": "node down, or ServiceLB",
+          "x": 840,
+          "y": 190,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "s3",
+          "kind": "note",
+          "label": "certificate problem",
+          "x": 60,
+          "y": 290,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "h3",
+          "kind": "note",
+          "label": "TLS: cert-manager, Episode 8",
+          "x": 840,
+          "y": 290,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "s4",
+          "kind": "note",
+          "label": "plain 404 page not found",
+          "x": 60,
+          "y": 390,
+          "w": 700,
+          "h": 75,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "h4",
+          "kind": "note",
+          "label": "no Ingress rule, or no ready pods",
+          "x": 840,
+          "y": 390,
+          "w": 700,
+          "h": 75,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "s5",
+          "kind": "note",
+          "label": "401 or 403",
+          "x": 60,
+          "y": 490,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "h5",
+          "kind": "note",
+          "label": "the token: Episode 9",
+          "x": 840,
+          "y": 490,
+          "w": 700,
+          "h": 75,
+          "hidden": true
+        },
+        {
+          "id": "s6",
+          "kind": "note",
+          "label": "the app's own 404 page",
+          "x": 60,
+          "y": 590,
+          "w": 700,
+          "h": 75,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "h6",
+          "kind": "note",
+          "label": "everything worked: there's no such link",
+          "x": 840,
+          "y": 590,
+          "w": 700,
+          "h": 75,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "h1"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "s2",
+            "h2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "s3",
+            "h3"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "s4",
+            "h4"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "s5",
+            "h5"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "s6",
+            "h6"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Knowing the hops pays off when something breaks, because each failure looks different. Can't resolve the name? That's DNS."
+        },
+        {
+          "text": "A connection that times out never reached Traefik: a node is down, or its ServiceLB pod is."
+        },
+        {
+          "text": "A certificate error is TLS: check the Certificate, and whether the laptop trusts the company root."
+        },
+        {
+          "text": "Traefik's plain 404 means no route: either no rule matches, or the Service has no ready pods. Episodes 5 and 6."
+        },
+        {
+          "text": "401 or 403 comes from the app, about the token."
+        },
+        {
+          "text": "And the app's own 404 page means every hop worked. There's just no link by that name yet.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 11: Scaling",
+      "subtitle": "More pods when the load climbs",
+      "lines": [
+        {
+          "text": "So that's one request, end to end: eight hops, each with a command that proves it works."
+        },
+        {
+          "text": "Next time: what happens when everyone types go slash standup at once. The Horizontal Pod Autoscaler adds pods, and takes them away again.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

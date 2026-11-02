@@ -93,7 +93,9 @@
       "say": "cube proxy",
       "heard": [
         "cube proxy",
-        "kube proxy"
+        "kube proxy",
+        "q proxy",
+        "q-proxy"
       ]
     },
     {
@@ -455,7 +457,10 @@
       "heard": [
         "endpointslice",
         "endpoint slice",
-        "and point slice"
+        "and point slice",
+        "end point slice",
+        "end point slices",
+        "endpoint slices"
       ]
     },
     {
@@ -464,7 +469,10 @@
       "heard": [
         "endpointslices",
         "endpoint slices",
-        "and point slices"
+        "and point slices",
+        "end point slice",
+        "endpoint slice",
+        "end point slices"
       ]
     },
     {
@@ -1247,6 +1255,19 @@
         "curl's",
         "curls",
         "kurl"
+      ]
+    },
+    {
+      "match": "jira",
+      "say": "jira",
+      "ignoreCase": true,
+      "heard": [
+        "jira",
+        "gira",
+        "gyra",
+        "jirah",
+        "jeerah",
+        "jeera"
       ]
     }
   ],

@@ -10,8 +10,9 @@ import ep06 from "./ep06-health-probes/script.json";
 import ep07 from "./ep07-logs/script.json";
 import ep08 from "./ep08-tls/script.json";
 import ep09 from "./ep09-auth/script.json";
+import ep10 from "./ep10-end-to-end/script.json";
 import testClip from "./test-clip/script.json";
 
-const all = [testClip, ep00, ep01, ep02, ep03, ep04, ep05, ep06, ep07, ep08, ep09] as EpisodeScript[];
+const all = [testClip, ep00, ep01, ep02, ep03, ep04, ep05, ep06, ep07, ep08, ep09, ep10] as EpisodeScript[];
 
 export const episodes: Record<string, EpisodeScript> = Object.fromEntries(all.map((s) => [s.id, s]));
