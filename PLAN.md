@@ -67,7 +67,7 @@ database, ingress, internal DNS, TLS and service-to-service auth.
 | `GET /healthz` | none | Liveness: the process is up |
 | `GET /readyz` | none | Readiness: the database answers |
 
-The "cool" machine-to-machine example for Episode 8: the release pipeline (another
+The "cool" machine-to-machine example for Episode 9: the release pipeline (another
 team's service) gets a token from Keycloak with client credentials and calls
 `PUT /api/links/release-notes` on every release, so `go/release-notes` always
 points at the newest notes.
@@ -154,8 +154,16 @@ of controllers that keep making it true. The spec itself does nothing.
   and how teams keep them out of git (mention Sealed Secrets or External
   Secrets in passing).
 - `envFrom` and `secretKeyRef` in the Deployment.
+- Environment variables are copied in once, when the container starts: a
+  changed ConfigMap reaches running pods only after a restart
+  (`kubectl rollout restart`). Files mounted from a ConfigMap do update in
+  place, a minute or so later.
+- First look at `kubectl logs`: the app's own startup lines show the settings
+  it loaded and the level it logs at. `kubectl logs deploy/golinks` picks one
+  pod; `-l app.kubernetes.io/name=golinks --prefix` reads them all; `-f`
+  follows. Episode 7 covers where logs actually live.
 - Checks: `kubectl get configmap golinks-config -o yaml`,
-  `kubectl exec ... -- env | grep DATABASE`.
+  `kubectl exec ... -- env | grep DATABASE`, `kubectl logs deploy/golinks -n golinks`.
 - Manifests: `golinks-configmap.yaml`, `postgres-secret.yaml`.
 
 ### Episode 4: The database (Postgres StatefulSet)
@@ -165,7 +173,12 @@ of controllers that keep making it true. The spec itself does nothing.
   local-path provisioner creating a PersistentVolume on a node's disk.
 - Headless Service (`clusterIP: None`) and the stable DNS name `postgres-0.postgres`.
 - Kept basic on purpose: one replica, no replication or backups.
-- Checks: `kubectl get sts,pvc,pv -n golinks`, `kubectl exec -it postgres-0 -- psql`.
+- Checks: `kubectl get sts,pvc,pv -n golinks`, `kubectl exec -it postgres-0 -- psql`,
+  `kubectl logs postgres-0 -n golinks` (Postgres' own startup log), and the API
+  pods turning ready on their own.
+- With the pods ready, finish Episode 3's point: set `LOG_LEVEL` to `debug`,
+  apply, see that the running pods still say `info`, run
+  `kubectl rollout restart`, and watch the new pods log at debug level.
 - Manifests: `postgres-statefulset.yaml`, `postgres-service.yaml`.
 
 ### Episode 5: Reaching it (Service, Ingress, ServiceLB, DNS)
@@ -220,12 +233,60 @@ the dependency readiness checks.
     `kubectl get endpointslices -n golinks` shows no ready endpoints, and
     `curl` gets a `503` from Traefik; no restarts. Start Postgres; traffic returns.
   - Freeze the process: liveness fails, the RESTARTS count climbs,
-    `kubectl describe pod` shows "Liveness probe failed" events.
+    `kubectl describe pod` shows "Liveness probe failed" events, and
+    `kubectl logs --previous` shows the last lines of the container that was
+    killed.
   - Slow start: with the startup probe the pod survives a 40 s migration;
     without it, liveness kills it mid-migration.
 - Manifest: the probe section of `golinks-deployment.yaml`.
 
-### Episode 7: TLS (cert-manager and the internal CA)
+### Episode 7: Logs (where they go, on-prem)
+
+Placed after probes: Episode 6 ends with a restarted container whose logs are
+half gone, which is the question this episode answers.
+
+- Apps write logs to stdout and stderr, one JSON object per line. They never
+  write log files inside the container, and they never send logs to a service
+  themselves.
+- Where they land: containerd writes each container's output to a file on its
+  node, under `/var/log/pods/<namespace>_<pod>_<uid>/<container>/`. The kubelet
+  rotates those files (by default at 10 MiB, keeping 5).
+- `kubectl logs` asks the API server, which asks that node's kubelet to read the
+  file. So: one pod at a time, only what is still on that node, and
+  `--previous` reaches back one restart only.
+- A Service has no logs of its own; pods do. `kubectl logs svc/...` just picks
+  one pod behind it.
+- What is lost and when: delete the pod, or let a rolling update replace it,
+  and its log files are deleted with it. Lose the node, and they go too.
+  Kubernetes itself keeps no log history ("cluster-level logging" is left to
+  you).
+- The standard answer, on-prem:
+  - A node agent as a DaemonSet (one pod per node) tails `/var/log/pods`, adds
+    the namespace, pod and labels, and ships each line off the node. We use
+    Grafana Alloy (Promtail, its predecessor, reached end of life in March 2026);
+    Fluent Bit is the other common choice.
+  - A log store inside the cluster: Grafana Loki in single-binary mode, with
+    its data on a PersistentVolume (local-path in the demo; a NAS-backed
+    storage class or S3-compatible storage such as MinIO in production) and a
+    retention period, for example 14 days.
+  - Grafana to search it: `{namespace="golinks"} |= "error"` across every pod,
+    including pods that no longer exist.
+  - Many companies also forward to an existing on-prem system (Elasticsearch,
+    OpenSearch, Splunk or syslog to the security team's SIEM); the agent can
+    send to both.
+- Why not write logs to a PersistentVolume from the app: each replica would need
+  its own file, nothing rotates or searches them, and a volume can only be
+  mounted in some places. The sidecar pattern exists for old apps that can
+  only write files, and we skip it.
+- Demo: follow logs across both pods, delete one pod, `kubectl logs` can no
+  longer find it, but Grafana still shows its last lines.
+- Checks: `kubectl get daemonset -n logging`, `kubectl logs -n logging ds/alloy`,
+  a LogQL query in Grafana.
+- Manifests: Helm values for Loki, Alloy and Grafana in `manifests/logging/`,
+  installed with k3s' built-in HelmChart resources so nothing outside the
+  cluster is needed.
+
+### Episode 8: TLS (cert-manager and the internal CA)
 
 - Why browsers and other services need HTTPS even inside the company.
 - cert-manager: Issuer vs ClusterIssuer, a CA issuer backed by the company's
@@ -236,7 +297,7 @@ the dependency readiness checks.
 - Checks: `kubectl get certificate,certificaterequest -n golinks`,
   `curl -v https://go.corp.internal/standup`.
 
-### Episode 8: Auth (Keycloak, kept light)
+### Episode 9: Auth (Keycloak, kept light)
 
 - The company has a Keycloak realm, `corp`. Keycloak issues tokens; the API
   checks them.
@@ -252,7 +313,7 @@ the dependency readiness checks.
 - Checks: `curl` the token endpoint, then `PUT /api/links/release-notes` with
   and without the token (201 vs 401).
 
-### Episode 9: One request, end to end
+### Episode 10: One request, end to end
 
 - Follow `https://go.corp.internal/jira/1234` from a laptop: company DNS →
   ServiceLB node IP → Traefik (TLS) → Ingress rule → Service → EndpointSlice →
@@ -260,7 +321,7 @@ the dependency readiness checks.
 - Then a write: release pipeline → Keycloak token → API middleware → database.
 - At each hop, the `kubectl` command that proves that piece works.
 
-### Episode 10: Kustomize
+### Episode 11: Kustomize
 
 - The problem: the same app in dev and prod with small differences.
 - Refactor the series' manifests into `manifests/base` plus
@@ -268,7 +329,7 @@ the dependency readiness checks.
   hostnames, resource sizes, image tags).
 - `kubectl kustomize` to preview, `kubectl apply -k` to apply.
 
-### Episode 11: Argo CD (GitOps)
+### Episode 12: Argo CD (GitOps)
 
 - Git becomes the spec. Argo CD is a controller whose desired state is a path
   in a repository, which ties straight back to Episode 0's reconcile loop.
@@ -280,8 +341,8 @@ the dependency readiness checks.
 ## Manifests layout
 
 `manifests/base/` holds one file per resource and a `kustomization.yaml` from
-day one, so Episode 10 only adds overlays instead of moving files. Episodes 2 to 5
-add files to the base as they introduce them. cert-manager, Keycloak and Argo CD
+day one, so Episode 11 only adds overlays instead of moving files. Episodes 2 to 5
+add files to the base as they introduce them. Logging, cert-manager, Keycloak and Argo CD
 resources go in their own folders when their episodes are built.
 
 ```
@@ -296,7 +357,8 @@ manifests/
     golinks-ingress.yaml
     postgres-service.yaml
     postgres-statefulset.yaml
-  overlays/            (Episode 10)
+  logging/             (Episode 7: Helm values for Loki, Alloy, Grafana)
+  overlays/            (Episode 11)
     dev/
     prod/
 ```
