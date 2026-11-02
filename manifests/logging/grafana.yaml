@@ -1,0 +1,30 @@
+# Grafana searches the logs, at grafana.corp.internal. The chart generates the
+# admin password and keeps it in the Secret grafana, so none is in git.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: grafana
+  namespace: kube-system
+spec:
+  repo: https://grafana-community.github.io/helm-charts
+  chart: grafana
+  version: 14.3.0
+  targetNamespace: logging
+  valuesContent: |-
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        datasources:
+          - name: Loki
+            type: loki
+            url: http://loki.logging:3100
+            isDefault: true
+    persistence:
+      enabled: true
+      storageClassName: local-path
+      size: 5Gi
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+        - grafana.corp.internal

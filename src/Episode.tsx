@@ -37,7 +37,7 @@ export const Episode: React.FC<EpisodeProps> = ({ episodeId, timing }) => {
   const script = episodes[episodeId];
   if (!script || !timing) throw new Error(`No script or timing for episode ${episodeId}`);
   return (
-    <AbsoluteFill style={{ background: theme.bg }}>
+    <AbsoluteFill style={{ background: theme.bg, fontVariantLigatures: "none" }}>
       <Backdrop />
       {timing.audio ? <Audio src={staticFile(timing.audio)} /> : null}
       {script.scenes.map((scene, i) => {

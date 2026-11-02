@@ -1001,6 +1001,68 @@
         "three ninety-nine",
         "three ninety nine"
       ]
+    },
+    {
+      "match": "DaemonSet",
+      "say": "daemon set",
+      "heard": [
+        "daemonset",
+        "daemon set",
+        "demon set"
+      ]
+    },
+    {
+      "match": "DaemonSets",
+      "say": "daemon sets",
+      "heard": [
+        "daemonsets",
+        "daemon sets",
+        "demon sets"
+      ]
+    },
+    {
+      "match": "LogQL",
+      "say": "log Q L",
+      "heard": [
+        "logql",
+        "log q l",
+        "log ql",
+        "log qL"
+      ]
+    },
+    {
+      "match": "HelmChart",
+      "say": "helm chart",
+      "heard": [
+        "helmchart",
+        "helm chart"
+      ]
+    },
+    {
+      "match": "Elasticsearch",
+      "say": "elastic search",
+      "heard": [
+        "elasticsearch",
+        "elastic search"
+      ]
+    },
+    {
+      "match": "SIEM",
+      "say": "sim",
+      "heard": [
+        "siem",
+        "sim",
+        "seem"
+      ]
+    },
+    {
+      "match": "grafana.corp.internal",
+      "say": "grafana dot corp dot internal",
+      "heard": [
+        "grafana.corp.internal",
+        "grafana dot corp dot internal",
+        "graphana.corp.internal"
+      ]
     }
   ],
   "rules": [
@@ -1264,6 +1326,7 @@
     "bodies",
     "carries",
     "certified",
+    "companies",
     "denied",
     "dependencies",
     "directories",

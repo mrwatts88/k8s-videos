@@ -1,0 +1,9 @@
+# Logging (Episode 7): Loki stores, Alloy ships, Grafana searches. k3s' Helm
+# controller installs each chart. Apply with kubectl apply -k manifests/logging.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - loki.yaml
+  - alloy.yaml
+  - grafana.yaml
