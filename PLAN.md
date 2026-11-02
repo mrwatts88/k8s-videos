@@ -357,6 +357,13 @@ half gone, which is the question this episode answers.
   pod → Postgres → `302`.
 - Then a write: release pipeline → Keycloak token → API middleware → database.
 - At each hop, the `kubectl` command that proves that piece works.
+- As built: a `jira` link with a `{1}` placeholder is created first, with a
+  person's token. Hops shown: `dig`, the svclb pods per node, `kubectl describe
+  ingress` (TLS and rule), EndpointSlices and `get pods -o wide`, the request
+  in Loki, `nslookup` from a throwaway busybox pod, and the row in psql. A
+  diagram shows the trip on the three machines (Flannel between nodes). Traefik
+  sends straight to pod endpoints, not through the Service's ClusterIP. Ends
+  with a symptom-to-hop debugging table.
 
 ### Episode 11: Scaling
 
