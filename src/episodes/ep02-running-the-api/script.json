@@ -1,0 +1,964 @@
+{
+  "id": "ep02-running-the-api",
+  "number": 2,
+  "title": "Running the API",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 2",
+      "title": "Running the API",
+      "subtitle": "A Deployment, its ReplicaSet, and its pods",
+      "lines": [
+        {
+          "text": "Last time we made an empty namespace called golinks."
+        },
+        {
+          "text": "Now we put the go links API in it, with a Deployment.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "why-deployment",
+      "type": "diagram",
+      "title": "Why not just a pod?",
+      "boxes": [
+        {
+          "id": "lone",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 600,
+          "y": 300,
+          "w": 400,
+          "h": 90,
+          "tone": "good"
+        },
+        {
+          "id": "gone",
+          "kind": "note",
+          "label": "nothing brings it back",
+          "x": 550,
+          "y": 430,
+          "w": 500,
+          "h": 60,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "dep",
+          "label": "Deployment",
+          "sublabel": "golinks, replicas: 2",
+          "x": 600,
+          "y": 40,
+          "w": 400,
+          "h": 120,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "rs",
+          "label": "ReplicaSet",
+          "sublabel": "golinks-7d9c5b6f4d",
+          "x": 600,
+          "y": 300,
+          "w": 400,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "p1",
+          "kind": "pod",
+          "label": "golinks-7d9c5b6f4d-h2xkp",
+          "x": 200,
+          "y": 600,
+          "w": 520,
+          "h": 90,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "kind": "pod",
+          "label": "golinks-7d9c5b6f4d-v8mzq",
+          "x": 880,
+          "y": 600,
+          "w": 520,
+          "h": 90,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "dep",
+          "to": "rs",
+          "label": "creates",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "rs",
+          "to": "p1",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "rs",
+          "to": "p2",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "tone": {
+            "lone": "bad"
+          },
+          "show": [
+            "gone"
+          ]
+        },
+        {
+          "at": 2,
+          "hide": [
+            "lone",
+            "gone"
+          ],
+          "show": [
+            "dep"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "rs",
+            "a1"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "p1",
+            "p2",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "at": 5,
+          "flow": [
+            "a1",
+            "a2",
+            "a3"
+          ],
+          "focus": [
+            "dep",
+            "rs"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "You could ask the cluster for a single pod, and it would run."
+        },
+        {
+          "text": "But if that pod's node fails, the pod is simply gone."
+        },
+        {
+          "text": "So you almost never create pods yourself. You create a Deployment."
+        },
+        {
+          "text": "The Deployment creates a ReplicaSet, whose only job is keeping the right number of pods running."
+        },
+        {
+          "text": "And the ReplicaSet creates the pods: two of them, because we'll ask for two."
+        },
+        {
+          "text": "Each layer is a controller running the loop from Episode 0: compare what you asked for with what's running, and close the gap.",
+          "senses": {
+            "close": "verb"
+          },
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "labels",
+      "type": "diagram",
+      "title": "Labels and selectors",
+      "boxes": [
+        {
+          "id": "rs",
+          "label": "ReplicaSet",
+          "sublabel": "selector: app.kubernetes.io/name=golinks",
+          "x": 400,
+          "y": 40,
+          "w": 800,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "p1",
+          "kind": "pod",
+          "label": "golinks-7d9c5b6f4d-h2xkp",
+          "sublabel": "app.kubernetes.io/name=golinks",
+          "x": 40,
+          "y": 480,
+          "w": 480,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "kind": "pod",
+          "label": "golinks-7d9c5b6f4d-v8mzq",
+          "sublabel": "app.kubernetes.io/name=golinks",
+          "x": 560,
+          "y": 480,
+          "w": 480,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "p3",
+          "kind": "pod",
+          "label": "postgres-0",
+          "sublabel": "app.kubernetes.io/name=postgres",
+          "x": 1080,
+          "y": 480,
+          "w": 480,
+          "h": 120,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "rs",
+          "to": "p1",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "rs",
+          "to": "p2",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "p1",
+            "p2",
+            "p3"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "a1",
+            "a2"
+          ],
+          "tone": {
+            "p1": "good",
+            "p2": "good"
+          }
+        },
+        {
+          "at": 3,
+          "focus": [
+            "p3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "How does a ReplicaSet know which pods are its own? Labels."
+        },
+        {
+          "text": "Every pod carries labels, small key and value tags. Ours all carry the same name label, set to golinks."
+        },
+        {
+          "text": "The ReplicaSet's selector matches that label, so it counts these two pods as its own."
+        },
+        {
+          "text": "A pod with a different label, like the database we'll add later, is invisible to it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "deployment-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        1,
+        23
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            1,
+            7
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            9
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            10,
+            12
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            13,
+            16
+          ]
+        },
+        {
+          "at": 4,
+          "lines": [
+            18,
+            23
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the manifest. Like every object, it starts with a kind and a name, in our namespace, with our label.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "replicas: 2 is the desired state: two copies of the API, all the time."
+        },
+        {
+          "text": "The selector says which pods belong to this Deployment."
+        },
+        {
+          "text": "The template is the pod it stamps out. Its labels must match the selector, or the API server rejects the Deployment."
+        },
+        {
+          "text": "Inside is the container: our image, and the port the app listens on, 8080, named http so the rest of the file can refer to it by name.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "config-preview",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        17,
+        32
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            24,
+            26
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            27,
+            32
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The app reads its settings from a ConfigMap called golinks-config.",
+          "say": "The app reads its settings from a ConfigMap called golinks config."
+        },
+        {
+          "text": "And the database password comes from a Secret. Episode 3 opens up both.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "probes",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        33,
+        56
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            35,
+            40
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            42,
+            48
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            50,
+            56
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Next come three health checks, called probes. The startup probe gives the app up to a minute to start, and holds off the other two until it has.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "The liveness probe asks whether the process is still healthy. If it fails three times in a row, the kubelet restarts the container."
+        },
+        {
+          "text": "The readiness probe asks whether the pod can serve requests right now, database included. If not, it stops getting traffic, but it isn't restarted."
+        },
+        {
+          "text": "Episode 6 covers all three in depth, once there's a database and a Service to test them against.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "resources",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        49,
+        62
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            58,
+            60
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            61,
+            62
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Last, resources. Requests are what the pod is promised: a tenth of a CPU core, and 64 mebibytes of memory."
+        },
+        {
+          "text": "The limit is a ceiling. If the app ever takes more than 128 mebibytes, it's killed and restarted."
+        },
+        {
+          "text": "We leave out a CPU limit on purpose. Hitting one slows the app down instead of stopping it, which is much harder to notice.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "scheduler",
+      "type": "diagram",
+      "title": "Requests and the scheduler",
+      "boxes": [
+        {
+          "id": "pod",
+          "kind": "pod",
+          "label": "new golinks pod",
+          "sublabel": "requests: 100m CPU, 64Mi",
+          "x": 560,
+          "y": 30,
+          "w": 480,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "sch",
+          "label": "Scheduler",
+          "x": 640,
+          "y": 250,
+          "w": 320,
+          "h": 90
+        },
+        {
+          "id": "n1",
+          "label": "k3s-server-1",
+          "sublabel": "unrequested: 50m CPU",
+          "x": 40,
+          "y": 560,
+          "w": 480,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "n2",
+          "label": "k3s-agent-1",
+          "sublabel": "unrequested: 1.2 CPU, 900Mi",
+          "x": 560,
+          "y": 560,
+          "w": 480,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "n3",
+          "label": "k3s-agent-2",
+          "sublabel": "unrequested: 800m CPU, 2Gi",
+          "x": 1080,
+          "y": 560,
+          "w": 480,
+          "h": 130,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a0",
+          "from": "pod",
+          "to": "sch"
+        },
+        {
+          "id": "a1",
+          "from": "sch",
+          "to": "n2",
+          "label": "bind",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "n1",
+            "n2",
+            "n3"
+          ],
+          "tone": {
+            "n1": "bad"
+          }
+        },
+        {
+          "at": 2,
+          "show": [
+            "a1"
+          ],
+          "tone": {
+            "n2": "good",
+            "n3": "good"
+          },
+          "focus": [
+            "n2"
+          ]
+        },
+        {
+          "at": 3,
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "Requests matter most to the scheduler."
+        },
+        {
+          "text": "It only places a pod where its requests still fit. The server has just 50 millicores left unrequested, so it's out."
+        },
+        {
+          "text": "Both agents have room, so it picks one, here agent one, and the pod is bound there."
+        },
+        {
+          "text": "Note that it counts requests, not real usage. A node full of idle pods that asked for a lot still looks full.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/golinks-configmap.yaml -f manifests/base/postgres-secret.yaml",
+          "output": [
+            "configmap/golinks-config created",
+            "secret/postgres-credentials created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl apply -f manifests/base/golinks-deployment.yaml",
+          "output": [
+            "deployment.apps/golinks created"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get deploy,rs,pods -n golinks",
+          "output": [
+            "NAME                      READY   UP-TO-DATE   AVAILABLE   AGE",
+            "deployment.apps/golinks   0/2     2            0           40s",
+            "",
+            "NAME                                 DESIRED   CURRENT   READY   AGE",
+            "replicaset.apps/golinks-7d9c5b6f4d   2         2         0       40s",
+            "",
+            "NAME                           READY   STATUS    RESTARTS   AGE",
+            "pod/golinks-7d9c5b6f4d-h2xkp   0/1     Running   0          40s",
+            "pod/golinks-7d9c5b6f4d-v8mzq   0/1     Running   0          40s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Time to apply it. The ConfigMap and Secret go in first, so the pods have something to read when they start.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "Then the Deployment itself."
+        },
+        {
+          "text": "Ask for all three layers at once, and there they are: the Deployment, its ReplicaSet, and two pods."
+        },
+        {
+          "text": "Each pod's name is the ReplicaSet's name plus a random suffix. The ReplicaSet's name is the Deployment's, plus a hash of the pod template."
+        },
+        {
+          "text": "But look at READY: zero of one, on both pods.",
+          "say": "But look at the ready column: zero of one, on both pods.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "not-ready",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl describe pod golinks-7d9c5b6f4d-h2xkp -n golinks | grep -A6 Cond",
+          "output": [
+            "Conditions:",
+            "  Type                        Status",
+            "  PodReadyToStartContainers   True",
+            "  Initialized                 True",
+            "  Ready                       False",
+            "  ContainersReady             False",
+            "  PodScheduled                True"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl describe pod golinks-7d9c5b6f4d-h2xkp -n golinks | grep Unhealthy",
+          "output": [
+            "  Warning  Unhealthy  4s (x10 over 50s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 503"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl rollout status deployment/golinks -n golinks --timeout=60s",
+          "output": [
+            "Waiting for deployment \"golinks\" rollout to finish: 0 of 2 updated replicas are available...",
+            "error: timed out waiting for the condition"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "describe tells you why. The pod is scheduled and its container started, but Ready is False."
+        },
+        {
+          "text": "Its events say the readiness probe keeps failing, with a 503.",
+          "say": "Its events say the readiness probe keeps failing, with a five oh three."
+        },
+        {
+          "text": "rollout status waits for the pods to become ready, and gives up after a minute.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "Nothing is broken. Readiness checks the database, and the database doesn't exist yet."
+        },
+        {
+          "text": "It arrives in Episode 4, and these pods will turn ready on their own.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "self-heal",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl delete pod golinks-7d9c5b6f4d-h2xkp -n golinks",
+          "output": [
+            "pod \"golinks-7d9c5b6f4d-h2xkp\" deleted"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7d9c5b6f4d-v8mzq   0/1     Running   0          3m12s",
+            "golinks-7d9c5b6f4d-wq7tn   0/1     Running   0          4s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "One more test: delete a pod, the way a failed node would."
+        },
+        {
+          "text": "List again, and there's a new one, four seconds old."
+        },
+        {
+          "text": "The ReplicaSet saw one missing and replaced it, just like the loop in Episode 0.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "rolling",
+      "type": "diagram",
+      "title": "Rolling updates",
+      "boxes": [
+        {
+          "id": "dep",
+          "label": "Deployment",
+          "sublabel": "image: golinks:0.1.0",
+          "x": 600,
+          "y": 30,
+          "w": 400,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "dep2",
+          "label": "Deployment",
+          "sublabel": "image: golinks:0.2.0",
+          "x": 600,
+          "y": 30,
+          "w": 400,
+          "h": 120,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "old",
+          "label": "old ReplicaSet",
+          "sublabel": "0.1.0",
+          "x": 160,
+          "y": 280,
+          "w": 480,
+          "h": 110
+        },
+        {
+          "id": "new",
+          "label": "new ReplicaSet",
+          "sublabel": "0.2.0",
+          "x": 960,
+          "y": 280,
+          "w": 480,
+          "h": 110,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "o1",
+          "kind": "pod",
+          "label": "0.1.0",
+          "x": 160,
+          "y": 580,
+          "w": 220,
+          "h": 80
+        },
+        {
+          "id": "o2",
+          "kind": "pod",
+          "label": "0.1.0",
+          "x": 420,
+          "y": 580,
+          "w": 220,
+          "h": 80
+        },
+        {
+          "id": "n1",
+          "kind": "pod",
+          "label": "0.2.0",
+          "x": 960,
+          "y": 580,
+          "w": 220,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "n2",
+          "kind": "pod",
+          "label": "0.2.0",
+          "x": 1220,
+          "y": 580,
+          "w": 220,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "ad",
+          "from": "dep",
+          "to": "old"
+        },
+        {
+          "id": "ad2",
+          "from": "dep2",
+          "to": "old",
+          "hidden": true
+        },
+        {
+          "id": "an",
+          "from": "dep2",
+          "to": "new",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "ao1",
+          "from": "old",
+          "to": "o1"
+        },
+        {
+          "id": "ao2",
+          "from": "old",
+          "to": "o2"
+        },
+        {
+          "id": "an1",
+          "from": "new",
+          "to": "n1",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "an2",
+          "from": "new",
+          "to": "n2",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "hide": [
+            "dep",
+            "ad"
+          ],
+          "show": [
+            "dep2",
+            "ad2",
+            "new",
+            "an"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "n1",
+            "an1"
+          ],
+          "hide": [
+            "o1",
+            "ao1"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "n2",
+            "an2"
+          ],
+          "hide": [
+            "o2",
+            "ao2"
+          ],
+          "tone": {
+            "old": "neutral"
+          }
+        },
+        {
+          "at": 4,
+          "focus": [
+            "old"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Last idea: what happens when there's a new version."
+        },
+        {
+          "text": "Change the image in the manifest and apply it, and the Deployment makes a second ReplicaSet for the new template."
+        },
+        {
+          "text": "It brings up a new pod, and once that one is ready, retires an old one."
+        },
+        {
+          "text": "Then the next, until every pod runs the new version. That's a rolling update, and nobody notices the swap."
+        },
+        {
+          "text": "The old ReplicaSet stays around, scaled to zero, so rolling back is a single command.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 3: Configuration",
+      "subtitle": "ConfigMaps and Secrets",
+      "lines": [
+        {
+          "text": "That's a Deployment: a ReplicaSet, pods matched by labels, and resources the scheduler can plan around."
+        },
+        {
+          "text": "Next time, we open up the ConfigMap and the Secret it reads from.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

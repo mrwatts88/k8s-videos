@@ -9,13 +9,14 @@
   "sceneTailSec": 1.2,
   "estimateWordsPerSec": 2.4,
   "terminal": {
-    "_doc": "A command starts typing typeDelaySec after its narration line starts, types at typeCharsPerSec (at most maxTypeSec), waits outputBeatSec, then prints. The next line waits until the output has been on screen for outputReadSec.",
+    "_doc": "A command starts typing typeDelaySec after its narration line starts, types at typeCharsPerSec (at most maxTypeSec), waits outputBeatSec, then prints. The next line waits until the output has been on screen for outputReadSec. Lines longer than columns characters wrap onto the next row, as a real terminal does; wrapping changes nothing in the timing.",
     "typeDelaySec": 0.3,
     "typeCharsPerSec": 18,
     "maxTypeSec": 2.5,
     "outputBeatSec": 0.7,
     "outputStaggerSec": 0.07,
-    "outputReadSec": 1.4
+    "outputReadSec": 1.4,
+    "columns": 79
   },
   "diagram": {
     "width": 1600,

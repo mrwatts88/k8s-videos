@@ -50,6 +50,10 @@ Chromium from npm and prints its path; pass it as `REMOTION_BROWSER`.
 3. Visuals follow narration by line index within the scene:
    - `terminal` scenes: each step has `at` (the line that starts it), `command`,
      and `output` lines. Write realistic output; nothing runs on a cluster.
+     A row holds 79 characters (`terminal.columns` in `src/timing.json`);
+     longer lines wrap like a real terminal, which is hard to read in a table,
+     so prefer a command whose output fits (a `grep`, a narrower `-o`), and
+     about 15 rows show at once.
    - `code` scenes: `file` is a path under `manifests/`, `range` limits the lines
      shown, and each highlight has `at` and inclusive `lines`. Line numbers are
      the file's own, so re-check highlights when a manifest changes.
