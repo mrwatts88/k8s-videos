@@ -398,6 +398,17 @@ half gone, which is the question this episode answers.
   `manifests/overlays/dev` and `manifests/overlays/prod` (the HPA's minimum
   and maximum, hostnames, resource sizes, image tags).
 - `kubectl kustomize` to preview, `kubectl apply -k` to apply.
+- As built: the base stays where it was; `overlays/prod` sets the namespace,
+  an `environment: prod` label (with `labels`, not `commonLabels`, so
+  selectors stay put) and the image tag. `overlays/dev` adds the golinks-dev
+  namespace, image 0.2.0, and five targeted patches: the HPA (1 to 2 pods),
+  LOG_LEVEL debug, a smaller Postgres (requests and a 1 GiB disk), and JSON
+  patches for the hostname go-dev.corp.internal in the Ingress and the
+  Certificate. The trap: the namespace setting doesn't rewrite values, and the
+  config named the database as `postgres-0.postgres.golinks.svc.cluster.local`,
+  so dev would have used prod's database; the base now says
+  `postgres-0.postgres`. `scripts/validate-manifests.sh` skips overlay patch
+  files, which are checked through the kustomize builds.
 
 ### Episode 13: Argo CD (GitOps)
 

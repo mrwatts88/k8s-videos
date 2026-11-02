@@ -1,0 +1,1069 @@
+{
+  "id": "ep12-kustomize",
+  "number": 12,
+  "title": "Kustomize",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 12",
+      "title": "Kustomize",
+      "subtitle": "One app, a dev and a prod",
+      "lines": [
+        {
+          "text": "So far there's one golinks, at go.corp.internal, and every change lands straight in front of the whole company.",
+          "say": "So far there's one go links, at go.corp.internal, and every change lands straight in front of the whole company."
+        },
+        {
+          "text": "Today we add a second copy for trying things first, without copying a single file.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "diff",
+      "type": "diagram",
+      "title": "Two copies, small differences",
+      "boxes": [
+        {
+          "id": "same",
+          "label": "the same in both",
+          "sublabel": "Deployment, Services, probes, Postgres",
+          "x": 60,
+          "y": 90,
+          "w": 1480,
+          "h": 120
+        },
+        {
+          "id": "dh",
+          "kind": "note",
+          "label": "dev",
+          "x": 360,
+          "y": 250,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "ph",
+          "kind": "note",
+          "label": "prod",
+          "x": 1040,
+          "y": 250,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r1",
+          "kind": "note",
+          "label": "namespace",
+          "x": 60,
+          "y": 320,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d1",
+          "kind": "note",
+          "label": "golinks-dev",
+          "x": 360,
+          "y": 320,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p1",
+          "kind": "note",
+          "label": "golinks",
+          "x": 1040,
+          "y": 320,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r2",
+          "kind": "note",
+          "label": "hostname",
+          "x": 60,
+          "y": 390,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d2",
+          "kind": "note",
+          "label": "go-dev.corp.internal",
+          "x": 360,
+          "y": 390,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "kind": "note",
+          "label": "go.corp.internal",
+          "x": 1040,
+          "y": 390,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r3",
+          "kind": "note",
+          "label": "image",
+          "x": 60,
+          "y": 460,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d3",
+          "kind": "note",
+          "label": "the next version",
+          "x": 360,
+          "y": 460,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p3",
+          "kind": "note",
+          "label": "the released one",
+          "x": 1040,
+          "y": 460,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r4",
+          "kind": "note",
+          "label": "pods",
+          "x": 60,
+          "y": 530,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d4",
+          "kind": "note",
+          "label": "1 to 2",
+          "x": 360,
+          "y": 530,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p4",
+          "kind": "note",
+          "label": "2 to 6",
+          "x": 1040,
+          "y": 530,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r5",
+          "kind": "note",
+          "label": "database",
+          "x": 60,
+          "y": 600,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d5",
+          "kind": "note",
+          "label": "small, 1 GiB",
+          "x": 360,
+          "y": 600,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p5",
+          "kind": "note",
+          "label": "5 GiB",
+          "x": 1040,
+          "y": 600,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "r6",
+          "kind": "note",
+          "label": "logs",
+          "x": 60,
+          "y": 670,
+          "w": 300,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "d6",
+          "kind": "note",
+          "label": "debug",
+          "x": 360,
+          "y": 670,
+          "w": 500,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p6",
+          "kind": "note",
+          "label": "info",
+          "x": 1040,
+          "y": 670,
+          "w": 500,
+          "h": 60,
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "dh",
+            "ph",
+            "r1",
+            "d1",
+            "p1",
+            "r2",
+            "d2",
+            "p2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "r3",
+            "d3",
+            "p3",
+            "r4",
+            "d4",
+            "p4",
+            "r5",
+            "d5",
+            "p5",
+            "r6",
+            "d6",
+            "p6"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A dev copy and the prod copy are almost the same: the same Deployment, Services, probes and database."
+        },
+        {
+          "text": "A few things have to differ. Its own namespace, so the two never touch, and its own hostname."
+        },
+        {
+          "text": "Dev runs the next version of the image, fewer pods, a smaller database, and more detailed logs."
+        },
+        {
+          "text": "Copying the whole folder works for a week. Then someone fixes a probe in one copy and not the other, and the two quietly drift apart.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "idea",
+      "type": "diagram",
+      "title": "A base, and an overlay per environment",
+      "boxes": [
+        {
+          "id": "base",
+          "label": "manifests/base",
+          "sublabel": "everything they share",
+          "x": 560,
+          "y": 90,
+          "w": 480,
+          "h": 130
+        },
+        {
+          "id": "dev",
+          "label": "overlays/dev",
+          "sublabel": "only what's different",
+          "x": 160,
+          "y": 330,
+          "w": 480,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "prod",
+          "label": "overlays/prod",
+          "sublabel": "only what's different",
+          "x": 960,
+          "y": 330,
+          "w": 480,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "out",
+          "label": "plain YAML",
+          "sublabel": "kubectl kustomize",
+          "x": 560,
+          "y": 570,
+          "w": 480,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "base",
+          "to": "dev",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "base",
+          "to": "prod",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "dev",
+          "to": "out",
+          "hidden": true
+        },
+        {
+          "id": "a4",
+          "from": "prod",
+          "to": "out",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "dev",
+            "prod",
+            "a1",
+            "a2"
+          ],
+          "flow": [
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "out",
+            "a3",
+            "a4"
+          ],
+          "flow": [
+            "a3",
+            "a4"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "Kustomize splits it in two. The base holds everything the copies share. Ours has been there since Episode 2, in manifests/base."
+        },
+        {
+          "text": "Each environment gets an overlay: a small folder that points at the base, and says only what's different."
+        },
+        {
+          "text": "Kustomize reads an overlay, applies its changes to the base, and prints ordinary YAML. It's built into kubectl, so there's nothing to install.",
+          "say": "Kustomize reads an overlay, applies its changes to the base, and prints ordinary YAML. It's built into cube control, so there's nothing to install."
+        },
+        {
+          "text": "There are no templates, unlike the Helm charts from Episode 7. The base is real YAML that would apply on its own, and overlays patch it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "prod-yaml",
+      "type": "code",
+      "file": "manifests/overlays/prod/kustomization.yaml",
+      "range": [
+        3,
+        13
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            5,
+            7
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            8,
+            10
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            11,
+            13
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the prod overlay, and it's short. Use the golinks namespace, and start from the base, two folders up.",
+          "say": "Here's the prod overlay, and it's short. Use the go links namespace, and start from the base, two folders up.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "Add a label, environment: prod, to every object it makes.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "This is labels, not the older commonLabels, on purpose: commonLabels also changes selectors, and a Deployment's selector can't be changed once it exists."
+        },
+        {
+          "text": "And pin the image tag. Releasing a new version of golinks means changing this one line.",
+          "say": "And pin the image tag. Releasing a new version of go links means changing this one line.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "dev-yaml",
+      "type": "code",
+      "file": "manifests/overlays/dev/kustomization.yaml",
+      "range": [
+        3,
+        34
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            5,
+            10
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            11,
+            13
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            14,
+            18
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            27,
+            34
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The dev overlay starts the same way, with its own namespace, golinks-dev, and its own label.",
+          "say": "The dev overlay starts the same way, with its own namespace, go links dash dev, and its own label."
+        },
+        {
+          "text": "It runs the next image, 0.2.0.",
+          "say": "It runs the next image, zero point two point zero."
+        },
+        {
+          "text": "Then a list of patches. Each names a target, by kind and name, and a small file that says what to change in it."
+        },
+        {
+          "text": "Five in all: the HPA, the config, Postgres, and the hostname in both the Ingress and the Certificate.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "hpa-patch",
+      "type": "code",
+      "file": "manifests/overlays/dev/hpa.yaml",
+      "range": [
+        1,
+        8
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            2,
+            5
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            6,
+            8
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Most patches look like this: a piece of the same object, written as YAML.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "Only the fields that change: one or two pods in dev. Everything else in the HPA comes from the base, untouched."
+        },
+        {
+          "text": "The config patch works the same way, setting just LOG_LEVEL to debug. So does Postgres, with a smaller disk and smaller requests.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "host-patch",
+      "type": "code",
+      "file": "manifests/overlays/dev/hostname.yaml",
+      "range": [
+        1,
+        7
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            2,
+            4
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            5,
+            7
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The hostname is in lists, which a piece of YAML can't point into easily. So this patch is a JSON patch: replace the value at an exact path.",
+          "say": "The hostname is in lists, which a piece of YAML can't point into easily. So this patch is a jason patch: replace the value at an exact path."
+        },
+        {
+          "text": "The first rule's host, and the first host in the TLS section. The Certificate gets the same change, so cert-manager issues one for go-dev.corp.internal.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "preview",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl kustomize manifests/overlays/dev > dev.yaml"
+        },
+        {
+          "at": 1,
+          "command": "grep -E '^  namespace:|host:|image:|Replicas:' dev.yaml | sort | uniq -c",
+          "output": [
+            "      1         image: postgres:17",
+            "      1         image: registry.corp.internal/platform/golinks:0.2.0",
+            "      1   - host: go-dev.corp.internal",
+            "      1   maxReplicas: 2",
+            "      1   minReplicas: 1",
+            "     10   namespace: golinks-dev"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Before applying anything, look. kubectl kustomize builds the overlay and prints the result, without touching the cluster.",
+          "say": "Before applying anything, look. Cube control kustomize builds the overlay and prints the result, without touching the cluster."
+        },
+        {
+          "text": "A quick check of the parts that should differ. The new image, the dev hostname, one to two pods."
+        },
+        {
+          "text": "And golinks-dev on all ten objects that sit inside a namespace. The eleventh is the Namespace itself, which Kustomize renamed to match.",
+          "say": "And go links dash dev on all ten objects that sit inside a namespace. The eleventh is the Namespace itself, which Kustomize renamed to match.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "trap",
+      "type": "diagram",
+      "title": "The one thing the namespace setting misses",
+      "boxes": [
+        {
+          "id": "dpod",
+          "label": "golinks pod",
+          "sublabel": "in golinks-dev",
+          "x": 60,
+          "y": 90,
+          "w": 440,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "ppg",
+          "label": "Postgres",
+          "sublabel": "in golinks: prod",
+          "x": 1100,
+          "y": 90,
+          "w": 440,
+          "h": 120,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "old",
+          "kind": "note",
+          "label": "DATABASE_HOST: postgres-0.postgres.golinks.svc.cluster.local",
+          "x": 60,
+          "y": 240,
+          "w": 1480,
+          "h": 70,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "dpod2",
+          "label": "golinks pod",
+          "sublabel": "in golinks-dev",
+          "x": 60,
+          "y": 430,
+          "w": 440,
+          "h": 120,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "dpg",
+          "label": "Postgres",
+          "sublabel": "in golinks-dev",
+          "x": 1100,
+          "y": 430,
+          "w": 440,
+          "h": 120,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "new",
+          "kind": "note",
+          "label": "DATABASE_HOST: postgres-0.postgres",
+          "x": 60,
+          "y": 580,
+          "w": 1480,
+          "h": 70,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "bad",
+          "from": "dpod",
+          "to": "ppg",
+          "label": "the wrong database",
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "good",
+          "from": "dpod2",
+          "to": "dpg",
+          "label": "its own",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "old"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "ppg",
+            "bad"
+          ],
+          "flow": [
+            "bad"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "dpod2",
+            "new",
+            "dpg",
+            "good"
+          ],
+          "flow": [
+            "good"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "One trap. The namespace setting changes namespace fields, but not text inside values. And our config spelled out the database's full name, namespace and all."
+        },
+        {
+          "text": "So a dev pod would have connected to the prod database, and every test link would land among the real ones."
+        },
+        {
+          "text": "Nothing would have failed. That's what makes it dangerous."
+        },
+        {
+          "text": "The fix is in the base: the short name, postgres-0.postgres. DNS inside a pod tries its own namespace first, so each copy finds its own database.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "prod-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl diff -k manifests/overlays/prod | grep '^[-+] ' | sort | uniq -c",
+          "output": [
+            "      1 +  DATABASE_HOST: postgres-0.postgres",
+            "      1 -  DATABASE_HOST: postgres-0.postgres.golinks.svc.cluster.local",
+            "     11 +    environment: prod"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl apply -k manifests/overlays/prod | awk '{print $2}' | sort | uniq -c",
+          "output": [
+            "     11 configured"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Prod first, since it's already running. kubectl diff, with the k flag for Kustomize, shows what an apply would change. Here filtered to just the changed lines.",
+          "say": "Prod first, since it's already running. Cube control diff, with the K flag for Kustomize, shows what an apply would change. Here filtered to just the changed lines."
+        },
+        {
+          "text": "Two kinds of change. The database host becomes the short name, and all eleven objects get the new label."
+        },
+        {
+          "text": "The running pods keep the old host until they next restart. Both names reach the same database here, so that's harmless."
+        },
+        {
+          "text": "Apply with the same k flag. Everything says configured: only labels and one config value changed, so nothing restarts.",
+          "say": "Apply with the same K flag. Everything says configured: only labels and one config value changed, so nothing restarts.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "dev-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/overlays/dev",
+          "output": [
+            "namespace/golinks-dev created",
+            "configmap/corp-root-ca created",
+            "configmap/golinks-config created",
+            "secret/postgres-credentials created",
+            "service/golinks created",
+            "service/postgres created",
+            "deployment.apps/golinks created",
+            "statefulset.apps/postgres created",
+            "horizontalpodautoscaler.autoscaling/golinks created",
+            "certificate.cert-manager.io/golinks created",
+            "ingress.networking.k8s.io/golinks created"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get pods -n golinks-dev",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7f4b9c6d8e-xq2lp   1/1     Running   0          70s",
+            "postgres-0                 1/1     Running   0          70s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now dev. Same command, the other folder, and eleven objects appear in a new namespace."
+        },
+        {
+          "text": "The namespace comes first in the list, so it exists before anything that goes in it."
+        },
+        {
+          "text": "A minute later, one golinks pod and its own Postgres, both ready.",
+          "say": "A minute later, one go links pod and its own Postgres, both ready.",
+          "senses": {
+            "minute": "time"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "dev-check",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl run t -n golinks-dev --rm -i --image=busybox -- nslookup postgres",
+          "output": [
+            "Server:    10.43.0.10",
+            "Address:   10.43.0.10:53",
+            "",
+            "Name:      postgres.golinks-dev.svc.cluster.local",
+            "Address:   10.42.2.31",
+            "",
+            "pod \"t\" deleted"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "curl -s https://go-dev.corp.internal/healthz",
+          "output": [
+            "ok"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Proof of the fix: a throwaway pod in golinks-dev looks up the short name, and gets the dev Postgres, at a dev address.",
+          "say": "Proof of the fix: a throwaway pod in go links dash dev looks up the short name, and gets the dev Postgres, at a dev address."
+        },
+        {
+          "text": "The same lookup in prod would find the prod one. Same config, different answers, as intended."
+        },
+        {
+          "text": "And with one more record from the DNS team, go-dev answers over HTTPS, with its own certificate from cert-manager.",
+          "senses": {
+            "record": "noun"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "flow",
+      "type": "diagram",
+      "title": "How changes move now",
+      "boxes": [
+        {
+          "id": "b",
+          "kind": "note",
+          "label": "change the base: both environments get it",
+          "x": 60,
+          "y": 110,
+          "w": 1480,
+          "h": 80
+        },
+        {
+          "id": "o",
+          "kind": "note",
+          "label": "change an overlay: only that environment",
+          "x": 60,
+          "y": 210,
+          "w": 1480,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "s1",
+          "label": "new tag in dev",
+          "sublabel": "try it on go-dev",
+          "x": 60,
+          "y": 380,
+          "w": 440,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "s2",
+          "label": "same tag in prod",
+          "sublabel": "one line, reviewed",
+          "x": 580,
+          "y": 380,
+          "w": 440,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "s3",
+          "label": "kubectl apply -k",
+          "sublabel": "by hand, for now",
+          "x": 1100,
+          "y": 380,
+          "w": 440,
+          "h": 130,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "big",
+          "kind": "note",
+          "label": "an overlay that keeps growing is a sign something belongs in the base",
+          "x": 60,
+          "y": 620,
+          "w": 1480,
+          "h": 80,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "s1",
+          "to": "s2",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "s2",
+          "to": "s3",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "o"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "s1"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "s2",
+            "a1"
+          ],
+          "flow": [
+            "a1"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "s3",
+            "a2"
+          ],
+          "flow": [
+            "a2"
+          ]
+        },
+        {
+          "at": 5,
+          "flow": [],
+          "show": [
+            "big"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So now there are two kinds of change. Fix a probe in the base, and both environments get it."
+        },
+        {
+          "text": "Change an overlay, and only that environment does."
+        },
+        {
+          "text": "A release becomes a short walk. Set the new tag in dev, and try it on go-dev."
+        },
+        {
+          "text": "When it's good, set the same tag in prod. A one line change that anyone can review."
+        },
+        {
+          "text": "The last step is still someone running kubectl apply, by hand, from their laptop. Hold that thought.",
+          "say": "The last step is still someone running cube control apply, by hand, from their laptop. Hold that thought."
+        },
+        {
+          "text": "One rule of thumb: keep overlays small. If one keeps growing, something in it probably belongs in the base.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 13: Argo CD",
+      "subtitle": "Git becomes the spec",
+      "lines": [
+        {
+          "text": "So that's Kustomize: one base, a small overlay per environment, and plain YAML out the other end."
+        },
+        {
+          "text": "Next time, the last episode: Argo CD watches these folders in Git, and applies them for us. Nobody runs kubectl apply again.",
+          "say": "Next time, the last episode: Argo C D watches these folders in Git, and applies them for us. Nobody runs cube control apply again.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

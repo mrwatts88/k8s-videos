@@ -1,0 +1,34 @@
+# golinks for trying changes (Episode 12): its own namespace and hostname, the
+# next image, fewer pods, a smaller database and debug logs.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: golinks-dev
+resources:
+  - ../../base
+labels:
+  - pairs:
+      environment: dev
+images:
+  - name: registry.corp.internal/platform/golinks
+    newTag: 0.2.0
+patches:
+  - path: hpa.yaml
+    target:
+      kind: HorizontalPodAutoscaler
+      name: golinks
+  - path: config.yaml
+    target:
+      kind: ConfigMap
+      name: golinks-config
+  - path: postgres.yaml
+    target:
+      kind: StatefulSet
+      name: postgres
+  - path: hostname.yaml
+    target:
+      kind: Ingress
+      name: golinks
+  - path: certificate.yaml
+    target:
+      kind: Certificate
+      name: golinks

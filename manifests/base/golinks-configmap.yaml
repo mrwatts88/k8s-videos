@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: golinks
 data:
-  DATABASE_HOST: postgres-0.postgres.golinks.svc.cluster.local
+  DATABASE_HOST: postgres-0.postgres  # finds the one in the pod's own namespace
   DATABASE_PORT: "5432"
   DATABASE_NAME: golinks
   DATABASE_USER: golinks

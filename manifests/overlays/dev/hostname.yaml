@@ -1,0 +1,7 @@
+# Lists are replaced by position, so these name the exact entries to change.
+- op: replace
+  path: /spec/rules/0/host
+  value: go-dev.corp.internal
+- op: replace
+  path: /spec/tls/0/hosts/0
+  value: go-dev.corp.internal
