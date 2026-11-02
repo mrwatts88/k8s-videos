@@ -1,0 +1,1075 @@
+{
+  "id": "ep08-tls",
+  "number": 8,
+  "title": "TLS",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 8",
+      "title": "TLS",
+      "subtitle": "cert-manager and the company's own CA",
+      "lines": [
+        {
+          "text": "So far, both go and Grafana answer over plain HTTP."
+        },
+        {
+          "text": "Today they move to HTTPS, with certificates the cluster gets, and renews, on its own.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "type": "diagram",
+      "title": "Why HTTPS, even inside the company",
+      "boxes": [
+        {
+          "id": "laptop",
+          "label": "laptop",
+          "sublabel": "browser or curl",
+          "x": 60,
+          "y": 90,
+          "w": 340,
+          "h": 120
+        },
+        {
+          "id": "net",
+          "kind": "note",
+          "label": "office Wi-Fi, VPN, switches",
+          "x": 520,
+          "y": 105,
+          "w": 560,
+          "h": 90
+        },
+        {
+          "id": "traefik",
+          "label": "Traefik",
+          "sublabel": "go.corp.internal",
+          "x": 1200,
+          "y": 90,
+          "w": 340,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "n1",
+          "kind": "note",
+          "label": "encrypted: nobody on the way can read or change it",
+          "x": 160,
+          "y": 330,
+          "w": 1280,
+          "h": 90,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "n2",
+          "kind": "note",
+          "label": "authenticated: it really is go.corp.internal that answered",
+          "x": 160,
+          "y": 460,
+          "w": 1280,
+          "h": 90,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "n3",
+          "kind": "note",
+          "label": "Episode 9 sends tokens: never in the clear",
+          "x": 160,
+          "y": 590,
+          "w": 1280,
+          "h": 90,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "laptop",
+          "to": "net"
+        },
+        {
+          "id": "a2",
+          "from": "net",
+          "to": "traefik"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [],
+          "show": [
+            "n1"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "n2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "n3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A request to go.corp.internal crosses office Wi-Fi, the VPN and a few switches before it reaches Traefik."
+        },
+        {
+          "text": "TLS encrypts it, so nobody along the way can read it or change it.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "And it proves who answered: the laptop checks that the server really is go.corp.internal."
+        },
+        {
+          "text": "That matters next episode, when callers send access tokens. A token sent over plain HTTP can be copied and reused.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "trust",
+      "type": "diagram",
+      "title": "Who vouches for go.corp.internal",
+      "boxes": [
+        {
+          "id": "root",
+          "label": "Corp Root CA",
+          "sublabel": "offline, with the security team",
+          "x": 60,
+          "y": 90,
+          "w": 430,
+          "h": 130
+        },
+        {
+          "id": "laptops",
+          "kind": "note",
+          "label": "company laptops already trust it",
+          "x": 60,
+          "y": 300,
+          "w": 760,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "inter",
+          "label": "Corp k3s Intermediate CA",
+          "sublabel": "in the cluster, in a Secret",
+          "x": 610,
+          "y": 90,
+          "w": 430,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "leaf",
+          "label": "go.corp.internal",
+          "sublabel": "good for 90 days",
+          "x": 1160,
+          "y": 90,
+          "w": 430,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "why",
+          "kind": "note",
+          "label": ".internal is reserved for private networks: no public CA signs it",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 90,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "s1",
+          "from": "root",
+          "to": "inter",
+          "label": "signed",
+          "hidden": true
+        },
+        {
+          "id": "s2",
+          "from": "inter",
+          "to": "leaf",
+          "label": "signs",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "root"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "why"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "laptops"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "inter",
+            "s1"
+          ],
+          "flow": [
+            "s1"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "leaf",
+            "s2"
+          ],
+          "flow": [
+            "s2"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A certificate is a public key and a name, signed by a certificate authority, a CA, that clients already trust."
+        },
+        {
+          "text": "Let's Encrypt only signs public domain names, and dot internal is reserved for private networks. So the company runs its own CA."
+        },
+        {
+          "text": "Its root stays offline with the security team. Company laptops already trust it, because IT put it there."
+        },
+        {
+          "text": "For the cluster, the security team issued an intermediate CA, signed by the root. Only the intermediate lives in the cluster.",
+          "senses": {
+            "lives": "verb"
+          }
+        },
+        {
+          "text": "If the cluster were ever compromised, they'd revoke the intermediate, and the root would stay safe."
+        },
+        {
+          "text": "The intermediate signs a certificate for go.corp.internal, good for 90 days.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "chore",
+      "type": "diagram",
+      "title": "Certificates expire",
+      "boxes": [
+        {
+          "id": "c1",
+          "kind": "note",
+          "label": "1. make a private key",
+          "x": 120,
+          "y": 90,
+          "w": 620,
+          "h": 80
+        },
+        {
+          "id": "c2",
+          "kind": "note",
+          "label": "2. get it signed by the CA",
+          "x": 120,
+          "y": 200,
+          "w": 620,
+          "h": 80
+        },
+        {
+          "id": "c3",
+          "kind": "note",
+          "label": "3. install it where Traefik finds it",
+          "x": 120,
+          "y": 310,
+          "w": 620,
+          "h": 80
+        },
+        {
+          "id": "c4",
+          "kind": "note",
+          "label": "4. do it all again before it expires",
+          "x": 120,
+          "y": 420,
+          "w": 620,
+          "h": 80,
+          "tone": "warn"
+        },
+        {
+          "id": "bad",
+          "kind": "note",
+          "label": "forgotten: the service is down",
+          "x": 120,
+          "y": 590,
+          "w": 620,
+          "h": 90,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "cm",
+          "label": "cert-manager",
+          "sublabel": "a controller that does all four",
+          "x": 940,
+          "y": 230,
+          "w": 540,
+          "h": 140,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "focus": [
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ]
+        },
+        {
+          "at": 2,
+          "focus": [],
+          "show": [
+            "bad"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "cm"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Certificates expire on purpose. A short lifetime limits the damage if a key ever leaks."
+        },
+        {
+          "text": "By hand, each one means: make a key, get it signed, install it, and remember to do it all again before it expires."
+        },
+        {
+          "text": "People forget, and an expired certificate takes a service down as surely as a crash."
+        },
+        {
+          "text": "cert-manager is a controller, like the ones in Episode 0. You declare the certificate you want, and it keeps a real one matching it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "cm-yaml",
+      "type": "code",
+      "file": "manifests/cert-manager/cert-manager.yaml",
+      "range": [
+        1,
+        16
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            12
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            13,
+            16
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "It installs the same way as the logging stack: a HelmChart, which the Helm controller built into k3s acts on."
+        },
+        {
+          "text": "The chart comes from Jetstack, the company that started cert-manager. A pinned version, and a namespace of its own."
+        },
+        {
+          "text": "One value matters: install the CRDs too. A CRD, a custom resource definition, adds a new kind of resource to the API. Here: Certificate, Issuer and ClusterIssuer.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "cm-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/cert-manager",
+          "output": [
+            "namespace/cert-manager created",
+            "helmchart.helm.cattle.io/cert-manager created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n cert-manager",
+          "output": [
+            "NAME                                       READY   STATUS    RESTARTS   AGE",
+            "cert-manager-7d9f8c6b5d-m2xkq              1/1     Running   0          52s",
+            "cert-manager-cainjector-5c8b7d9f6c-hq4tz   1/1     Running   0          52s",
+            "cert-manager-webhook-6b4f9d8c7b-x7plw      1/1     Running   0          52s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the folder."
+        },
+        {
+          "text": "A minute later, three pods.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "The first is the controller that does the work. The webhook checks cert-manager resources before the API server accepts them."
+        },
+        {
+          "text": "And the cainjector hands out CA certificates, so the API server can trust webhooks, including the one we just met.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "ca-secret",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl create secret tls corp-ca -n cert-manager --cert=ca.crt --key=ca.key",
+          "output": [
+            "secret/corp-ca created"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The security team hands over the intermediate's certificate and private key, once. They go straight into a Secret in the cert-manager namespace, and never into the repository."
+        },
+        {
+          "text": "Remember Episode 3: a Secret is only base64, not encrypted. Only cluster admins should be able to read this one.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "k3s can also encrypt Secrets on disk, with one server flag.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "issuer-yaml",
+      "type": "code",
+      "file": "manifests/cert-manager/issuers/corp-ca.yaml",
+      "range": [
+        1,
+        12
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            6,
+            9
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            10,
+            12
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            7,
+            7
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now tell cert-manager about that CA, with a ClusterIssuer named corp-ca."
+        },
+        {
+          "text": "Its whole spec: sign with the CA kept in the Secret corp-ca."
+        },
+        {
+          "text": "An Issuer works in one namespace only. A ClusterIssuer works for every namespace, which suits one company CA serving every team."
+        },
+        {
+          "text": "Other issuer types talk to Let's Encrypt, HashiCorp Vault, or a company's own ACME server. The rest of this episode works the same with any of them.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "issuer-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/cert-manager/issuers",
+          "output": [
+            "clusterissuer.cert-manager.io/corp-ca created"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get clusterissuer",
+          "output": [
+            "NAME      READY   AGE",
+            "corp-ca   True    6s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The issuer has a folder of its own, applied second."
+        },
+        {
+          "text": "ClusterIssuer is one of the kinds the chart adds. Apply it any earlier, and the API server has never heard of it."
+        },
+        {
+          "text": "Ready: cert-manager found the Secret, and it holds a usable CA.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "cert-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-certificate.yaml",
+      "range": [
+        1,
+        22
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            4,
+            8
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            12,
+            12
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            13,
+            14
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            15,
+            17
+          ]
+        },
+        {
+          "at": 4,
+          "lines": [
+            18,
+            19
+          ]
+        },
+        {
+          "at": 5,
+          "lines": [
+            20,
+            22
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Then the certificate itself, a Certificate in the golinks namespace, next to the app."
+        },
+        {
+          "text": "cert-manager will keep the private key and the signed certificate in a Secret called golinks-tls."
+        },
+        {
+          "text": "The names it's good for. Here, just go.corp.internal."
+        },
+        {
+          "text": "Which issuer signs it: our ClusterIssuer."
+        },
+        {
+          "text": "Good for 90 days, with renewal starting 30 days before the end."
+        },
+        {
+          "text": "And the type of key: ECDSA, small and fast.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "ingress-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-ingress.yaml",
+      "range": [
+        3,
+        26
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            22,
+            26
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            23,
+            26
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The Ingress from Episode 5 gains one section: serve this host over TLS, with the certificate in golinks-tls."
+        },
+        {
+          "text": "Traefik already listens on port 443. It reads that Secret and uses it for go.corp.internal.",
+          "senses": {
+            "uses": "verb"
+          },
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "base-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/base | grep -v unchanged",
+          "output": [
+            "certificate.cert-manager.io/golinks created",
+            "ingress.networking.k8s.io/golinks configured"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get certificate -n golinks",
+          "output": [
+            "NAME      READY   SECRET        AGE",
+            "golinks   True    golinks-tls   9s"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get certificaterequest -n golinks -o name",
+          "output": [
+            "certificaterequest.cert-manager.io/golinks-1"
+          ]
+        },
+        {
+          "at": 4,
+          "command": "kubectl get secret golinks-tls -n golinks",
+          "output": [
+            "NAME          TYPE                DATA   AGE",
+            "golinks-tls   kubernetes.io/tls   3      9s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the base. Two changes: a new Certificate, and the updated Ingress."
+        },
+        {
+          "text": "Seconds later, the certificate is ready."
+        },
+        {
+          "text": "Behind it, cert-manager made a CertificateRequest: the request the issuer actually signed."
+        },
+        {
+          "text": "The number on the end counts up with every renewal."
+        },
+        {
+          "text": "And the Secret holds three entries: the private key, the signed certificate, and the CA's own certificate. cert-manager wrote all three.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "chain",
+      "type": "diagram",
+      "title": "What just happened",
+      "boxes": [
+        {
+          "id": "cert",
+          "label": "Certificate",
+          "sublabel": "golinks: what we want",
+          "x": 60,
+          "y": 100,
+          "w": 400,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "cm",
+          "label": "cert-manager",
+          "sublabel": "makes a new private key",
+          "x": 600,
+          "y": 100,
+          "w": 400,
+          "h": 130
+        },
+        {
+          "id": "cr",
+          "label": "CertificateRequest",
+          "sublabel": "golinks-1",
+          "x": 1140,
+          "y": 100,
+          "w": 400,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "iss",
+          "label": "ClusterIssuer",
+          "sublabel": "corp-ca signs",
+          "x": 1140,
+          "y": 440,
+          "w": 400,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "sec",
+          "label": "Secret",
+          "sublabel": "golinks-tls",
+          "x": 600,
+          "y": 440,
+          "w": 400,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "tr",
+          "label": "Traefik",
+          "sublabel": "serves it on 443",
+          "x": 60,
+          "y": 440,
+          "w": 400,
+          "h": 130,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "e1",
+          "from": "cert",
+          "to": "cm"
+        },
+        {
+          "id": "e2",
+          "from": "cm",
+          "to": "cr",
+          "hidden": true
+        },
+        {
+          "id": "e3",
+          "from": "cr",
+          "to": "iss",
+          "hidden": true
+        },
+        {
+          "id": "e4",
+          "from": "iss",
+          "to": "sec",
+          "hidden": true
+        },
+        {
+          "id": "e5",
+          "from": "sec",
+          "to": "tr",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "e1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [],
+          "show": [
+            "cr",
+            "e2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "iss",
+            "e3",
+            "sec",
+            "e4"
+          ],
+          "flow": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [],
+          "show": [
+            "tr",
+            "e5"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So, the whole chain. We declared a Certificate, and cert-manager noticed it."
+        },
+        {
+          "text": "It made a new private key, and a CertificateRequest for it."
+        },
+        {
+          "text": "The ClusterIssuer signed it with the intermediate CA, and cert-manager stored the result in golinks-tls."
+        },
+        {
+          "text": "Traefik watches Secrets, so it started serving the new certificate straight away.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "curl",
+      "type": "terminal",
+      "title": "laptop",
+      "steps": [
+        {
+          "at": 0,
+          "command": "curl -sv https://go.corp.internal/standup 2>&1 | grep -E 'Alt|iss|exp|ok|< H'",
+          "output": [
+            "*  expire date: Jan 31 15:31:07 2027 GMT",
+            "*  subjectAltName: host \"go.corp.internal\" matched cert's \"go.corp.internal\"",
+            "*  issuer: O=Corp; CN=Corp k3s Intermediate CA",
+            "*  SSL certificate verify ok.",
+            "< HTTP/2 404"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now from a laptop. curl's verbose output, filtered down to the lines about the certificate."
+        },
+        {
+          "text": "Good until the end of January, for go.corp.internal, issued by the cluster's intermediate CA."
+        },
+        {
+          "text": "Verify ok. Traefik sent the intermediate along with the certificate, so the laptop could follow the chain up to the company root it already trusts."
+        },
+        {
+          "text": "And still a 404: there's no standup link yet. Creating one needs sign-in, in Episode 9. But even this 404 came back encrypted, from a server the laptop could check."
+        },
+        {
+          "text": "Anything else that calls go over HTTPS, a pod included, needs the company root in its trust store too.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "grafana-yaml",
+      "type": "code",
+      "file": "manifests/logging/grafana.yaml",
+      "range": [
+        15,
+        38
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            26,
+            30
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            31,
+            34
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            35,
+            38
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Grafana's Ingress comes from its chart, so we don't write a Certificate for it."
+        },
+        {
+          "text": "We add one annotation instead. cert-manager watches Ingresses too, and this one names the issuer to use.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "With the TLS section, that's enough: cert-manager makes the Certificate itself, named after the Secret."
+        },
+        {
+          "text": "So there are two ways to the same result. A Certificate of your own is easier to read and tune. The annotation is handy when a chart makes the Ingress for you.",
+          "senses": {
+            "read": "present"
+          },
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "grafana-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/logging | grep -v unchanged",
+          "output": [
+            "helmchart.helm.cattle.io/grafana configured"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get certificate -n logging",
+          "output": [
+            "NAME          READY   SECRET        AGE",
+            "grafana-tls   True    grafana-tls   14s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the logging folder again, and k3s upgrades Grafana with the new values."
+        },
+        {
+          "text": "cert-manager has already made its certificate, grafana-tls, and it's ready.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "renew",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl describe certificate golinks -n golinks | grep -E 'Not After|Renewal'",
+          "output": [
+            "  Not After:               2027-01-31T15:31:07Z",
+            "  Renewal Time:            2027-01-01T15:31:07Z"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "And renewal. cert-manager has already worked out when: 30 days before the certificate expires."
+        },
+        {
+          "text": "On January 1, it makes a new key, gets a new certificate signed, and updates the same Secret.",
+          "say": "On January first, it makes a new key, gets a new certificate signed, and updates the same Secret."
+        },
+        {
+          "text": "Traefik sees the Secret change and serves the new certificate. Nothing restarts, and nobody has to remember."
+        },
+        {
+          "text": "It's the loop from Episode 0 again: desired state, actual state, and a controller closing the gap. This time, on a calendar.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 9: Auth",
+      "subtitle": "Keycloak tokens for the API",
+      "lines": [
+        {
+          "text": "So: the company's CA signs, cert-manager asks and renews, and Traefik serves. go and Grafana are both on HTTPS now."
+        },
+        {
+          "text": "Next time, Keycloak. Callers get a token, and the API checks it before anyone can create a link.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
