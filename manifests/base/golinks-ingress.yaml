@@ -1,4 +1,4 @@
-# k3s ships Traefik as its ingress controller. TLS is added in Episode 8.
+# k3s ships Traefik as its ingress controller. Episode 8 adds TLS at the end.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -19,3 +19,8 @@ spec:
                 name: golinks
                 port:
                   name: http
+  # Serve HTTPS with the certificate cert-manager keeps in golinks-tls.
+  tls:
+    - hosts:
+        - go.corp.internal
+      secretName: golinks-tls

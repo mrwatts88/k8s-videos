@@ -10,4 +10,5 @@ resources:
   - postgres-statefulset.yaml
   - golinks-deployment.yaml
   - golinks-service.yaml
+  - golinks-certificate.yaml
   - golinks-ingress.yaml
