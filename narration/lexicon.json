@@ -726,6 +726,26 @@
         "databases",
         "data bases"
       ]
+    },
+    {
+      "match": "base64",
+      "say": "base sixty-four",
+      "ignoreCase": true,
+      "heard": [
+        "base64",
+        "base 64",
+        "base sixty four",
+        "bay 64",
+        "based 64"
+      ]
+    },
+    {
+      "match": "stringData",
+      "say": "string data",
+      "heard": [
+        "string data",
+        "stringdata"
+      ]
     }
   ],
   "rules": [
