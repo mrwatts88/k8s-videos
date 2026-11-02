@@ -7,11 +7,14 @@ cd "$(dirname "$0")/.."
 export PATH="$PWD/.cache/bin:$PATH"
 
 K8S_VERSION=${K8S_VERSION:-1.33.0}
-# Custom resources (cert-manager, Argo CD) are checked against the community
-# CRD schema catalog once their episodes add them.
+# Custom resources (cert-manager, later Argo CD) are checked against the
+# community CRD schema catalog.
 SCHEMAS=(
   -schema-location default
   -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+  # The default (standalone) schemas leave out CustomResourceDefinition; the
+  # non-standalone set has it.
+  -schema-location 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{.NormalizedKubernetesVersion}}/{{.ResourceKind}}{{.KindSuffix}}.json'
 )
 
 mapfile -t files < <(find manifests -name '*.yaml' ! -name 'kustomization.yaml' | sort)

@@ -1,0 +1,12 @@
+# Signs certificates with the cluster's intermediate CA, which the company's
+# root CA issued. Its certificate and key live in the Secret corp-ca in the
+# cert-manager namespace. That Secret is created by hand, never committed:
+#   kubectl create secret tls corp-ca -n cert-manager \
+#     --cert=ca.crt --key=ca.key
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: corp-ca
+spec:
+  ca:
+    secretName: corp-ca

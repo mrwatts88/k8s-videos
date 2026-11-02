@@ -314,6 +314,16 @@ half gone, which is the question this episode answers.
 - Renewal is a controller too (Episode 0 again).
 - Checks: `kubectl get certificate,certificaterequest -n golinks`,
   `curl -v https://go.corp.internal/standup`.
+- As built: cert-manager v1.21.3 from Jetstack's chart as a k3s HelmChart with
+  its CRDs, in `manifests/cert-manager/`. The `corp-ca` ClusterIssuer lives in
+  `manifests/cert-manager/issuers/`, applied second because its kind only
+  exists once the chart is installed. Its Secret holds the cluster's
+  intermediate CA (signed by the company root, kept offline) and is created by
+  hand, never committed. The golinks Certificate (90 days, renewing 30 days
+  before expiry, ECDSA key) is in the base, which now needs cert-manager first.
+  Grafana gets its certificate through the Ingress annotation shortcut. The
+  curl demo still gets a 404, since links are only created from Episode 9.
+  CI validates the chart's CustomResourceDefinitions too.
 
 ### Episode 9: Auth (Keycloak, kept light)
 
@@ -372,10 +382,13 @@ manifests/
     postgres-secret.yaml
     golinks-deployment.yaml
     golinks-service.yaml
+    golinks-certificate.yaml (Episode 8)
     golinks-ingress.yaml
     postgres-service.yaml
     postgres-statefulset.yaml
   logging/             (Episode 7: HelmChart resources for Loki, Alloy, Grafana)
+  cert-manager/        (Episode 8: the cert-manager HelmChart)
+    issuers/           (Episode 8: the corp-ca ClusterIssuer, applied second)
   overlays/            (Episode 11)
     dev/
     prod/

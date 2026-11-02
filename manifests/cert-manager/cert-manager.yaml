@@ -1,0 +1,16 @@
+# cert-manager issues and renews TLS certificates. Like the logging stack in
+# Episode 7, k3s' built-in Helm controller installs it from this resource.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cert-manager
+  namespace: kube-system
+spec:
+  repo: https://charts.jetstack.io
+  chart: cert-manager
+  version: v1.21.3
+  targetNamespace: cert-manager
+  valuesContent: |-
+    # Also install the new resource types: Certificate, Issuer, ClusterIssuer.
+    crds:
+      enabled: true

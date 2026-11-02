@@ -17,6 +17,10 @@ const SCHEMAS = [
   "-schema-location", "default",
   "-schema-location",
   "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json",
+  // The default (standalone) schemas leave out CustomResourceDefinition, which
+  // charts like cert-manager install. The non-standalone set has it.
+  "-schema-location",
+  "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{.NormalizedKubernetesVersion}}/{{.ResourceKind}}{{.KindSuffix}}.json",
 ];
 
 function yamlFiles(dir) {

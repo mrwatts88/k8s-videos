@@ -1063,6 +1063,142 @@
         "grafana dot corp dot internal",
         "graphana.corp.internal"
       ]
+    },
+    {
+      "match": "corp-ca",
+      "say": "korp C A",
+      "heard": [
+        "corp ca",
+        "corp c a",
+        "corp-ca",
+        "core ca",
+        "corp see a",
+        "corpse ca",
+        "korp ca",
+        "corp. ca"
+      ]
+    },
+    {
+      "match": "golinks-tls",
+      "say": "go links T L S",
+      "heard": [
+        "go links tls",
+        "golinks tls",
+        "go links t l s",
+        "golinks-tls",
+        "go-links tls",
+        "golink's tls"
+      ]
+    },
+    {
+      "match": "grafana-tls",
+      "say": "grafana T L S",
+      "heard": [
+        "grafana tls",
+        "grafana t l s",
+        "grafana-tls",
+        "graphana tls"
+      ]
+    },
+    {
+      "match": "golinks-1",
+      "say": "go links one",
+      "heard": [
+        "go links one",
+        "golinks one",
+        "golinks-1",
+        "go links 1",
+        "golinks 1"
+      ]
+    },
+    {
+      "match": "cainjector",
+      "say": "C. A. injector",
+      "heard": [
+        "ca injector",
+        "c a injector",
+        "cainjector",
+        "see a injector",
+        "c.a. injector",
+        "c injector"
+      ]
+    },
+    {
+      "match": "CertificateRequest",
+      "say": "certificate request",
+      "heard": [
+        "certificate request",
+        "certificaterequest"
+      ]
+    },
+    {
+      "match": "ECDSA",
+      "say": "E C D S A",
+      "heard": [
+        "ecdsa",
+        "e c d s a"
+      ]
+    },
+    {
+      "match": "ACME",
+      "say": "acme",
+      "heard": [
+        "acme"
+      ]
+    },
+    {
+      "match": "CRD",
+      "say": "C R D",
+      "heard": [
+        "crd",
+        "c r d"
+      ]
+    },
+    {
+      "match": "CRDs",
+      "say": "C R Ds",
+      "heard": [
+        "crds",
+        "c r ds",
+        "crd's",
+        "c r d's"
+      ]
+    },
+    {
+      "match": "Jetstack",
+      "say": "jet stack",
+      "heard": [
+        "jetstack",
+        "jet stack"
+      ]
+    },
+    {
+      "match": "HashiCorp",
+      "say": "hashi corp",
+      "heard": [
+        "hashicorp",
+        "hashi corp",
+        "hashicorp's",
+        "hashy corp",
+        "hashy-corp"
+      ]
+    },
+    {
+      "match": "443",
+      "say": "four four three",
+      "heard": [
+        "443",
+        "four four three",
+        "4 4 3"
+      ]
+    },
+    {
+      "match": "VPN",
+      "say": "V P N",
+      "heard": [
+        "vpn",
+        "v p n"
+      ]
     }
   ],
   "rules": [

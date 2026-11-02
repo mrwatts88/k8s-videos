@@ -1,0 +1,22 @@
+# A certificate for go.corp.internal, signed by the company CA (Episode 8).
+# cert-manager keeps the key and the signed certificate in the Secret
+# golinks-tls, and renews it before it expires.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: golinks
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: golinks
+spec:
+  secretName: golinks-tls
+  dnsNames:
+    - go.corp.internal
+  issuerRef:
+    kind: ClusterIssuer
+    name: corp-ca
+  duration: 2160h    # 90 days
+  renewBefore: 720h  # start renewing 30 days before it expires
+  privateKey:
+    algorithm: ECDSA
+    size: 256

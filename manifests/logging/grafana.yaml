@@ -28,3 +28,11 @@ spec:
       ingressClassName: traefik
       hosts:
         - grafana.corp.internal
+      # HTTPS (Episode 8): this annotation is all cert-manager needs to make
+      # the Certificate itself.
+      annotations:
+        cert-manager.io/cluster-issuer: corp-ca
+      tls:
+        - hosts:
+            - grafana.corp.internal
+          secretName: grafana-tls
