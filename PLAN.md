@@ -94,7 +94,7 @@ CREATE TABLE links (
 | Namespace | `golinks` |
 | Image | `registry.corp.internal/platform/golinks:0.1.0` (placeholder; source code is out of scope) |
 | App port | `8080` |
-| Public hostname | `go.corp.internal` (with `corp.internal` in the DNS search list, `go/standup` resolves) |
+| Public hostname | `go.corp.internal` (links look like `go.corp.internal/standup`) |
 | In-cluster DNS name | `golinks.golinks.svc.cluster.local` |
 | Database | `postgres-0.postgres.golinks.svc.cluster.local`, database `golinks` |
 | Keycloak realm | `corp`, issuer `https://sso.corp.internal/realms/corp` |
@@ -181,16 +181,23 @@ of controllers that keep making it true. The spec itself does nothing.
   `kubectl rollout restart`, and watch the new pods log at debug level.
 - Manifests: `postgres-statefulset.yaml`, `postgres-service.yaml`.
 
-### Episode 5: Reaching it (Service, Ingress, ServiceLB, DNS)
+### Episode 5: Reaching it (load balancer, Ingress, Service, DNS)
+
+Follows one request from a laptop to a pod, built from the inside out.
 
 - ClusterIP Service: a stable virtual IP and DNS name in front of changing pods;
-  EndpointSlices.
-- Traefik Ingress: route `Host: go.corp.internal` to the Service.
-- ServiceLB: how Traefik's own `LoadBalancer` Service gets the nodes' IPs.
-- Internal DNS: the company DNS points `go.corp.internal` at those IPs, and the
-  DNS search list makes `go/standup` work in a browser.
-- Checks: `kubectl get svc,endpointslices,ingress -n golinks`,
-  `curl -I http://go.corp.internal/standup`.
+  EndpointSlices list only ready pods.
+- ServiceLB, the load balancer built into k3s: Traefik's own `LoadBalancer`
+  Service gets the nodes' IPs, and a svclb pod on every node forwards ports 80
+  and 443 to Traefik.
+- Traefik Ingress: route `Host: go.corp.internal` to the Service. A request
+  without that host gets Traefik's own 404; with it, the app answers.
+- Company DNS (not Kubernetes): the internal DNS server gives `go.corp.internal`
+  one A record per node. The episode assumes those records stay current.
+- Two kinds of DNS: CoreDNS answers cluster names for pods; the company DNS
+  answers the names people type.
+- Checks: `kubectl get svc,endpointslices -n golinks`, `kubectl describe ingress`,
+  `dig +short go.corp.internal`, `curl -i http://go.corp.internal/standup`.
 - Manifests: `golinks-service.yaml`, `golinks-ingress.yaml`.
 
 ### Episode 6: Health checks (startup, liveness and readiness probes)
