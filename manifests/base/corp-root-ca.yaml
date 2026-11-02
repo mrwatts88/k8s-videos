@@ -1,0 +1,23 @@
+# The company root CA's certificate (Episode 9). It is public, so it can live
+# in git. Mounted into the golinks pods so they trust sso.corp.internal.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: corp-root-ca
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: golinks
+data:
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIBsDCCAVegAwIBAgIUQdid85PJZtI3S0ANJr9bYzbgY/IwCgYIKoZIzj0EAwIw
+    JjENMAsGA1UECgwEQ29ycDEVMBMGA1UEAwwMQ29ycCBSb290IENBMB4XDTI2MTEw
+    MjE1NTgyMVoXDTQ2MTEwMjE1NTgyMVowJjENMAsGA1UECgwEQ29ycDEVMBMGA1UE
+    AwwMQ29ycCBSb290IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9thIfk2g
+    z4cLfs5xf5WlAYEFPJDOIO68B4SqkRps8QmtLEvd2mvBkewXy9SDI3DlcebItFg0
+    3m8m4wRGKRl766NjMGEwHQYDVR0OBBYEFDBCXSbAD71B5mE1g36e6aztLvRkMB8G
+    A1UdIwQYMBaAFDBCXSbAD71B5mE1g36e6aztLvRkMA8GA1UdEwEB/wQFMAMBAf8w
+    DgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMCA0cAMEQCIBYfuhj9QETKWurMt/gF
+    0F9VPaikOsRzHmolfh4mMUfTAiBLeJixykfInMNmpHzrhJm76ohoKrYu9h2stPuJ
+    JcdONg==
+    -----END CERTIFICATE-----

@@ -80,7 +80,7 @@ One Postgres table:
 CREATE TABLE links (
   name        text PRIMARY KEY,   -- "jira", "standup"
   target      text NOT NULL,      -- "https://jira.corp.internal/browse/{1}"
-  owner       text NOT NULL,      -- token subject that created it
+  owner       text NOT NULL,      -- who created it, from the token
   hits        bigint NOT NULL DEFAULT 0,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
@@ -98,7 +98,7 @@ CREATE TABLE links (
 | In-cluster DNS name | `golinks.golinks.svc.cluster.local` |
 | Database | `postgres-0.postgres.golinks.svc.cluster.local`, database `golinks` |
 | Keycloak realm | `corp`, issuer `https://sso.corp.internal/realms/corp` |
-| Internal CA | `corp-internal-ca` ClusterIssuer (cert-manager) |
+| Internal CA | `corp-ca` ClusterIssuer (cert-manager), on the cluster's intermediate CA |
 
 ## Episodes
 
@@ -340,6 +340,14 @@ half gone, which is the question this episode answers.
   the cluster API (`kubectl`), not who can call your product.
 - Checks: `curl` the token endpoint, then `PUT /api/links/release-notes` with
   and without the token (201 vs 401).
+- As built: the API's issuer and audience settings were already in the
+  ConfigMap from Episode 3; the new `OIDC_CA_FILE` points at the company root
+  CA, mounted from the `corp-root-ca` ConfigMap (public, so committed), so the
+  pods can fetch Keycloak's keys over HTTPS. Tokens last 5 minutes. A
+  write-only token gets `403 insufficient_scope` on `GET /api/links`. A person's
+  token (browser sign-in, or the device flow in a terminal) creates `standup`,
+  so the Episode 8 404 becomes a 302. Where else to check tokens (Traefik
+  ForwardAuth with oauth2-proxy, Istio) is mentioned in passing.
 
 ### Episode 10: One request, end to end
 

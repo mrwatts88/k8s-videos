@@ -14,3 +14,6 @@ data:
   # Used from Episode 9 on: where tokens come from and who they are for.
   OIDC_ISSUER_URL: https://sso.corp.internal/realms/corp
   OIDC_AUDIENCE: golinks
+  # The company root CA, mounted from the ConfigMap corp-root-ca, so calls to
+  # sso.corp.internal over HTTPS can be checked.
+  OIDC_CA_FILE: /etc/corp-ca/ca.crt

@@ -1,0 +1,1361 @@
+{
+  "id": "ep09-auth",
+  "number": 9,
+  "title": "Auth",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 9",
+      "title": "Auth",
+      "subtitle": "Keycloak tokens for the API",
+      "lines": [
+        {
+          "text": "go is on HTTPS now, but there's still not a single link in it."
+        },
+        {
+          "text": "Today callers prove who they are, the API checks them, and the first links go in.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "who",
+      "type": "diagram",
+      "title": "Who may change a link",
+      "boxes": [
+        {
+          "id": "anyone",
+          "label": "anyone on the network",
+          "sublabel": "browser",
+          "x": 60,
+          "y": 100,
+          "w": 460,
+          "h": 130
+        },
+        {
+          "id": "get",
+          "kind": "note",
+          "label": "GET /standup: follow a link, no sign-in",
+          "x": 640,
+          "y": 120,
+          "w": 900,
+          "h": 90,
+          "tone": "good"
+        },
+        {
+          "id": "caller",
+          "label": "a caller",
+          "sublabel": "person or service",
+          "x": 60,
+          "y": 330,
+          "w": 460,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "put",
+          "kind": "note",
+          "label": "PUT, DELETE /api/links/...: who is asking?",
+          "x": 640,
+          "y": 350,
+          "w": 900,
+          "h": 90,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "people",
+          "kind": "note",
+          "label": "people: sign in with a browser",
+          "x": 60,
+          "y": 570,
+          "w": 700,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "svc",
+          "kind": "note",
+          "label": "services: the release pipeline",
+          "x": 840,
+          "y": 570,
+          "w": 700,
+          "h": 90,
+          "tone": "accent",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "anyone",
+          "to": "get"
+        },
+        {
+          "id": "a2",
+          "from": "caller",
+          "to": "put",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "a1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [],
+          "show": [
+            "caller",
+            "put",
+            "a2"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [
+            "a2"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [],
+          "show": [
+            "people",
+            "svc"
+          ]
+        },
+        {
+          "at": 4,
+          "focus": [
+            "svc"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Following a link stays open to anyone on the company network. Nobody wants to sign in just to reach the standup page."
+        },
+        {
+          "text": "Changing links is different. Create, replace or delete, and the API has to know who is asking."
+        },
+        {
+          "text": "It also records who made each link, so there's someone to ask when one breaks.",
+          "senses": {
+            "records": "verb"
+          }
+        },
+        {
+          "text": "Two kinds of caller: people at a browser, and other services."
+        },
+        {
+          "text": "We start with a service: the release pipeline, run by another team. On every release, it points go slash release-notes at the newest notes.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "doors",
+      "type": "diagram",
+      "title": "Two different doors",
+      "boxes": [
+        {
+          "id": "you",
+          "label": "kubectl",
+          "sublabel": "the platform team",
+          "x": 60,
+          "y": 100,
+          "w": 400,
+          "h": 130
+        },
+        {
+          "id": "apiserver",
+          "label": "Kubernetes API server",
+          "sublabel": "who can change the cluster",
+          "x": 620,
+          "y": 100,
+          "w": 520,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "rbac",
+          "kind": "note",
+          "label": "kubeconfig, RBAC",
+          "x": 1240,
+          "y": 120,
+          "w": 300,
+          "h": 90
+        },
+        {
+          "id": "pipe",
+          "label": "release pipeline",
+          "sublabel": "another team's service",
+          "x": 60,
+          "y": 420,
+          "w": 400,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "go",
+          "label": "go links API",
+          "sublabel": "who can change links",
+          "x": 620,
+          "y": 420,
+          "w": 520,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "tok",
+          "kind": "note",
+          "label": "Keycloak tokens",
+          "x": 1240,
+          "y": 440,
+          "w": 300,
+          "h": 90,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "d1",
+          "from": "you",
+          "to": "apiserver"
+        },
+        {
+          "id": "d2",
+          "from": "pipe",
+          "to": "go",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "d1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": []
+        },
+        {
+          "at": 2,
+          "show": [
+            "pipe",
+            "go",
+            "d2",
+            "tok"
+          ],
+          "flow": [
+            "d2"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "First, a common mix-up. Kubernetes has its own sign-in: your kubeconfig, and RBAC rules on what each user may do."
+        },
+        {
+          "text": "That guards the cluster's API server: who can create a Deployment, or read a Secret. It knows nothing about go links.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "Our product needs its own door. The pipeline calls the go API through Traefik, like any other client, and the API decides. That door uses tokens from Keycloak.",
+          "senses": {
+            "uses": "verb"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "keycloak",
+      "type": "diagram",
+      "title": "Keycloak, kept light",
+      "boxes": [
+        {
+          "id": "kc",
+          "kind": "group",
+          "label": "Keycloak: sso.corp.internal, realm corp",
+          "x": 60,
+          "y": 90,
+          "w": 1480,
+          "h": 400
+        },
+        {
+          "id": "c1",
+          "label": "client: release-pipeline",
+          "sublabel": "an id and a secret",
+          "x": 120,
+          "y": 200,
+          "w": 640,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "c2",
+          "label": "client: golinks",
+          "sublabel": "the API that tokens are for",
+          "x": 840,
+          "y": 200,
+          "w": 640,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "sc",
+          "kind": "note",
+          "label": "scopes: golinks.write and golinks.read",
+          "x": 120,
+          "y": 370,
+          "w": 1360,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "team",
+          "kind": "note",
+          "label": "run by the identity team, outside our cluster",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 90,
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "kc"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "team"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "c1"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "c2"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "sc"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Keycloak is an open-source identity server. The company runs it at sso.corp.internal, with one realm, called corp."
+        },
+        {
+          "text": "The identity team runs it, outside our cluster. We only need a few things set up in it, and they're all requests to that team."
+        },
+        {
+          "text": "A client for the release pipeline. It's a confidential client: it gets an id and a secret, which live in the pipeline's own secret store.",
+          "senses": {
+            "live": "verb"
+          }
+        },
+        {
+          "text": "A client for golinks itself. Tokens name it as their audience: the service they're meant for."
+        },
+        {
+          "text": "And two scopes, permissions a client can be granted. The pipeline gets golinks dot write. Reading the list needs golinks dot read, which it doesn't have.",
+          "say": "And two scopes, permissions a client can be granted. The pipeline gets go links dot write. Reading the list needs go links dot reed, which it doesn't have.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "flow",
+      "type": "diagram",
+      "title": "Client credentials",
+      "boxes": [
+        {
+          "id": "pipe",
+          "label": "release pipeline",
+          "x": 60,
+          "y": 100,
+          "w": 400,
+          "h": 120
+        },
+        {
+          "id": "kc",
+          "label": "Keycloak",
+          "sublabel": "/token",
+          "x": 1140,
+          "y": 100,
+          "w": 400,
+          "h": 120
+        },
+        {
+          "id": "jwt",
+          "kind": "note",
+          "label": "a JWT, good for 5 minutes",
+          "x": 560,
+          "y": 270,
+          "w": 480,
+          "h": 80,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "go",
+          "label": "go links API",
+          "sublabel": "via Traefik",
+          "x": 60,
+          "y": 470,
+          "w": 400,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "keys",
+          "label": "Keycloak's public keys",
+          "sublabel": "JWKS, cached",
+          "x": 1140,
+          "y": 470,
+          "w": 400,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "pg",
+          "label": "Postgres",
+          "x": 60,
+          "y": 660,
+          "w": 400,
+          "h": 100,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "f1",
+          "from": "pipe",
+          "to": "kc",
+          "label": "id and secret",
+          "curve": -40
+        },
+        {
+          "id": "f2",
+          "from": "kc",
+          "to": "pipe",
+          "label": "token",
+          "curve": -40,
+          "hidden": true
+        },
+        {
+          "id": "f3",
+          "from": "pipe",
+          "to": "go",
+          "label": "Bearer token",
+          "hidden": true
+        },
+        {
+          "id": "f4",
+          "from": "go",
+          "to": "keys",
+          "label": "check signature",
+          "hidden": true
+        },
+        {
+          "id": "f5",
+          "from": "go",
+          "to": "pg",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "f1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [
+            "f2"
+          ],
+          "show": [
+            "f2",
+            "jwt"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [
+            "f3"
+          ],
+          "show": [
+            "go",
+            "f3"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [
+            "f4"
+          ],
+          "show": [
+            "keys",
+            "f4"
+          ]
+        },
+        {
+          "at": 4,
+          "flow": [
+            "f5"
+          ],
+          "show": [
+            "pg",
+            "f5"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The flow is called client credentials. The pipeline sends its id and secret to the token endpoint in Keycloak."
+        },
+        {
+          "text": "Keycloak answers with an access token: a JWT, signed by Keycloak, and good for five minutes."
+        },
+        {
+          "text": "The pipeline sends that token to the go API, in an Authorization header."
+        },
+        {
+          "text": "The API checks the signature with the public keys of Keycloak. It fetches them once and caches them, so Keycloak isn't asked on every request."
+        },
+        {
+          "text": "Only then does the change reach Postgres. The secret itself never leaves the pipeline and Keycloak.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "token",
+      "type": "terminal",
+      "title": "release pipeline",
+      "steps": [
+        {
+          "at": 0,
+          "command": "SSO=https://sso.corp.internal/realms/corp/protocol/openid-connect"
+        },
+        {
+          "at": 1,
+          "command": "curl -s -u $CLIENT $SSO/token -d grant_type=client_credentials > t.json"
+        },
+        {
+          "at": 2,
+          "command": "jq '{token_type, expires_in, scope}' t.json",
+          "output": [
+            "{",
+            "  \"token_type\": \"Bearer\",",
+            "  \"expires_in\": 300,",
+            "  \"scope\": \"golinks.write\"",
+            "}"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "TOKEN=$(jq -r .access_token t.json); echo $TOKEN | tr . '\\n' | cut -c1-60",
+          "output": [
+            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InE3THIyeEs5Y1dt",
+            "eyJleHAiOjE3OTM2MzY3MDQsImlhdCI6MTc5MzYzNjQwNCwiaXNzIjoiaHR0",
+            "RXAr7KqFwV52UVeGOQIxNlac1LiayjrFZA0Hw-RDe2OAPZZqBKRCK_Z1IyYL"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the pipeline's side, as plain curl. First, the address that every call to Keycloak starts with."
+        },
+        {
+          "text": "Ask for a token. The client id and secret come from the pipeline's secret store, in CLIENT, and the grant type says which flow this is."
+        },
+        {
+          "text": "The answer: a Bearer token, good for 300 seconds, with the write scope."
+        },
+        {
+          "text": "The token itself is three parts, joined by dots: a header, a payload, and a signature. Each one is base64.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "decode",
+      "type": "terminal",
+      "title": "release pipeline",
+      "steps": [
+        {
+          "at": 0,
+          "command": "jq -R 'split(\".\")[1] | @base64d | fromjson' <<< $TOKEN",
+          "output": [
+            "{",
+            "  \"exp\": 1793636704,",
+            "  \"iat\": 1793636404,",
+            "  \"iss\": \"https://sso.corp.internal/realms/corp\",",
+            "  \"aud\": \"golinks\",",
+            "  \"sub\": \"4462ebfc-5f91-4ef0-9cfb-ac6e7687a66e\",",
+            "  \"typ\": \"Bearer\",",
+            "  \"azp\": \"release-pipeline\",",
+            "  \"scope\": \"golinks.write\",",
+            "  \"preferred_username\": \"service-account-release-pipeline\"",
+            "}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Decode the middle part, the payload. These are the token's claims."
+        },
+        {
+          "text": "When it expires, and when it was issued: five minutes apart. Who issued it: our Keycloak realm. And the audience: golinks."
+        },
+        {
+          "text": "The subject is the pipeline's service account in Keycloak, and azp says which client asked for the token.",
+          "say": "The subject is the pipeline's service account in Keycloak, and A Z P says which client asked for the token."
+        },
+        {
+          "text": "And the scope it was granted."
+        },
+        {
+          "text": "Anyone holding the token can read all of this, just like base64 in a Secret. It's signed, not encrypted. That's why it only ever travels over HTTPS.",
+          "senses": {
+            "read": "present"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "checks",
+      "type": "diagram",
+      "title": "What the API checks, in order",
+      "boxes": [
+        {
+          "id": "k1",
+          "kind": "note",
+          "label": "signature: made with a Keycloak key",
+          "x": 120,
+          "y": 90,
+          "w": 900,
+          "h": 80
+        },
+        {
+          "id": "k2",
+          "kind": "note",
+          "label": "iss: https://sso.corp.internal/realms/corp",
+          "x": 120,
+          "y": 195,
+          "w": 900,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "k3",
+          "kind": "note",
+          "label": "aud: golinks",
+          "x": 120,
+          "y": 300,
+          "w": 900,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "k4",
+          "kind": "note",
+          "label": "exp: not in the past",
+          "x": 120,
+          "y": 405,
+          "w": 900,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "e401",
+          "label": "401",
+          "sublabel": "who are you?",
+          "x": 1140,
+          "y": 190,
+          "w": 340,
+          "h": 130,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "k5",
+          "kind": "note",
+          "label": "scope: golinks.write, for PUT and DELETE",
+          "x": 120,
+          "y": 560,
+          "w": 900,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "e403",
+          "label": "403",
+          "sublabel": "not allowed",
+          "x": 1140,
+          "y": 535,
+          "w": 340,
+          "h": 130,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "k1"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "k2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "k3"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "k4"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "e401"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "k5",
+            "e403"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So the API checks every token. First the signature. The header names which Keycloak key signed it, so keys can be rotated."
+        },
+        {
+          "text": "The issuer must be exactly our realm."
+        },
+        {
+          "text": "The audience must be golinks. A token Keycloak made for some other service won't work here, even though it's genuine."
+        },
+        {
+          "text": "And it must not have expired. Five minutes is short on purpose: a token that leaks is soon worthless."
+        },
+        {
+          "text": "Fail any of these, and the answer is 401: I don't know who you are."
+        },
+        {
+          "text": "Pass them, and one more check: the scope this route needs. Without it, the answer is 403: I know who you are, and you're not allowed.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "cfg-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-configmap.yaml",
+      "range": [
+        1,
+        19
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            14,
+            16
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            17,
+            19
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The API needs two settings for this, and they've been in its ConfigMap since Episode 3: the issuer URL, and the audience to expect."
+        },
+        {
+          "text": "From the issuer, it finds the public keys of Keycloak on its own: an OIDC discovery document lists where they are."
+        },
+        {
+          "text": "One new line. Keycloak answers over HTTPS, with a certificate from the company CA. The pod has to trust that CA, or it can't fetch the keys at all.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "ca-yaml",
+      "type": "code",
+      "file": "manifests/base/corp-root-ca.yaml",
+      "range": [
+        1,
+        23
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            3,
+            7
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            11,
+            23
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            1,
+            2
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So the company root goes in a ConfigMap of its own, corp-root-ca."
+        },
+        {
+          "text": "Its one entry is the root's certificate, the same one company laptops trust."
+        },
+        {
+          "text": "A certificate is public, so unlike the key in Episode 8, this one can live in the repository.",
+          "senses": {
+            "live": "verb"
+          },
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "deploy-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        48,
+        71
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            63,
+            67
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            68,
+            71
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The Deployment mounts it as files. The container gets the folder /etc/corp-ca, read-only.",
+          "say": "The Deployment mounts it as files. The container gets the folder slash etc slash corp C A, read-only."
+        },
+        {
+          "text": "And the pod's volumes say where that folder comes from: the ConfigMap. Each key becomes a file, so the API finds ca.crt right where the setting points.",
+          "say": "And the pod's volumes say where that folder comes from: the ConfigMap. Each key becomes a file, so the API finds C. A. dot C. R. T. right where the setting points."
+        },
+        {
+          "text": "With many apps, trust-manager, from the cert-manager project, can copy a CA bundle into every namespace for you.",
+          "say": "With many apps, trust manager, from the cert-manager project, can copy a C A bundle into every namespace for you.",
+          "senses": {
+            "project": "noun"
+          },
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/base | grep -v unchanged",
+          "output": [
+            "configmap/corp-root-ca created",
+            "configmap/golinks-config configured",
+            "deployment.apps/golinks configured"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl rollout status deploy/golinks -n golinks",
+          "output": [
+            "deployment \"golinks\" successfully rolled out"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the base: a new ConfigMap, a changed one, and a changed Deployment."
+        },
+        {
+          "text": "A ConfigMap change alone doesn't restart pods. Here the Deployment changed too, so it rolls out new pods, one at a time, with the probes from Episode 6 watching each.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "put",
+      "type": "terminal",
+      "title": "release pipeline",
+      "steps": [
+        {
+          "at": 0,
+          "command": "URL=https://go.corp.internal/api/links/release-notes"
+        },
+        {
+          "at": 1,
+          "command": "cat notes.json",
+          "output": [
+            "{\"target\": \"https://docs.corp.internal/releases/2026.11\"}"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "curl -i -T notes.json $URL",
+          "output": [
+            "HTTP/2 401",
+            "www-authenticate: Bearer realm=\"golinks\""
+          ]
+        },
+        {
+          "at": 4,
+          "command": "curl -i -T notes.json -H \"Authorization: Bearer $TOKEN\" $URL",
+          "output": [
+            "HTTP/2 201",
+            "location: /api/links/release-notes",
+            "",
+            "{\"name\": \"release-notes\", \"owner\": \"service-account-release-pipeline\"}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now the release itself. The link to change, release-notes."
+        },
+        {
+          "text": "And its new target: this month's notes."
+        },
+        {
+          "text": "curl dash T sends the file as a PUT. First, without a token."
+        },
+        {
+          "text": "401, and a header saying how to sign in: with a Bearer token."
+        },
+        {
+          "text": "Again, with the token in the Authorization header. 201 Created. And the owner is taken from the token, not from anything the caller typed.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "payoff",
+      "type": "terminal",
+      "title": "release pipeline",
+      "steps": [
+        {
+          "at": 0,
+          "command": "curl -sI https://go.corp.internal/release-notes | grep -E 'HTTP|loc'",
+          "output": [
+            "HTTP/2 302",
+            "location: https://docs.corp.internal/releases/2026.11"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "curl -si -H \"Authorization: Bearer $TOKEN\" ${URL%/*} | head -2",
+          "output": [
+            "HTTP/2 403",
+            "www-authenticate: Bearer error=\"insufficient_scope\", scope=\"golinks.read\""
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Anyone can follow it now. go slash release-notes answers 302, straight to the new notes. The first working link."
+        },
+        {
+          "text": "Next month, the pipeline runs again, and the same link moves on its own."
+        },
+        {
+          "text": "One last check with the pipeline's token: list all the links. That's slash api slash links, the same address minus the name.",
+          "say": "One last check with the pipeline's token: list all the links. That's slash A P I slash links, the same address minus the name."
+        },
+        {
+          "text": "403. The token is fine, but it was only granted write, and listing needs read.",
+          "senses": {
+            "read": "present"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "people",
+      "type": "diagram",
+      "title": "People get tokens too",
+      "boxes": [
+        {
+          "id": "br",
+          "label": "browser",
+          "sublabel": "go links page",
+          "x": 60,
+          "y": 100,
+          "w": 400,
+          "h": 130
+        },
+        {
+          "id": "kc",
+          "label": "Keycloak",
+          "sublabel": "company sign-in",
+          "x": 1140,
+          "y": 100,
+          "w": 400,
+          "h": 130
+        },
+        {
+          "id": "tok",
+          "kind": "note",
+          "label": "a token with the person's name as subject",
+          "x": 360,
+          "y": 330,
+          "w": 880,
+          "h": 80,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "same",
+          "kind": "note",
+          "label": "same checks in the API: signature, iss, aud, exp, scope",
+          "x": 160,
+          "y": 470,
+          "w": 1280,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "cli",
+          "kind": "note",
+          "label": "in a terminal: the device flow",
+          "x": 360,
+          "y": 610,
+          "w": 880,
+          "h": 80,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "p1",
+          "from": "br",
+          "to": "kc",
+          "label": "sign in",
+          "curve": -40
+        },
+        {
+          "id": "p2",
+          "from": "kc",
+          "to": "br",
+          "label": "code, then token",
+          "curve": -40,
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "p1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [
+            "p2"
+          ],
+          "show": [
+            "p2",
+            "tok"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [],
+          "show": [
+            "same"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "cli"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "People don't have a client secret. The go links page sends them to Keycloak to sign in, the same company sign-in they use everywhere else.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "Keycloak sends back a short-lived code, and the page swaps it for a token naming that person."
+        },
+        {
+          "text": "To the API, it's just another token, with the same five checks."
+        },
+        {
+          "text": "From a terminal, the device flow does the same: it prints a short code, you approve it in a browser, and you get a token.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "standup",
+      "type": "terminal",
+      "title": "laptop",
+      "steps": [
+        {
+          "at": 0,
+          "command": "URL=https://go.corp.internal/api/links/standup"
+        },
+        {
+          "at": 1,
+          "command": "curl -si -T standup.json -H \"Authorization: Bearer $MY_TOKEN\" $URL | head -1",
+          "output": [
+            "HTTP/2 201"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "curl -sI https://go.corp.internal/standup | grep -E 'HTTP|loc'",
+          "output": [
+            "HTTP/2 302",
+            "location: https://meet.corp.internal/platform-standup"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So, with my own token, the link this series has been chasing since Episode 5: standup."
+        },
+        {
+          "text": "Created."
+        },
+        {
+          "text": "And go slash standup, the 404 from last time, finally answers 302.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "where",
+      "type": "diagram",
+      "title": "Where tokens can be checked",
+      "boxes": [
+        {
+          "id": "app",
+          "label": "in the app",
+          "sublabel": "what we did",
+          "x": 60,
+          "y": 100,
+          "w": 460,
+          "h": 140,
+          "tone": "good"
+        },
+        {
+          "id": "tr",
+          "label": "at Traefik",
+          "sublabel": "ForwardAuth middleware",
+          "x": 570,
+          "y": 100,
+          "w": 460,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "mesh",
+          "label": "in a service mesh",
+          "sublabel": "Istio RequestAuthentication",
+          "x": 1080,
+          "y": 100,
+          "w": 460,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "n1",
+          "kind": "note",
+          "label": "the app knows each route's scope, and who the owner is",
+          "x": 60,
+          "y": 330,
+          "w": 1480,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "n2",
+          "kind": "note",
+          "label": "the edge keeps bad tokens away from every app behind it",
+          "x": 60,
+          "y": 460,
+          "w": 1480,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "n3",
+          "kind": "note",
+          "label": "either way: Keycloak issues, someone checks, nothing trusts a token blindly",
+          "x": 60,
+          "y": 620,
+          "w": 1480,
+          "h": 90,
+          "tone": "accent",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "app"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "tr"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "mesh"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "n1"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "n2"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "n3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "We checked tokens in the app itself. That's not the only place."
+        },
+        {
+          "text": "Traefik can do it at the edge, with a ForwardAuth middleware that asks a helper, such as oauth2-proxy, before letting a request through.",
+          "say": "Traefik can do it at the edge, with a forward auth middleware that asks a helper, such as oh auth two proxy, before letting a request through."
+        },
+        {
+          "text": "A service mesh like Istio can check tokens next to every pod."
+        },
+        {
+          "text": "We kept it in the app, because the app needs more than yes or no: a different scope per route, and the caller's name for the owner."
+        },
+        {
+          "text": "Teams often do both. The edge turns away bad tokens early, and the app makes the fine-grained decisions."
+        },
+        {
+          "text": "The pattern is the same everywhere: Keycloak issues the token, something checks it, and nothing trusts it blindly.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 10: End to end",
+      "subtitle": "One request, every hop",
+      "lines": [
+        {
+          "text": "So: Keycloak issues short-lived tokens, the API checks five things, and go has its first real links."
+        },
+        {
+          "text": "Next time, we follow one request from a laptop all the way to Postgres and back, and prove each hop with kubectl.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
