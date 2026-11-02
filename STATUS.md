@@ -14,7 +14,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 4 | The database: Postgres StatefulSet | `ep04-database` | rendered | About 6 min; 13 scenes, 2 of them diagrams; no operator, one replica; LOG_LEVEL restart demo; pronunciation check clean |
 | 5 | Reaching it: load balancer, Ingress, Service, DNS | `ep05-reaching-it` | rendered | About 5 min 20 s; 13 scenes, 3 of them diagrams; ServiceLB, Traefik Ingress, company DNS; pronunciation check clean |
 | 6 | Health checks: startup, liveness and readiness probes | `ep06-health-probes` | rendered | About 6 min 40 s; 14 scenes, 5 of them diagrams; database-down and frozen-process demos; pronunciation check clean |
-| 7 | Logs: where they go, on-prem | `ep07-logs` | planned | Loki, Alloy and Grafana; no manifests yet |
+| 7 | Logs: where they go, on-prem | `ep07-logs` | rendered | About 7 min; 18 scenes, 6 of them diagrams; Alloy, Loki and Grafana as k3s HelmCharts; delete-a-pod demo; pronunciation check clean apart from "336 hours" written as digits |
 | 8 | TLS: cert-manager and the internal CA | `ep08-tls` | planned | |
 | 9 | Auth: Keycloak, kept light | `ep09-auth` | planned | |
 | 10 | One request, end to end | `ep10-end-to-end` | planned | |

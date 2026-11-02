@@ -17,7 +17,7 @@ spec:
         datasources:
           - name: Loki
             type: loki
-            url: http://loki.logging.svc.cluster.local:3100
+            url: http://loki.logging:3100
             isDefault: true
     persistence:
       enabled: true

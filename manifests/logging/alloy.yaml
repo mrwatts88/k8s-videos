@@ -1,5 +1,5 @@
-# Alloy ships the logs: a DaemonSet, so one pod per node, each reading the
-# container log files under /var/log/pods on its own node and pushing them to Loki.
+# Alloy ships the logs: a DaemonSet, so one pod per node. Each one reads the
+# container log files under /var/log/pods on its node and pushes them to Loki.
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -43,7 +43,10 @@ spec:
               target_label  = "container"
             }
             rule {
-              source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+              source_labels = [
+                "__meta_kubernetes_pod_uid",
+                "__meta_kubernetes_pod_container_name",
+              ]
               separator     = "/"
               target_label  = "__path__"
               replacement   = "/var/log/pods/*$1/*.log"
@@ -67,6 +70,6 @@ spec:
 
           loki.write "loki" {
             endpoint {
-              url = "http://loki.logging.svc.cluster.local:3100/loki/api/v1/push"
+              url = "http://loki.logging:3100/loki/api/v1/push"
             }
           }

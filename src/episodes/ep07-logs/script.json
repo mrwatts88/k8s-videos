@@ -1,0 +1,1084 @@
+{
+  "id": "ep07-logs",
+  "number": 7,
+  "title": "Logs",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 7",
+      "title": "Logs",
+      "subtitle": "Where they go, on-prem",
+      "lines": [
+        {
+          "text": "Last time, a container was restarted, and kubectl logs could show only the last lines of the old one."
+        },
+        {
+          "text": "Today: where those lines actually live, why they don't last, and how to keep them.",
+          "senses": {
+            "live": "verb"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "stdout",
+      "type": "diagram",
+      "title": "From the app to a file on the node",
+      "boxes": [
+        {
+          "id": "node",
+          "kind": "group",
+          "label": "k3s-agent-1",
+          "x": 60,
+          "y": 60,
+          "w": 1480,
+          "h": 680
+        },
+        {
+          "id": "app",
+          "kind": "pod",
+          "label": "golinks container",
+          "sublabel": "one JSON line per event",
+          "x": 120,
+          "y": 160,
+          "w": 420,
+          "h": 120
+        },
+        {
+          "id": "ctd",
+          "label": "containerd",
+          "sublabel": "catches stdout and stderr",
+          "x": 640,
+          "y": 160,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "file",
+          "kind": "note",
+          "label": "/var/log/pods/<namespace>_<pod>_<uid>/<container>/",
+          "x": 400,
+          "y": 400,
+          "w": 960,
+          "h": 90,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "kl",
+          "label": "kubelet",
+          "sublabel": "rotates: 10 MiB, keeps 5",
+          "x": 640,
+          "y": 580,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "app",
+          "to": "ctd",
+          "label": "stdout",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "ctd",
+          "to": "file",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "kl",
+          "to": "file",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "app"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "ctd",
+            "a1",
+            "file",
+            "a2"
+          ],
+          "flow": [
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "at": 2,
+          "flow": [],
+          "show": [
+            "kl",
+            "a3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Our app writes one JSON line per event to standard output. It writes no log files of its own, and it never sends logs anywhere itself."
+        },
+        {
+          "text": "containerd, the runtime from Episode 1, catches that output and appends it to a file on the node, in a folder for each pod."
+        },
+        {
+          "text": "The kubelet rotates those files: by default at 10 MiB, keeping 5.",
+          "say": "The kubelet rotates those files: by default at ten mebibytes, keeping five.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "on-node",
+      "type": "terminal",
+      "title": "admin@k3s-agent-1",
+      "prompt": "$",
+      "steps": [
+        {
+          "at": 0,
+          "command": "sudo ls /var/log/pods | grep golinks",
+          "output": [
+            "golinks_golinks-5f8b6c7d9d-k4xzt_3f9c2e71-8a4d-4b6e-9c15-7d2a0e8b4f63",
+            "golinks_postgres-0_b71e4d02-5c3a-4f8e-a9d6-1e0f7c2b8a45"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "sudo ls /var/log/pods/golinks_golinks-5f8b6c7d9d-k4xzt_*/golinks",
+          "output": [
+            "0.log  1.log"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "sudo tail -n 1 /var/log/pods/golinks_golinks-5f8b6c7d9d-k4xzt_*/golinks/1.log",
+          "output": [
+            "2026-11-02T15:04:10.412873160Z stdout F {\"time\":\"2026-11-02T15:04:10Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":1}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here they are on the node: a folder per pod, named for its namespace, the pod, and the pod's unique ID."
+        },
+        {
+          "text": "Inside, one file per container start. 0.log is the container we froze in Episode 6.",
+          "say": "Inside, one file per container start. Zero dot log is the container we froze in Episode 6."
+        },
+        {
+          "text": "1.log is the one running now.",
+          "say": "One dot log is the one running now."
+        },
+        {
+          "text": "Each line is exactly what the app wrote, with a timestamp and the stream name in front.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "kubectl-logs",
+      "type": "diagram",
+      "title": "What kubectl logs really does",
+      "boxes": [
+        {
+          "id": "you",
+          "label": "kubectl logs",
+          "x": 60,
+          "y": 80,
+          "w": 340,
+          "h": 110,
+          "tone": "accent"
+        },
+        {
+          "id": "api",
+          "label": "API server",
+          "x": 470,
+          "y": 80,
+          "w": 340,
+          "h": 110
+        },
+        {
+          "id": "kl",
+          "label": "kubelet",
+          "sublabel": "on the pod's node",
+          "x": 880,
+          "y": 80,
+          "w": 340,
+          "h": 110
+        },
+        {
+          "id": "f",
+          "kind": "note",
+          "label": "the file",
+          "x": 1270,
+          "y": 80,
+          "w": 270,
+          "h": 110
+        },
+        {
+          "id": "n1",
+          "kind": "note",
+          "label": "one pod at a time",
+          "x": 200,
+          "y": 330,
+          "w": 1200,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "n2",
+          "kind": "note",
+          "label": "only what's still on that node",
+          "x": 200,
+          "y": 450,
+          "w": 1200,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "n3",
+          "kind": "note",
+          "label": "--previous: one restart back, no further",
+          "x": 200,
+          "y": 570,
+          "w": 1200,
+          "h": 80,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "b1",
+          "from": "you",
+          "to": "api"
+        },
+        {
+          "id": "b2",
+          "from": "api",
+          "to": "kl"
+        },
+        {
+          "id": "b3",
+          "from": "kl",
+          "to": "f"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [],
+          "show": [
+            "n1",
+            "n2",
+            "n3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So when you run kubectl logs, the API server asks that node's kubelet, and the kubelet reads the file."
+        },
+        {
+          "text": "That's why it shows one pod at a time, only what's still on that node, and why previous reaches back one restart and no further."
+        },
+        {
+          "text": "A Service has no logs of its own. kubectl logs on a Service or a Deployment just picks one pod behind it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "lost",
+      "type": "diagram",
+      "title": "When logs disappear",
+      "boxes": [
+        {
+          "id": "l1",
+          "kind": "note",
+          "label": "pod deleted, or replaced by a rolling update: its files go with it",
+          "x": 140,
+          "y": 120,
+          "w": 1320,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "l2",
+          "kind": "note",
+          "label": "node lost: every file on it goes too",
+          "x": 140,
+          "y": 300,
+          "w": 1320,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "l3",
+          "kind": "note",
+          "label": "Kubernetes keeps no log history of its own",
+          "x": 140,
+          "y": 480,
+          "w": 1320,
+          "h": 110,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "l1"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "l2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "l3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "And those files don't last. Delete a pod, or let a rolling update replace it, and its log files are deleted with it."
+        },
+        {
+          "text": "Lose a node, and everything on it is gone."
+        },
+        {
+          "text": "Kubernetes itself keeps no log history. The docs call this cluster-level logging, and leave it to you.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "stack",
+      "type": "diagram",
+      "title": "The standard answer, on-prem",
+      "boxes": [
+        {
+          "id": "n1",
+          "kind": "group",
+          "label": "k3s-server-1",
+          "x": 60,
+          "y": 60,
+          "w": 420,
+          "h": 180
+        },
+        {
+          "id": "n2",
+          "kind": "group",
+          "label": "k3s-agent-1",
+          "x": 60,
+          "y": 290,
+          "w": 420,
+          "h": 180
+        },
+        {
+          "id": "n3",
+          "kind": "group",
+          "label": "k3s-agent-2",
+          "x": 60,
+          "y": 520,
+          "w": 420,
+          "h": 180
+        },
+        {
+          "id": "a1",
+          "kind": "pod",
+          "label": "alloy",
+          "x": 110,
+          "y": 120,
+          "w": 320,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "kind": "pod",
+          "label": "alloy",
+          "x": 110,
+          "y": 350,
+          "w": 320,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "kind": "pod",
+          "label": "alloy",
+          "x": 110,
+          "y": 580,
+          "w": 320,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "loki",
+          "label": "Loki",
+          "sublabel": "on a PersistentVolume, 14 days",
+          "x": 640,
+          "y": 330,
+          "w": 420,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "graf",
+          "label": "Grafana",
+          "sublabel": "search every pod",
+          "x": 1160,
+          "y": 330,
+          "w": 380,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "ext",
+          "kind": "note",
+          "label": "optional: Elasticsearch, Splunk or the security team's SIEM",
+          "x": 600,
+          "y": 580,
+          "w": 940,
+          "h": 90,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "s1",
+          "from": "a1",
+          "to": "loki",
+          "hidden": true
+        },
+        {
+          "id": "s2",
+          "from": "a2",
+          "to": "loki",
+          "hidden": true
+        },
+        {
+          "id": "s3",
+          "from": "a3",
+          "to": "loki",
+          "hidden": true
+        },
+        {
+          "id": "q",
+          "from": "graf",
+          "to": "loki",
+          "label": "LogQL",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "a1",
+            "a2",
+            "a3"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "loki",
+            "s1",
+            "s2",
+            "s3"
+          ],
+          "flow": [
+            "s1",
+            "s2",
+            "s3"
+          ]
+        },
+        {
+          "at": 5,
+          "flow": [],
+          "show": [
+            "graf",
+            "q"
+          ]
+        },
+        {
+          "at": 6,
+          "show": [
+            "ext"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The usual answer has three parts, and they all run inside the cluster."
+        },
+        {
+          "text": "First, an agent on every node. It runs as a DaemonSet, a workload that puts exactly one pod on each node."
+        },
+        {
+          "text": "It tails those files, labels each line with its namespace, pod and container, and ships it off the node."
+        },
+        {
+          "text": "We use Grafana Alloy. Promtail did this job until it reached end of life in March 2026, and Fluent Bit is the other common choice.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "Second, a store: Grafana Loki, as one pod, with its data on a PersistentVolume and a retention period of 14 days."
+        },
+        {
+          "text": "Third, Grafana, to search it all, including pods that no longer exist."
+        },
+        {
+          "text": "Many companies also forward logs to a system they already run, and the agent can send to both.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "loki-yaml",
+      "type": "code",
+      "file": "manifests/logging/loki.yaml",
+      "range": [
+        1,
+        24
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            3,
+            4
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            12
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            13,
+            14
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            19,
+            20
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "We install all three with Helm charts, but no helm command. k3s has a Helm controller built in: a HelmChart resource says what to install, and k3s does it."
+        },
+        {
+          "text": "This one names the chart's repository, the chart, a pinned version, and the namespace to install it in."
+        },
+        {
+          "text": "Then come the chart's values. Monolithic mode runs all of Loki in one pod, plenty for a cluster this size."
+        },
+        {
+          "text": "And it keeps its data as plain files on disk.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "loki-yaml-2",
+      "type": "code",
+      "file": "manifests/logging/loki.yaml",
+      "range": [
+        24,
+        47
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            30,
+            34
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            35,
+            39
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            40,
+            47
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Retention is 336 hours, which is 14 days. The compactor deletes anything older.",
+          "say": "Retention is three hundred thirty-six hours, which is fourteen days. The compactor deletes anything older."
+        },
+        {
+          "text": "One replica, with a 20 GiB volume from local-path, the same storage class Postgres uses.",
+          "senses": {
+            "uses": "verb"
+          },
+          "say": "One replica, with a twenty gig volume from local path, the same storage class Postgres uses."
+        },
+        {
+          "text": "The rest turns off pieces a single pod doesn't need.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "alloy-yaml",
+      "type": "code",
+      "file": "manifests/logging/alloy.yaml",
+      "range": [
+        14,
+        37
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            14,
+            15
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            17,
+            18
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            21,
+            28
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            30,
+            37
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Alloy runs as a DaemonSet."
+        },
+        {
+          "text": "It mounts the node's var log folder, so it can read those files.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "Its config finds the pods running on its own node, and only those."
+        },
+        {
+          "text": "Then it labels each one with its namespace, pod and container.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "alloy-yaml-2",
+      "type": "code",
+      "file": "manifests/logging/alloy.yaml",
+      "range": [
+        52,
+        75
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            52,
+            52
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            61,
+            64
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            66,
+            69
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            71,
+            75
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "It points at each container's files, by the pod's ID, the same path we just looked at."
+        },
+        {
+          "text": "It tails them, picking up where it left off after a restart."
+        },
+        {
+          "text": "The cri stage strips off the timestamp and stream name that containerd put in front.",
+          "say": "The C R I stage strips off the timestamp and stream name that containerd put in front."
+        },
+        {
+          "text": "And it pushes every line to Loki's Service, inside the cluster.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "grafana-yaml",
+      "type": "code",
+      "file": "manifests/logging/grafana.yaml",
+      "range": [
+        9,
+        30
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            14,
+            21
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            22,
+            25
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            26,
+            30
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Grafana gets Loki as its data source."
+        },
+        {
+          "text": "A small volume of its own, for dashboards and settings."
+        },
+        {
+          "text": "And an Ingress, so people reach it at grafana.corp.internal, through the same Traefik as Episode 5.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/logging",
+          "output": [
+            "namespace/logging created",
+            "helmchart.helm.cattle.io/alloy created",
+            "helmchart.helm.cattle.io/grafana created",
+            "helmchart.helm.cattle.io/loki created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n logging",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "alloy-7xq2d                2/2     Running   0          84s",
+            "alloy-b5kfm                2/2     Running   0          84s",
+            "alloy-r9wzt                2/2     Running   0          84s",
+            "grafana-6c9d8f7b54-tq4mn   1/1     Running   0          82s",
+            "loki-0                     2/2     Running   0          86s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the folder. k3s runs a short install job for each chart."
+        },
+        {
+          "text": "A minute later: Loki, Grafana, and three Alloy pods.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "Three, because the DaemonSet wants one per node, and we have three nodes. Add a node, and it gets one automatically.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "password",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 1,
+          "command": "kubectl get secret grafana -n logging -o jsonpath='{.data.admin-password}' | base64 -d",
+          "output": [
+            "Xq7mRt2vLp9sNw4kBz6c"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "To sign in, add grafana to the company DNS, pointing at the same three nodes as go."
+        },
+        {
+          "text": "The chart made a random admin password and kept it in a Secret. As in Episode 3, base64 is just an encoding, so one command reads it."
+        },
+        {
+          "text": "At a real company, you'd connect Grafana to the company's sign-in instead. We'll meet Keycloak in Episode 9.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "explore",
+      "type": "terminal",
+      "title": "Grafana: Explore, Loki",
+      "prompt": ">",
+      "steps": [
+        {
+          "at": 1,
+          "command": "{namespace=\"golinks\"} |= \"database not reachable\"",
+          "output": [
+            "14:52:24  golinks-5f8b6c7d9d-p2rnm  {\"time\":\"2026-11-02T14:52:24Z\",\"level\":\"WARN\",\"msg\":\"database not reachable\",\"err\":\"no such host\"}",
+            "14:52:23  golinks-5f8b6c7d9d-k4xzt  {\"time\":\"2026-11-02T14:52:23Z\",\"level\":\"WARN\",\"msg\":\"database not reachable\",\"err\":\"no such host\"}",
+            "14:52:19  golinks-5f8b6c7d9d-p2rnm  {\"time\":\"2026-11-02T14:52:19Z\",\"level\":\"WARN\",\"msg\":\"database not reachable\",\"err\":\"no such host\"}",
+            "14:52:18  golinks-5f8b6c7d9d-k4xzt  {\"time\":\"2026-11-02T14:52:18Z\",\"level\":\"WARN\",\"msg\":\"database not reachable\",\"err\":\"no such host\"}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "In Grafana's Explore view, we query Loki in its own language, LogQL."
+        },
+        {
+          "text": "The part in braces picks streams by label: everything from the golinks namespace. Then we keep only lines that contain database not reachable."
+        },
+        {
+          "text": "And there's the outage from Episode 6, from both pods at once. Alloy read each file from the start, so even lines from before it was installed are here.",
+          "senses": {
+            "read": "past"
+          }
+        },
+        {
+          "text": "Loki indexes only the labels, not the text. That keeps it small and cheap, and the text is searched when you ask.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "delete",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl delete pod golinks-5f8b6c7d9d-k4xzt -n golinks",
+          "output": [
+            "pod \"golinks-5f8b6c7d9d-k4xzt\" deleted"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl logs golinks-5f8b6c7d9d-k4xzt -n golinks",
+          "output": [
+            "Error from server (NotFound): pods \"golinks-5f8b6c7d9d-k4xzt\" not found"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now the real test. Delete a pod. Its ReplicaSet starts a new one, and the old pod's files are removed from the node."
+        },
+        {
+          "text": "kubectl logs can't find it any more. As far as the cluster knows, those lines are gone.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "kept",
+      "type": "terminal",
+      "title": "Grafana: Explore, Loki",
+      "prompt": ">",
+      "steps": [
+        {
+          "at": 0,
+          "command": "{pod=\"golinks-5f8b6c7d9d-k4xzt\"}",
+          "output": [
+            "15:12:41  {\"time\":\"2026-11-02T15:12:41Z\",\"level\":\"INFO\",\"msg\":\"shutting down\",\"signal\":\"terminated\"}",
+            "15:12:40  {\"time\":\"2026-11-02T15:12:40Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":1}",
+            "15:12:35  {\"time\":\"2026-11-02T15:12:35Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":2}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "But Loki still has them, right up to the last line the app wrote as it shut down."
+        },
+        {
+          "text": "And they'll stay for 14 days, whatever happens to the pod or the node.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "why-not-volume",
+      "type": "diagram",
+      "title": "Why not write log files to a volume?",
+      "boxes": [
+        {
+          "id": "w1",
+          "kind": "note",
+          "label": "each replica needs its own file",
+          "x": 200,
+          "y": 120,
+          "w": 1200,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "w2",
+          "kind": "note",
+          "label": "nothing rotates them or searches them",
+          "x": 200,
+          "y": 290,
+          "w": 1200,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "w3",
+          "kind": "note",
+          "label": "and kubectl logs no longer sees them",
+          "x": 200,
+          "y": 460,
+          "w": 1200,
+          "h": 100,
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "w1"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "w2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "w3"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "You might ask: why not have the app write log files to a PersistentVolume?"
+        },
+        {
+          "text": "Each replica would need its own file, and its own volume."
+        },
+        {
+          "text": "Nothing would rotate them or search them."
+        },
+        {
+          "text": "And kubectl logs would stop working. Standard output, plus an agent on each node, is simpler on every count.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 8: TLS",
+      "subtitle": "cert-manager and the internal CA",
+      "lines": [
+        {
+          "text": "So: apps write to standard output, the node keeps a short-lived copy, Alloy ships it, Loki keeps it, and Grafana finds it."
+        },
+        {
+          "text": "Both go and grafana are still plain HTTP. Next time, cert-manager and the company's own certificate authority put them on HTTPS.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
