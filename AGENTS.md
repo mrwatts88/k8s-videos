@@ -136,10 +136,15 @@ their own guard:
   have its sense named on the line, as `"senses": {"lives": "verb"}`.
   `check:scripts` fails otherwise, and narration speaks that sense's `ipa`.
   Prefer rewording when it reads just as well.
-- Plurals in -ies. espeak clips some of them ("copies" comes out "copiz").
-  Every narration word ending in -ies must be a lexicon term or listed in
-  `pluralsChecked`. Check a new one with `tools/pronounce.py --phonemes`: if it
-  ends in `ɪz`, add a term with `ipa` ending in `iz`; otherwise list it.
+- Words ending in -ies or -ied. espeak clips some of them ("copies" comes out
+  "copiz", "copied" comes out "copid"). Every narration word of six or more
+  letters ending in -ies or -ied must be a lexicon term or listed in
+  `endingsChecked`. Check a new one with `tools/pronounce.py --phonemes`: if it
+  ends in `ɪz` or `ɪd`, add a term with `ipa` ending in `iz` or `id`; otherwise
+  list it.
+- Tool names. Some are said in a way espeak can't guess: containerd is
+  "container D", kubeconfig is "cube config", kubectl is "cube control". These
+  are lexicon terms; add new tool names the same way.
 
 When the listener reports a word that sounded off, find the phonemes with
 `tools/pronounce.py --phonemes` and fix the cause in the lexicon, so later
@@ -171,7 +176,7 @@ the phonemes are wrong, change `say` or add `ipa`.
 | --- | --- | --- |
 | `npm run typecheck` | TypeScript | yes |
 | `npm run lint` | ESLint (Remotion config) | yes |
-| `npm run check:scripts` | every narration line sits in a scene; `at` indexes, code files, line ranges and diagrams are valid; episodes are registered; heteronyms have senses and -ies plurals are checked; lexicon is well formed | yes |
+| `npm run check:scripts` | every narration line sits in a scene; `at` indexes, code files, line ranges and diagrams are valid; episodes are registered; heteronyms have senses and -ies and -ied words are checked; lexicon is well formed | yes |
 | `npm run check:timing` | `src/lib/timeline.ts` and `tools/layout.py` lay out every script identically | yes |
 | `python3 tools/test_pronounce.py` | lexicon rewriting rules and heteronym senses | yes |
 | `npm run check:manifests` | kubeconform (strict, Kubernetes 1.33) on every manifest, and `kubectl kustomize` on every kustomization | yes |

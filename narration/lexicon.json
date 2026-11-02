@@ -663,6 +663,49 @@
         "sso.corp.internal",
         "s s o dot corp dot internal"
       ]
+    },
+    {
+      "match": "kubeconfig",
+      "say": "cube config",
+      "ipa": "kjˈuːb kˈɑːnfɪɡ",
+      "ignoreCase": true,
+      "heard": [
+        "kubeconfig",
+        "cube config",
+        "kube config",
+        "cubeconfig",
+        "q config"
+      ]
+    },
+    {
+      "match": "containerd",
+      "say": "container D",
+      "ignoreCase": true,
+      "heard": [
+        "containerd",
+        "container d",
+        "container-d",
+        "containered",
+        "container dee"
+      ]
+    },
+    {
+      "match": "copied",
+      "say": "copied",
+      "ipa": "kˈɑːpid",
+      "ignoreCase": true,
+      "heard": [
+        "copied"
+      ]
+    },
+    {
+      "match": "queried",
+      "say": "queried",
+      "ipa": "kwˈɪɹid",
+      "ignoreCase": true,
+      "heard": [
+        "queried"
+      ]
     }
   ],
   "rules": [
@@ -918,25 +961,40 @@
       }
     }
   ],
-  "_pluralsDoc": "espeak sometimes clips the ending of plurals in -ies (copies comes out kˈɑːpɪz). A narration word ending in -ies must be a lexicon term or listed in pluralsChecked: check it with tools/pronounce.py --phonemes, add a term with ipa ending in iz if it ends in ɪz, otherwise add it here.",
-  "pluralsChecked": [
+  "_endingsDoc": "espeak sometimes clips words ending in -ies or -ied (copies comes out kˈɑːpɪz, copied kˈɑːpɪd, where the ending should be iz or id). A narration word of six or more letters ending in -ies or -ied must be a lexicon term or listed in endingsChecked: check it with tools/pronounce.py --phonemes; if it ends in ɪz or ɪd, add a term with ipa ending in iz or id, otherwise add it here.",
+  "endingsChecked": [
+    "applied",
     "authorities",
     "binaries",
     "bodies",
+    "certified",
+    "denied",
     "dependencies",
     "directories",
     "entries",
+    "identified",
     "identities",
     "libraries",
+    "modified",
+    "notified",
+    "occupied",
     "policies",
     "priorities",
     "properties",
     "proxies",
     "registries",
+    "relied",
+    "replied",
     "replies",
     "retries",
+    "satisfied",
     "secretaries",
     "series",
-    "species"
+    "simplified",
+    "species",
+    "specified",
+    "supplied",
+    "unified",
+    "verified"
   ]
 }

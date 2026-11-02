@@ -21,8 +21,8 @@ const BOX_KINDS = ["group", "component", "pod", "note"];
 const { diagram } = JSON.parse(readFileSync(join(root, "src", "timing.json"), "utf8"));
 
 // Pronunciation guards that need no speech model: heteronyms must name their
-// sense, and -ies plurals must be ones someone has checked (see narration/lexicon.json).
-let lexiconData = { terms: [], heteronyms: [], pluralsChecked: [] };
+// sense, and words ending in -ies or -ied must be ones someone has checked (see narration/lexicon.json).
+let lexiconData = { terms: [], heteronyms: [], endingsChecked: [] };
 try {
   lexiconData = JSON.parse(readFileSync(join(root, "narration", "lexicon.json"), "utf8"));
 } catch {
@@ -30,7 +30,7 @@ try {
 }
 const heteronyms = new Map((lexiconData.heteronyms ?? []).map((h) => [h.word.toLowerCase(), Object.keys(h.senses ?? {})]));
 const termWords = new Set((lexiconData.terms ?? []).map((t) => t.match.toLowerCase()));
-const pluralsChecked = new Set((lexiconData.pluralsChecked ?? []).map((w) => w.toLowerCase()));
+const endingsChecked = new Set((lexiconData.endingsChecked ?? []).map((w) => w.toLowerCase()));
 const wordsOf = (text) => (text.match(/[A-Za-z][A-Za-z'-]*/g) ?? []).map((w) => w.toLowerCase());
 
 const checkPronunciation = (where, line) => {
@@ -44,10 +44,10 @@ const checkPronunciation = (where, line) => {
     const options = heteronyms.get(word);
     if (options && !options.includes(senses[word]))
       fail(where, `"${word}" can be said ${options.length} ways; add "senses": {"${word}": one of ${options.join(", ")}}`);
-    if (word.length >= 6 && word.endsWith("ies") && !termWords.has(word) && !pluralsChecked.has(word))
+    if (word.length >= 6 && /ie[sd]$/.test(word) && !termWords.has(word) && !endingsChecked.has(word))
       fail(
         where,
-        `"${word}": check it with tools/pronounce.py --phonemes, then add a lexicon term with ipa (if it ends in ɪz) or list it in pluralsChecked`,
+        `"${word}": check it with tools/pronounce.py --phonemes, then add a lexicon term with ipa (if it ends in ɪz or ɪd) or list it in endingsChecked`,
       );
   }
   for (const word of Object.keys(senses)) {
