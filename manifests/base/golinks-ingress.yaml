@@ -1,4 +1,4 @@
-# k3s ships Traefik as its ingress controller. TLS is added in Episode 6.
+# k3s ships Traefik as its ingress controller. TLS is added in Episode 8.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

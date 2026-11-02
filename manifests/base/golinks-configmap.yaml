@@ -11,6 +11,6 @@ data:
   DATABASE_NAME: golinks
   DATABASE_USER: golinks
   LOG_LEVEL: info
-  # Used from Episode 7 on: where tokens come from and who they are for.
+  # Used from Episode 9 on: where tokens come from and who they are for.
   OIDC_ISSUER_URL: https://sso.corp.internal/realms/corp
   OIDC_AUDIENCE: golinks

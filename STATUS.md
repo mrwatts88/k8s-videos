@@ -14,11 +14,12 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 4 | The database: Postgres StatefulSet | `ep04-postgres` | planned | Manifests exist |
 | 5 | Reaching it: Service, Ingress, ServiceLB, DNS | `ep05-networking` | planned | Manifests exist |
 | 6 | Health checks: startup, liveness and readiness probes | `ep06-health-probes` | planned | Probes already in `golinks-deployment.yaml` |
-| 7 | TLS: cert-manager and the internal CA | `ep07-tls` | planned | |
-| 8 | Auth: Keycloak, kept light | `ep08-auth` | planned | |
-| 9 | One request, end to end | `ep09-end-to-end` | planned | |
-| 10 | Kustomize | `ep10-kustomize` | planned | Base already in place |
-| 11 | Argo CD | `ep11-argocd` | planned | |
+| 7 | Logs: where they go, on-prem | `ep07-logs` | planned | Loki, Alloy and Grafana; no manifests yet |
+| 8 | TLS: cert-manager and the internal CA | `ep08-tls` | planned | |
+| 9 | Auth: Keycloak, kept light | `ep09-auth` | planned | |
+| 10 | One request, end to end | `ep10-end-to-end` | planned | |
+| 11 | Kustomize | `ep11-kustomize` | planned | Base already in place |
+| 12 | Argo CD | `ep12-argocd` | planned | |
 
 ## Pipeline
 
