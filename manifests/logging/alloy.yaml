@@ -1,0 +1,72 @@
+# Alloy ships the logs: a DaemonSet, so one pod per node, each reading the
+# container log files under /var/log/pods on its own node and pushing them to Loki.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: alloy
+  namespace: kube-system
+spec:
+  repo: https://grafana.github.io/helm-charts
+  chart: alloy
+  version: 1.15.0
+  targetNamespace: logging
+  valuesContent: |-
+    controller:
+      type: daemonset
+    alloy:
+      mounts:
+        varlog: true
+      configMap:
+        content: |
+          // Find the pods on this node only.
+          discovery.kubernetes "pods" {
+            role = "pod"
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + sys.env("HOSTNAME")
+            }
+          }
+
+          // Label each pod, and point at its log files.
+          discovery.relabel "pods" {
+            targets = discovery.kubernetes.pods.targets
+            rule {
+              source_labels = ["__meta_kubernetes_namespace"]
+              target_label  = "namespace"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label  = "pod"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_container_name"]
+              target_label  = "container"
+            }
+            rule {
+              source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+              separator     = "/"
+              target_label  = "__path__"
+              replacement   = "/var/log/pods/*$1/*.log"
+            }
+          }
+
+          local.file_match "pods" {
+            path_targets = discovery.relabel.pods.output
+          }
+
+          // Tail the files, unwrap containerd's line format, send to Loki.
+          loki.source.file "pods" {
+            targets    = local.file_match.pods.targets
+            forward_to = [loki.process.pods.receiver]
+          }
+
+          loki.process "pods" {
+            stage.cri {}
+            forward_to = [loki.write.loki.receiver]
+          }
+
+          loki.write "loki" {
+            endpoint {
+              url = "http://loki.logging.svc.cluster.local:3100/loki/api/v1/push"
+            }
+          }
