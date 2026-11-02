@@ -706,6 +706,26 @@
       "heard": [
         "queried"
       ]
+    },
+    {
+      "match": "database",
+      "say": "database",
+      "ipa": "dˈeɪtəbˌeɪs",
+      "ignoreCase": true,
+      "heard": [
+        "database",
+        "data base"
+      ]
+    },
+    {
+      "match": "databases",
+      "say": "databases",
+      "ipa": "dˈeɪtəbˌeɪsᵻz",
+      "ignoreCase": true,
+      "heard": [
+        "databases",
+        "data bases"
+      ]
     }
   ],
   "rules": [
@@ -967,6 +987,7 @@
     "authorities",
     "binaries",
     "bodies",
+    "carries",
     "certified",
     "denied",
     "dependencies",

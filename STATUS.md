@@ -9,7 +9,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | – | Pipeline test clip | `test-clip` | rendered | 29 s at the slower pacing; proves narration, captions, terminal and code cards |
 | 0 | What Kubernetes actually is | `ep00-what-is-kubernetes` | rendered | About 4 min; 10 scenes, 6 of them diagrams; pronunciation check clean |
 | 1 | The map: k3s and what it ships | `ep01-k3s-map` | rendered | About 4 min 45 s; 11 scenes, 3 of them diagrams; pronunciation check clean apart from "a hundred" written as "100" |
-| 2 | Running the API: Deployment | `ep02-deployment` | planned | `golinks-deployment.yaml` exists |
+| 2 | Running the API: Deployment | `ep02-running-the-api` | rendered | About 5 min 30 s; 13 scenes, 4 of them diagrams; pronunciation check clean apart from possessives written without the apostrophe |
 | 3 | Configuration: ConfigMap and Secret | `ep03-config` | planned | Manifests exist |
 | 4 | The database: Postgres StatefulSet | `ep04-postgres` | planned | Manifests exist |
 | 5 | Reaching it: Service, Ingress, ServiceLB, DNS | `ep05-networking` | planned | Manifests exist |
@@ -31,3 +31,4 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | CI: typecheck, lint, script checks, manifests, smoke render | done |
 | Slower pacing: line gaps, a beat after typed commands, `pauseAfter` | done |
 | Diagram scene (boxes, arrows, focus, flow) | done |
+| Terminal lines wrap at 79 characters, like a real terminal | done |
