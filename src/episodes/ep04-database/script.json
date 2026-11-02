@@ -1,0 +1,843 @@
+{
+  "id": "ep04-database",
+  "number": 4,
+  "title": "The database",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 4",
+      "title": "The database",
+      "subtitle": "Postgres as a StatefulSet",
+      "lines": [
+        {
+          "text": "Since Episode 2, our API pods have been asking for a database that isn't there."
+        },
+        {
+          "text": "Today we give them one: Postgres, run as a StatefulSet, with a disk that outlasts the pod.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "type": "diagram",
+      "title": "Why not a Deployment?",
+      "boxes": [
+        {
+          "id": "dep",
+          "kind": "group",
+          "label": "Deployment: golinks",
+          "x": 60,
+          "y": 60,
+          "w": 680,
+          "h": 560
+        },
+        {
+          "id": "p1",
+          "kind": "pod",
+          "label": "golinks-…-v8mzq",
+          "sublabel": "nothing of its own",
+          "x": 120,
+          "y": 200,
+          "w": 560,
+          "h": 110
+        },
+        {
+          "id": "p2",
+          "kind": "pod",
+          "label": "golinks-…-wq7tn",
+          "sublabel": "nothing of its own",
+          "x": 120,
+          "y": 380,
+          "w": 560,
+          "h": 110
+        },
+        {
+          "id": "sts",
+          "kind": "group",
+          "label": "StatefulSet: postgres",
+          "x": 860,
+          "y": 60,
+          "w": 680,
+          "h": 560,
+          "hidden": true
+        },
+        {
+          "id": "s0",
+          "kind": "pod",
+          "label": "postgres-0",
+          "x": 900,
+          "y": 200,
+          "w": 280,
+          "h": 110,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "d0",
+          "label": "data-postgres-0",
+          "sublabel": "its own disk",
+          "x": 1220,
+          "y": 200,
+          "w": 280,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "s1",
+          "kind": "pod",
+          "label": "postgres-1",
+          "x": 900,
+          "y": 380,
+          "w": 280,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "d1",
+          "label": "data-postgres-1",
+          "sublabel": "its own disk",
+          "x": 1220,
+          "y": 380,
+          "w": 280,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "order",
+          "kind": "note",
+          "label": "started in order: 0, then 1",
+          "x": 900,
+          "y": 520,
+          "w": 600,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a0",
+          "from": "s0",
+          "to": "d0",
+          "hidden": true
+        },
+        {
+          "id": "a1",
+          "from": "s1",
+          "to": "d1",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "dep",
+            "p1",
+            "p2"
+          ]
+        },
+        {
+          "at": 2,
+          "focus": [],
+          "show": [
+            "sts",
+            "s0",
+            "d0",
+            "a0"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "s1",
+            "d1",
+            "a1"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "order"
+          ]
+        },
+        {
+          "at": 5,
+          "hide": [
+            "s1",
+            "d1",
+            "a1",
+            "order"
+          ],
+          "focus": [
+            "s0",
+            "d0"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A Deployment's pods are interchangeable: random names, nothing of their own, and any one can stand in for another."
+        },
+        {
+          "text": "That suits our API, which keeps all of its data somewhere else."
+        },
+        {
+          "text": "A database is that somewhere else. It needs a name that stays put, and a disk that belongs to it."
+        },
+        {
+          "text": "That's what a StatefulSet gives you: pods named postgres-0, postgres-1 and so on, each with its own volume."
+        },
+        {
+          "text": "They start in order, one at a time, and a replacement pod gets the same name and the same disk."
+        },
+        {
+          "text": "We'll run a single replica, from a plain StatefulSet and the official image. Replication and backups are a topic of their own, and they stay out of scope.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "sts-yaml",
+      "type": "code",
+      "file": "manifests/base/postgres-statefulset.yaml",
+      "range": [
+        1,
+        24
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            1,
+            13
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            9
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            14,
+            24
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the StatefulSet. At first glance it's a Deployment: a name, one replica, a selector."
+        },
+        {
+          "text": "One new field, serviceName, names the Service that gives each pod its own DNS name. More on that shortly."
+        },
+        {
+          "text": "The pod template runs the official Postgres 17 image, listening on port 5432.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "sts-pod",
+      "type": "code",
+      "file": "manifests/base/postgres-statefulset.yaml",
+      "range": [
+        25,
+        43
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            25,
+            27
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            28,
+            30
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            31,
+            34
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            41,
+            43
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Its user, password and database name come straight from the Secret we made in Episode 3."
+        },
+        {
+          "text": "PGDATA points one folder down, because Postgres wants an empty data directory, and a fresh volume isn't always empty."
+        },
+        {
+          "text": "Its readiness probe runs pg_isready, a small tool that ships with Postgres and asks whether it's taking connections."
+        },
+        {
+          "text": "And the data directory is mounted from a volume called data. So where does that volume come from?",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "claim-yaml",
+      "type": "code",
+      "file": "manifests/base/postgres-statefulset.yaml",
+      "range": [
+        41,
+        52
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            44,
+            47
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            48,
+            48
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            49,
+            49
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            50,
+            52
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "From volumeClaimTemplates. Instead of naming a volume, the StatefulSet stamps out a claim for each pod."
+        },
+        {
+          "text": "ReadWriteOnce means one node at a time may mount it."
+        },
+        {
+          "text": "The storage class is local-path, which comes built into k3s."
+        },
+        {
+          "text": "And each claim asks for five gigabytes.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "diagram",
+      "title": "Where the disk comes from",
+      "boxes": [
+        {
+          "id": "sts",
+          "label": "StatefulSet",
+          "sublabel": "postgres",
+          "x": 60,
+          "y": 60,
+          "w": 420,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "pvc",
+          "label": "PersistentVolumeClaim",
+          "sublabel": "data-postgres-0, 5Gi",
+          "x": 590,
+          "y": 60,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "prov",
+          "label": "local-path provisioner",
+          "sublabel": "built into k3s",
+          "x": 1120,
+          "y": 60,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "pv",
+          "label": "PersistentVolume",
+          "sublabel": "pvc-4b1e7c2a-…",
+          "x": 1120,
+          "y": 340,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "dir",
+          "label": "a folder on k3s-agent-1",
+          "sublabel": "/var/lib/rancher/k3s/storage",
+          "x": 1020,
+          "y": 600,
+          "w": 520,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "pod",
+          "kind": "pod",
+          "label": "postgres-0",
+          "sublabel": "mounts the claim",
+          "x": 60,
+          "y": 340,
+          "w": 420,
+          "h": 120,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a_sp",
+          "from": "sts",
+          "to": "pvc",
+          "label": "creates",
+          "hidden": true
+        },
+        {
+          "id": "a_pp",
+          "from": "pvc",
+          "to": "prov",
+          "label": "seen by",
+          "hidden": true
+        },
+        {
+          "id": "a_pv",
+          "from": "prov",
+          "to": "pv",
+          "label": "creates",
+          "hidden": true
+        },
+        {
+          "id": "a_dir",
+          "from": "pv",
+          "to": "dir",
+          "hidden": true
+        },
+        {
+          "id": "a_bind",
+          "from": "pvc",
+          "to": "pv",
+          "label": "bound",
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "a_pod",
+          "from": "pod",
+          "to": "pvc",
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "pvc",
+            "a_sp"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "prov",
+            "a_pp",
+            "pv",
+            "a_pv"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "dir",
+            "a_dir"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "a_bind",
+            "pod",
+            "a_pod"
+          ],
+          "tone": {
+            "pvc": "good",
+            "pv": "good"
+          }
+        },
+        {
+          "at": 4,
+          "focus": [
+            "pod",
+            "pvc",
+            "pv",
+            "dir"
+          ]
+        },
+        {
+          "at": 5,
+          "focus": [
+            "dir"
+          ],
+          "tone": {
+            "dir": "warn"
+          }
+        },
+        {
+          "at": 6,
+          "focus": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "To start postgres-0, the StatefulSet first makes that pod's claim, data-postgres-0: five gigabytes, please."
+        },
+        {
+          "text": "A claim is only a request. The local-path provisioner sees it, and makes a PersistentVolume to match."
+        },
+        {
+          "text": "That volume is nothing fancy: a folder on one node's own disk."
+        },
+        {
+          "text": "The claim binds to the volume, and the pod mounts the claim."
+        },
+        {
+          "text": "Delete the pod, and the claim and the folder stay. The new postgres-0 mounts the same data."
+        },
+        {
+          "text": "The catch is that the folder sits on one node. The pod can only run there, and losing that node loses the data."
+        },
+        {
+          "text": "On a real on-prem cluster you'd use replicated storage like Longhorn, or keep the database outside the cluster. For learning, local-path is fine.",
+          "pauseAfter": 0.5,
+          "senses": {
+            "use": "verb"
+          }
+        }
+      ]
+    },
+    {
+      "id": "headless",
+      "type": "code",
+      "file": "manifests/base/postgres-service.yaml",
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            3,
+            9
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            10,
+            11
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            1,
+            2
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            12,
+            17
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The last piece is the Service the StatefulSet named, also called postgres."
+        },
+        {
+          "text": "clusterIP: None makes it headless. There's no shared address in front, because there's nothing to spread traffic across."
+        },
+        {
+          "text": "Instead, DNS hands out each pod's own address, so postgres-0.postgres always means that one pod."
+        },
+        {
+          "text": "That full name is what our ConfigMap has pointed at since Episode 3. It didn't exist yet, so the API kept getting: no such host.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/postgres-service.yaml",
+          "output": [
+            "service/postgres created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl apply -f manifests/base/postgres-statefulset.yaml",
+          "output": [
+            "statefulset.apps/postgres created"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get statefulset,pods -l app.kubernetes.io/name=postgres -n golinks",
+          "output": [
+            "NAME                        READY   AGE",
+            "statefulset.apps/postgres   1/1     38s",
+            "",
+            "NAME             READY   STATUS    RESTARTS   AGE",
+            "pod/postgres-0   1/1     Running   0          38s"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl describe pvc -n golinks | grep -E '^(Name|Status|Volume|Capacity):'",
+          "output": [
+            "Name:          data-postgres-0",
+            "Status:        Bound",
+            "Volume:        pvc-4b1e7c2a-9d3f-4e6b-8a5c-1f2d3e4a5b6c",
+            "Capacity:      5Gi"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the Service first, so the name is waiting."
+        },
+        {
+          "text": "Then the StatefulSet."
+        },
+        {
+          "text": "Half a minute later, postgres-0 is running, and ready.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "And its claim is bound to a fresh five gigabyte volume.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "ready",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl logs postgres-0 -n golinks --tail=2",
+          "output": [
+            "2026-11-02 14:20:58.221 UTC [64] LOG:  database system was shut down at 2026-11-02 14:20:57 UTC",
+            "2026-11-02 14:20:58.229 UTC [1] LOG:  database system is ready to accept connections"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get pods -l app.kubernetes.io/name=golinks -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-7d9c5b6f4d-v8mzq   1/1     Running   0          18m",
+            "golinks-7d9c5b6f4d-wq7tn   1/1     Running   0          15m"
+          ]
+        },
+        {
+          "at": 4,
+          "command": "kubectl logs deploy/golinks -n golinks --tail=2",
+          "output": [
+            "Found 2 pods, using pod/golinks-7d9c5b6f4d-v8mzq",
+            "{\"time\":\"2026-11-02T14:21:03Z\",\"level\":\"INFO\",\"msg\":\"database connected\"}",
+            "{\"time\":\"2026-11-02T14:21:03Z\",\"level\":\"INFO\",\"msg\":\"migrations applied\",\"count\":2}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Postgres writes its own log, and kubectl logs shows it like any other."
+        },
+        {
+          "text": "On first start it set up an empty database, restarted itself, and now it's ready to accept connections."
+        },
+        {
+          "text": "Now the question left over from Episode 3: what did the API pods do?"
+        },
+        {
+          "text": "Both are ready, with zero restarts. Nobody touched them: their readiness probe kept asking, and the moment the database answered, they passed."
+        },
+        {
+          "text": "Their logs tell the same story: connected, and the database tables are set up.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "psql",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl exec postgres-0 -n golinks -- psql -U golinks -c '\\dt'",
+          "output": [
+            "                List of relations",
+            " Schema |       Name        | Type  |  Owner",
+            "--------+-------------------+-------+---------",
+            " public | links             | table | golinks",
+            " public | schema_migrations | table | golinks",
+            "(2 rows)"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "To look inside, kubectl exec runs psql right in the Postgres pod."
+        },
+        {
+          "text": "There are the tables the API created: links, and a list of the changes it has made to the database."
+        },
+        {
+          "text": "That's as deep as we go into Postgres itself. It's running, it's ready, and its data is on a disk of its own.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "change",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 1,
+          "command": "kubectl apply -f manifests/base/golinks-configmap.yaml",
+          "output": [
+            "configmap/golinks-config configured"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl exec deploy/golinks -n golinks -- env | grep LOG_LEVEL",
+          "output": [
+            "LOG_LEVEL=info"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl rollout restart deploy/golinks -n golinks",
+          "output": [
+            "deployment.apps/golinks restarted"
+          ]
+        },
+        {
+          "at": 4,
+          "command": "kubectl rollout status deploy/golinks -n golinks",
+          "output": [
+            "Waiting for deployment \"golinks\" rollout to finish: 1 out of 2 new replicas have been updated...",
+            "Waiting for deployment \"golinks\" rollout to finish: 1 old replicas are pending termination...",
+            "deployment \"golinks\" successfully rolled out"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "With the pods ready, we can finish what Episode 3 started."
+        },
+        {
+          "text": "In the ConfigMap file, change LOG_LEVEL from info to debug, and apply it."
+        },
+        {
+          "text": "The running pods don't notice. Their environment still says info."
+        },
+        {
+          "text": "So restart them. rollout restart replaces the pods one at a time, just like a new version would roll out."
+        },
+        {
+          "text": "Each new pod has to pass its readiness probe before an old one goes away, so the API is never down.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "debug",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl logs deploy/golinks -n golinks --tail=2",
+          "output": [
+            "Found 2 pods, using pod/golinks-5f8b6c7d9d-k4xzt",
+            "{\"time\":\"2026-11-02T14:31:20Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":2}",
+            "{\"time\":\"2026-11-02T14:31:25Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":1}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The new pods have new names, and they log at debug level."
+        },
+        {
+          "text": "Every five seconds, there's the readiness probe asking, and getting a 200 back."
+        },
+        {
+          "text": "That's chatty, which is why info is the default. Set it back the same way when you're done.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 5: Reaching it",
+      "subtitle": "Services, Ingress and DNS",
+      "lines": [
+        {
+          "text": "That's the database: a StatefulSet for a stable name, a claim for a disk of its own, and a headless Service so the API can find it."
+        },
+        {
+          "text": "Next time, we put the API where people can reach it, from outside the cluster.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
