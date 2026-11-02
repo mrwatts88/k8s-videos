@@ -1199,6 +1199,55 @@
         "vpn",
         "v p n"
       ]
+    },
+    {
+      "match": "jq",
+      "say": "J Q",
+      "heard": [
+        "jq",
+        "j q",
+        "jay queue",
+        "jaque"
+      ]
+    },
+    {
+      "match": "release-notes",
+      "say": "release notes",
+      "heard": [
+        "release notes",
+        "release-notes"
+      ]
+    },
+    {
+      "match": "release-pipeline",
+      "say": "release pipeline",
+      "heard": [
+        "release pipeline",
+        "release-pipeline"
+      ]
+    },
+    {
+      "match": "corp-root-ca",
+      "say": "korp root C A",
+      "heard": [
+        "corp root ca",
+        "corp root c a",
+        "core root ca",
+        "corp-root-ca",
+        "corp route ca",
+        "corp. route ca",
+        "core route ca"
+      ]
+    },
+    {
+      "match": "curl",
+      "say": "curl",
+      "heard": [
+        "curl",
+        "curl's",
+        "curls",
+        "kurl"
+      ]
     }
   ],
   "rules": [
