@@ -17,7 +17,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 7 | Logs: where they go, on-prem | `ep07-logs` | rendered | About 7 min; 18 scenes, 6 of them diagrams; Alloy, Loki and Grafana as k3s HelmCharts; delete-a-pod demo; pronunciation check clean apart from "336 hours" written as digits |
 | 8 | TLS: cert-manager and the internal CA | `ep08-tls` | rendered | About 8.5 min; 18 scenes, 4 of them diagrams; cert-manager as a k3s HelmChart, a corp-ca ClusterIssuer on the cluster's intermediate CA, an explicit Certificate for go and the annotation shortcut for Grafana; pronunciation check clean |
 | 9 | Auth: Keycloak, kept light | `ep09-auth` | rendered | About 9 min; 18 scenes, 7 of them diagrams; client credentials for the release pipeline, a decoded JWT, the five checks (401 vs 403), the company root CA mounted from a ConfigMap, first links (release-notes, standup); pronunciation check clean |
-| 10 | One request, end to end | `ep10-end-to-end` | planned | |
+| 10 | One request, end to end | `ep10-end-to-end` | rendered | About 6.5 min; 16 scenes, 5 of them diagrams; follows go/jira/1234 hop by hop with the command that proves each hop, the same trip on the three machines, a write on the same road, and a symptom-to-hop debugging table; pronunciation check clean |
 | 11 | Scaling: HPA, and node autoscaling in concept | `ep11-scaling` | planned | metrics-server is built into k3s |
 | 12 | Kustomize | `ep12-kustomize` | planned | Base already in place |
 | 13 | Argo CD | `ep13-argocd` | planned | |
