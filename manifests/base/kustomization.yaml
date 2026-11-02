@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - golinks-configmap.yaml
+  - corp-root-ca.yaml
   - postgres-secret.yaml
   - postgres-service.yaml
   - postgres-statefulset.yaml

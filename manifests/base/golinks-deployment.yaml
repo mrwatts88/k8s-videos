@@ -60,3 +60,12 @@ spec:
               memory: 64Mi
             limits:
               memory: 128Mi
+          # The company root CA as a read-only file (Episode 9).
+          volumeMounts:
+            - name: corp-root-ca
+              mountPath: /etc/corp-ca
+              readOnly: true
+      volumes:
+        - name: corp-root-ca
+          configMap:
+            name: corp-root-ca

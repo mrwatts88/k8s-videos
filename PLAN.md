@@ -98,7 +98,7 @@ CREATE TABLE links (
 | In-cluster DNS name | `golinks.golinks.svc.cluster.local` |
 | Database | `postgres-0.postgres.golinks.svc.cluster.local`, database `golinks` |
 | Keycloak realm | `corp`, issuer `https://sso.corp.internal/realms/corp` |
-| Internal CA | `corp-internal-ca` ClusterIssuer (cert-manager) |
+| Internal CA | `corp-ca` ClusterIssuer (cert-manager), on the cluster's intermediate CA |
 
 ## Episodes
 
