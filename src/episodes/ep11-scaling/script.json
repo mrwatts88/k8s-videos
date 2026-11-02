@@ -500,7 +500,7 @@
           "text": "Then the Deployment, without its replica count."
         },
         {
-          "text": "cut trims off the name columns, so it fits. 3 percent of the target CPU, two pods, between two and six. Quiet, as expected.",
+          "text": "cut trims off the name columns, so it fits. 3 percent, against a target of 70, two pods, between two and six. Quiet, as expected.",
           "say": "Cut trims off the name columns, so it fits. Three percent, against a target of seventy, two pods, between two and six. Quiet, as expected.",
           "pauseAfter": 0.4
         }
