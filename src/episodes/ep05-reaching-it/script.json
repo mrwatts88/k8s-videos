@@ -1,0 +1,840 @@
+{
+  "id": "ep05-reaching-it",
+  "number": 5,
+  "title": "Reaching it",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 5",
+      "title": "Reaching it",
+      "subtitle": "Load balancer, Ingress, Service and DNS",
+      "lines": [
+        {
+          "text": "The API is running, and it has its database. But so far, the only way in has been kubectl."
+        },
+        {
+          "text": "Today we follow one request from a laptop to a pod, and build every hop along the way.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "path",
+      "type": "diagram",
+      "title": "One request, four hops",
+      "boxes": [
+        {
+          "id": "laptop",
+          "label": "Laptop",
+          "sublabel": "go.corp.internal/standup",
+          "x": 60,
+          "y": 60,
+          "w": 340,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "dns",
+          "label": "Company DNS",
+          "sublabel": "name to node IPs",
+          "x": 60,
+          "y": 400,
+          "w": 340,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "node",
+          "label": "A node, port 80",
+          "sublabel": "ServiceLB",
+          "x": 460,
+          "y": 60,
+          "w": 340,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "traefik",
+          "label": "Traefik",
+          "sublabel": "Ingress rules",
+          "x": 860,
+          "y": 60,
+          "w": 340,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "svc",
+          "label": "Service golinks",
+          "sublabel": "ClusterIP",
+          "x": 1240,
+          "y": 60,
+          "w": 320,
+          "h": 120,
+          "hidden": true
+        },
+        {
+          "id": "p1",
+          "kind": "pod",
+          "label": "golinks pod",
+          "x": 1240,
+          "y": 360,
+          "w": 320,
+          "h": 90,
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "kind": "pod",
+          "label": "golinks pod",
+          "x": 1240,
+          "y": 520,
+          "w": 320,
+          "h": 90,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "laptop",
+          "to": "dns",
+          "label": "where is it?",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "laptop",
+          "to": "node",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "node",
+          "to": "traefik",
+          "hidden": true
+        },
+        {
+          "id": "a4",
+          "from": "traefik",
+          "to": "svc",
+          "hidden": true
+        },
+        {
+          "id": "a5",
+          "from": "svc",
+          "to": "p1",
+          "hidden": true
+        },
+        {
+          "id": "a6",
+          "from": "svc",
+          "to": "p2",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "dns",
+            "a1"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "node",
+            "a2",
+            "traefik",
+            "a3"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "svc",
+            "a4"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "p1",
+            "p2",
+            "a5",
+            "a6"
+          ],
+          "flow": [
+            "a2",
+            "a3",
+            "a4",
+            "a5"
+          ]
+        },
+        {
+          "at": 4,
+          "flow": [],
+          "focus": [
+            "svc",
+            "traefik",
+            "dns"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "First, the laptop asks the company's DNS server where go.corp.internal is, and gets back the addresses of our nodes."
+        },
+        {
+          "text": "It connects to one of them on port 80, where ServiceLB is listening, and the request is handed to Traefik."
+        },
+        {
+          "text": "Traefik checks its Ingress rules, finds our host name, and passes the request to the golinks Service."
+        },
+        {
+          "text": "And the Service sends it to one of the ready pods."
+        },
+        {
+          "text": "We'll build it from the inside out: the Service first, then the Ingress, then DNS.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "svc-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-service.yaml",
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            1,
+            8
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            9
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            10,
+            11
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            12,
+            15
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A Service gives a changing set of pods one stable address and one name."
+        },
+        {
+          "text": "This one is type ClusterIP: an address that only works inside the cluster."
+        },
+        {
+          "text": "Its selector is the label our pods carry, so any pod with that label can get its traffic."
+        },
+        {
+          "text": "It listens on port 80, and forwards to the port named http on each pod, which is 8080.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "svc-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/golinks-service.yaml",
+          "output": [
+            "service/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get svc golinks -n golinks",
+          "output": [
+            "NAME      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE",
+            "golinks   ClusterIP   10.43.87.142   <none>        80/TCP    5s"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get endpointslices -n golinks",
+          "output": [
+            "NAME             ADDRESSTYPE   PORTS   ENDPOINTS              AGE",
+            "golinks-x7k2m    IPv4          8080    10.42.1.15,10.42.2.9   5s",
+            "postgres-8hq4d   IPv4          5432    10.42.1.12             58m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply it."
+        },
+        {
+          "text": "It gets a cluster IP from the range k3s keeps for Services, and that address stays the same for as long as the Service exists."
+        },
+        {
+          "text": "Behind it, an EndpointSlice lists the pod addresses it sends to right now: our two API pods, on port 8080."
+        },
+        {
+          "text": "Only ready pods make that list. That's what readiness really controls, and it's the heart of Episode 6."
+        },
+        {
+          "text": "Inside the cluster, CoreDNS already answers golinks.golinks.svc.cluster.local with the Service's address. Outside, nothing does yet.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "servicelb",
+      "type": "diagram",
+      "title": "ServiceLB, the built-in load balancer",
+      "boxes": [
+        {
+          "id": "tsvc",
+          "label": "Service traefik",
+          "sublabel": "type: LoadBalancer",
+          "x": 600,
+          "y": 40,
+          "w": 400,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "n1",
+          "kind": "group",
+          "label": "k3s-server-1  10.0.0.11",
+          "x": 60,
+          "y": 260,
+          "w": 460,
+          "h": 460
+        },
+        {
+          "id": "n2",
+          "kind": "group",
+          "label": "k3s-agent-1  10.0.0.21",
+          "x": 570,
+          "y": 260,
+          "w": 460,
+          "h": 460
+        },
+        {
+          "id": "n3",
+          "kind": "group",
+          "label": "k3s-agent-2  10.0.0.22",
+          "x": 1080,
+          "y": 260,
+          "w": 460,
+          "h": 460
+        },
+        {
+          "id": "lb1",
+          "kind": "pod",
+          "label": "svclb",
+          "sublabel": "ports 80 and 443",
+          "x": 110,
+          "y": 360,
+          "w": 360,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "lb2",
+          "kind": "pod",
+          "label": "svclb",
+          "sublabel": "ports 80 and 443",
+          "x": 620,
+          "y": 360,
+          "w": 360,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "lb3",
+          "kind": "pod",
+          "label": "svclb",
+          "sublabel": "ports 80 and 443",
+          "x": 1130,
+          "y": 360,
+          "w": 360,
+          "h": 100,
+          "hidden": true
+        },
+        {
+          "id": "tr",
+          "kind": "pod",
+          "label": "traefik",
+          "x": 620,
+          "y": 580,
+          "w": 360,
+          "h": 90
+        }
+      ],
+      "arrows": [
+        {
+          "id": "b1",
+          "from": "lb1",
+          "to": "tr",
+          "hidden": true
+        },
+        {
+          "id": "b2",
+          "from": "lb2",
+          "to": "tr",
+          "hidden": true
+        },
+        {
+          "id": "b3",
+          "from": "lb3",
+          "to": "tr",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "tsvc",
+            "tr"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": []
+        },
+        {
+          "at": 2,
+          "show": [
+            "lb1",
+            "lb2",
+            "lb3",
+            "b1",
+            "b2",
+            "b3"
+          ],
+          "flow": [
+            "b1",
+            "b2",
+            "b3"
+          ]
+        },
+        {
+          "at": 3,
+          "flow": [],
+          "tone": {
+            "n1": "good",
+            "n2": "good",
+            "n3": "good"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "text": "Traefik already runs in kube-system, and it has a Service of its own, of type LoadBalancer."
+        },
+        {
+          "text": "In a cloud, that type asks the provider for a load balancer. On-prem there's no provider, so k3s brings its own: ServiceLB."
+        },
+        {
+          "text": "ServiceLB runs a small pod on every node that holds ports 80 and 443 open, and forwards whatever arrives to Traefik."
+        },
+        {
+          "text": "So each node's own IP address is a way in, and those addresses become the load balancer's addresses.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "lb-check",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get pods -n kube-system | grep svclb",
+          "output": [
+            "svclb-traefik-2b4e1c7a-6hx2r              2/2     Running     0          12d",
+            "svclb-traefik-2b4e1c7a-qw8lm              2/2     Running     0          12d",
+            "svclb-traefik-2b4e1c7a-zk5vn              2/2     Running     0          12d"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get svc traefik -n kube-system -o jsonpath='{..ip}'",
+          "output": [
+            "10.0.0.11 10.0.0.21 10.0.0.22"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here are those pods, one per node, each with a container for port 80 and one for 443."
+        },
+        {
+          "text": "And these are the addresses ServiceLB gave Traefik's Service: one per node.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "ingress-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-ingress.yaml",
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            2,
+            8
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            10,
+            10
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            12,
+            12
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            13,
+            21
+          ]
+        },
+        {
+          "at": 4,
+          "lines": [
+            1,
+            1
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Next, the Ingress: a set of routing rules for Traefik."
+        },
+        {
+          "text": "ingressClassName says which controller the rules are for: traefik, the one k3s ships."
+        },
+        {
+          "text": "The rule matches requests for the host go.corp.internal."
+        },
+        {
+          "text": "And every path under it goes to the golinks Service, on its port named http."
+        },
+        {
+          "text": "It's plain HTTP for now. Episode 8 adds TLS.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "ingress-apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/golinks-ingress.yaml",
+          "output": [
+            "ingress.networking.k8s.io/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl describe ingress golinks -n golinks | grep -A4 Rules",
+          "output": [
+            "Rules:",
+            "  Host              Path  Backends",
+            "  ----              ----  --------",
+            "  go.corp.internal",
+            "                    /   golinks:http (10.42.1.15:8080,10.42.2.9:8080)"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply it."
+        },
+        {
+          "text": "Traefik picks it up straight away: requests for go.corp.internal, on any path, go to the golinks Service, which right now means these two pods.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "ingress-curl",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "curl -i http://10.0.0.11/standup",
+          "output": [
+            "HTTP/1.1 404 Not Found",
+            "Content-Type: text/plain; charset=utf-8",
+            "X-Content-Type-Options: nosniff",
+            "Date: Mon, 02 Nov 2026 14:42:07 GMT",
+            "Content-Length: 19",
+            "",
+            "404 page not found"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "curl -i -H 'Host: go.corp.internal' http://10.0.0.11/standup",
+          "output": [
+            "HTTP/1.1 404 Not Found",
+            "Content-Type: text/html; charset=utf-8",
+            "Date: Mon, 02 Nov 2026 14:42:19 GMT",
+            "Content-Length: 41",
+            "",
+            "<p>No link named <b>standup</b> yet.</p>"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now try it, straight at one node's IP address."
+        },
+        {
+          "text": "A 404, but look closely: plain text, page not found. That's Traefik saying no rule matched, because we didn't ask for go.corp.internal."
+        },
+        {
+          "text": "Send the same request with the right Host header,"
+        },
+        {
+          "text": "and it's a different 404: HTML, from our app. The request went all the way to a pod."
+        },
+        {
+          "text": "There's no standup link yet, because creating links needs sign-in, and that comes in Episode 9.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "dns-server",
+      "type": "terminal",
+      "title": "admin@ns1",
+      "prompt": "$",
+      "steps": [
+        {
+          "at": 1,
+          "command": "grep '^go ' /etc/bind/db.corp.internal",
+          "output": [
+            "go      IN  A   10.0.0.11",
+            "go      IN  A   10.0.0.21",
+            "go      IN  A   10.0.0.22"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The last hop is DNS, and it isn't Kubernetes at all. It's the company's own DNS server, the one that answers for corp.internal."
+        },
+        {
+          "text": "On it, the name go gets three address records, one for each node.",
+          "senses": {
+            "records": "noun"
+          }
+        },
+        {
+          "text": "Whoever runs that server adds them, just like any other internal name.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "laptop",
+      "type": "terminal",
+      "title": "laptop",
+      "prompt": "$",
+      "steps": [
+        {
+          "at": 0,
+          "command": "dig +short go.corp.internal",
+          "output": [
+            "10.0.0.11",
+            "10.0.0.21",
+            "10.0.0.22"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "curl -i http://go.corp.internal/standup",
+          "output": [
+            "HTTP/1.1 404 Not Found",
+            "Content-Type: text/html; charset=utf-8",
+            "Date: Mon, 02 Nov 2026 14:42:19 GMT",
+            "Content-Length: 41",
+            "",
+            "<p>No link named <b>standup</b> yet.</p>"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "From a laptop, the name now resolves to the three nodes."
+        },
+        {
+          "text": "And the plain request works, with no tricks: go.corp.internal, all the way through to our app."
+        },
+        {
+          "text": "That's the whole path, end to end.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "two-dns",
+      "type": "diagram",
+      "title": "Two kinds of DNS",
+      "boxes": [
+        {
+          "id": "core",
+          "label": "CoreDNS",
+          "sublabel": "inside the cluster",
+          "x": 160,
+          "y": 80,
+          "w": 560,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "c1",
+          "kind": "note",
+          "label": "postgres-0.postgres",
+          "x": 160,
+          "y": 280,
+          "w": 560,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "c2",
+          "kind": "note",
+          "label": "golinks.golinks.svc.cluster.local",
+          "x": 160,
+          "y": 360,
+          "w": 560,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "cpods",
+          "kind": "note",
+          "label": "asked by pods",
+          "x": 160,
+          "y": 480,
+          "w": 560,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "corp",
+          "label": "Company DNS",
+          "sublabel": "everywhere else",
+          "x": 880,
+          "y": 80,
+          "w": 560,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "k1",
+          "kind": "note",
+          "label": "go.corp.internal",
+          "x": 880,
+          "y": 280,
+          "w": 560,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "kpeople",
+          "kind": "note",
+          "label": "asked by laptops, knows only the nodes",
+          "x": 880,
+          "y": 480,
+          "w": 560,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "core",
+            "c1",
+            "c2",
+            "cpods"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "corp",
+            "k1",
+            "kpeople"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "One thing to keep straight: there are now two DNS systems."
+        },
+        {
+          "text": "CoreDNS runs inside the cluster and answers cluster names, like postgres-0.postgres. Only pods ask it."
+        },
+        {
+          "text": "The company DNS answers the names people type, like go.corp.internal. It knows nothing about pods, only the nodes.",
+          "pauseAfter": 0.5
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 6: Health checks",
+      "subtitle": "Startup, liveness and readiness probes",
+      "lines": [
+        {
+          "text": "That's the way in: DNS to the nodes, ServiceLB to Traefik, an Ingress rule to the Service, and the Service to a ready pod."
+        },
+        {
+          "text": "Next time, we look hard at that word ready, and at the probes that decide it.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

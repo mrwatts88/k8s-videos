@@ -120,7 +120,8 @@
       "heard": [
         "traffic",
         "traefik"
-      ]
+      ],
+      "ignoreCase": true
     },
     {
       "match": "Keycloak",
@@ -892,6 +893,52 @@
       "heard": [
         "longhorn",
         "long horn"
+      ]
+    },
+    {
+      "match": "golinks.golinks.svc.cluster.local",
+      "say": "go links dot go links dot S V C dot cluster dot local",
+      "heard": [
+        "golinks.golinks.svc.cluster.local",
+        "go links dot go links dot svc dot cluster dot local",
+        "go links dot go links dot s v c dot cluster dot local",
+        "golinks dot golinks dot svc dot cluster dot local",
+        "golinks.golinks.svc.cluster.local."
+      ]
+    },
+    {
+      "match": "LoadBalancer",
+      "say": "load balancer",
+      "heard": [
+        "loadbalancer",
+        "load balancer"
+      ]
+    },
+    {
+      "match": "ingressClassName",
+      "say": "ingress class name",
+      "heard": [
+        "ingressclassname",
+        "ingress class name"
+      ]
+    },
+    {
+      "match": "8080",
+      "say": "eighty eighty",
+      "heard": [
+        "8080",
+        "80 80",
+        "eighty eighty"
+      ]
+    },
+    {
+      "match": "corp.internal",
+      "say": "corp dot internal",
+      "heard": [
+        "corp.internal",
+        "corp dot internal",
+        "core dot internal",
+        "corp. internal"
       ]
     }
   ],
