@@ -32,6 +32,7 @@ needs, so the series never has to leave the building:
 | Service load balancer | ServiceLB (formerly Klipper LB) | 1, 5 |
 | Storage | local-path provisioner | 1, 4 |
 | Datastore | SQLite by default, embedded etcd for HA | 0, 1 |
+| Resource metrics | metrics-server | 11 |
 
 Cloud platforms (EKS and friends), other control planes and deeper stateful
 topics (operators, replication, backups) are saved for later series.
@@ -357,7 +358,24 @@ half gone, which is the question this episode answers.
 - Then a write: release pipeline → Keycloak token → API middleware → database.
 - At each hop, the `kubectl` command that proves that piece works.
 
-### Episode 11: Kustomize
+### Episode 11: Scaling
+
+- Horizontal Pod Autoscaler for real. k3s ships metrics-server, so
+  `kubectl top pods` works and an HPA can read CPU use with no extra install.
+- The HPA scales on CPU use as a share of each pod's request, which is why the
+  go links pods already set `cpu: 100m`. An `autoscaling/v2` HPA on the golinks
+  Deployment: 2 to 6 replicas, target 70% CPU.
+- Demo: a load test against `go/standup`; `kubectl get hpa -w` shows the
+  replicas climb, then settle back down after the stabilization window.
+- Node autoscaling, conceptually only, no demo: it is another controller. It
+  watches for pods stuck Pending because no node has room, and asks something
+  to add a machine (and removes idle ones). In the cloud that's a cloud API
+  (Cluster Autoscaler, Karpenter). On-prem the servers are fixed, so the HPA
+  can only use the room the nodes have; with VMs, something like Cluster API
+  with a vSphere or bare-metal provider can add nodes. Kept light.
+- Manifests: `golinks-hpa.yaml` in the base.
+
+### Episode 12: Kustomize
 
 - The problem: the same app in dev and prod with small differences.
 - Refactor the series' manifests into `manifests/base` plus
@@ -365,7 +383,7 @@ half gone, which is the question this episode answers.
   hostnames, resource sizes, image tags).
 - `kubectl kustomize` to preview, `kubectl apply -k` to apply.
 
-### Episode 12: Argo CD (GitOps)
+### Episode 13: Argo CD (GitOps)
 
 - Git becomes the spec. Argo CD is a controller whose desired state is a path
   in a repository, which ties straight back to Episode 0's reconcile loop.
@@ -377,7 +395,7 @@ half gone, which is the question this episode answers.
 ## Manifests layout
 
 `manifests/base/` holds one file per resource and a `kustomization.yaml` from
-day one, so Episode 11 only adds overlays instead of moving files. Episodes 2 to 5
+day one, so Episode 12 only adds overlays instead of moving files. Episodes 2 to 5
 add files to the base as they introduce them. Logging, cert-manager, Keycloak and Argo CD
 resources go in their own folders when their episodes are built.
 
@@ -391,13 +409,15 @@ manifests/
     golinks-deployment.yaml
     golinks-service.yaml
     golinks-certificate.yaml (Episode 8)
+    corp-root-ca.yaml (Episode 9)
     golinks-ingress.yaml
     postgres-service.yaml
     postgres-statefulset.yaml
+    golinks-hpa.yaml (Episode 11)
   logging/             (Episode 7: HelmChart resources for Loki, Alloy, Grafana)
   cert-manager/        (Episode 8: the cert-manager HelmChart)
     issuers/           (Episode 8: the corp-ca ClusterIssuer, applied second)
-  overlays/            (Episode 11)
+  overlays/            (Episode 12)
     dev/
     prod/
 ```
