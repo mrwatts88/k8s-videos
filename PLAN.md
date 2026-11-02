@@ -236,15 +236,19 @@ the dependency readiness checks.
   on a slow app (it gets killed before it boots), timeouts shorter than a slow
   but healthy response, and identical liveness and readiness checks.
 - Demos:
-  - Stop Postgres: `/readyz` fails, `kubectl get pods` shows `0/1` READY,
-    `kubectl get endpointslices -n golinks` shows no ready endpoints, and
-    `curl` gets a `503` from Traefik; no restarts. Start Postgres; traffic returns.
-  - Freeze the process: liveness fails, the RESTARTS count climbs,
+  - Stop Postgres (`kubectl scale statefulset postgres --replicas=0`): `/readyz`
+    fails, `kubectl get pods` shows `0/1` READY, the EndpointSlice marks both
+    pods `Ready: false`, and `curl` gets Traefik's plain 404 (its Ingress
+    support drops a route whose Service has no ready pods, unless
+    `allowEmptyServices` is set); no restarts. Start Postgres; traffic returns.
+  - Freeze the process (on the node, `sudo kill -STOP <pid>`; a signal sent
+    from inside the container cannot stop PID 1): liveness fails, the RESTARTS count climbs,
     `kubectl describe pod` shows "Liveness probe failed" events, and
     `kubectl logs --previous` shows the last lines of the container that was
     killed.
   - Slow start: with the startup probe the pod survives a 40 s migration;
-    without it, liveness kills it mid-migration.
+    without it, liveness kills it mid-migration (shown as a timeline
+    diagram, not a live demo).
 - Manifest: the probe section of `golinks-deployment.yaml`.
 
 ### Episode 7: Logs (where they go, on-prem)
