@@ -19,7 +19,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 9 | Auth: Keycloak, kept light | `ep09-auth` | rendered | About 9 min; 18 scenes, 7 of them diagrams; client credentials for the release pipeline, a decoded JWT, the five checks (401 vs 403), the company root CA mounted from a ConfigMap, first links (release-notes, standup); pronunciation check clean |
 | 10 | One request, end to end | `ep10-end-to-end` | rendered | About 6.5 min; 16 scenes, 5 of them diagrams; follows go/jira/1234 hop by hop with the command that proves each hop, the same trip on the three machines, a write on the same road, and a symptom-to-hop debugging table; pronunciation check clean |
 | 11 | Scaling: HPA, and node autoscaling in concept | `ep11-scaling` | rendered | About 7 min 45 s; 13 scenes, 4 of them diagrams; kubectl top, the HPA manifest and its math, replicas out of the Deployment, a load test that scales 2 to 6 and back, the nodes as the ceiling, node autoscaling as a concept; pronunciation check clean apart from numbers written as digits |
-| 12 | Kustomize | `ep12-kustomize` | planned | Base already in place |
+| 12 | Kustomize | `ep12-kustomize` | rendered | About 6.5 min; 14 scenes, 4 of them diagrams; prod and dev overlays, strategic merge and JSON patches, `kubectl kustomize` preview, the namespace trap in the database host, `kubectl diff -k` and `apply -k`; pronunciation check clean apart from words Whisper splits (name space, host name) |
 | 13 | Argo CD | `ep13-argocd` | planned | |
 
 ## Pipeline

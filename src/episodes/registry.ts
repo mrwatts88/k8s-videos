@@ -12,8 +12,9 @@ import ep08 from "./ep08-tls/script.json";
 import ep09 from "./ep09-auth/script.json";
 import ep10 from "./ep10-end-to-end/script.json";
 import ep11 from "./ep11-scaling/script.json";
+import ep12 from "./ep12-kustomize/script.json";
 import testClip from "./test-clip/script.json";
 
-const all = [testClip, ep00, ep01, ep02, ep03, ep04, ep05, ep06, ep07, ep08, ep09, ep10, ep11] as EpisodeScript[];
+const all = [testClip, ep00, ep01, ep02, ep03, ep04, ep05, ep06, ep07, ep08, ep09, ep10, ep11, ep12] as EpisodeScript[];
 
 export const episodes: Record<string, EpisodeScript> = Object.fromEntries(all.map((s) => [s.id, s]));

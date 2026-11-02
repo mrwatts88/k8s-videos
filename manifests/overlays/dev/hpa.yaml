@@ -1,0 +1,8 @@
+# One or two pods are plenty for testing.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: golinks
+spec:
+  minReplicas: 1
+  maxReplicas: 2

@@ -17,7 +17,9 @@ SCHEMAS=(
   -schema-location 'https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{.NormalizedKubernetesVersion}}/{{.ResourceKind}}{{.KindSuffix}}.json'
 )
 
-mapfile -t files < <(find manifests -name '*.yaml' ! -name 'kustomization.yaml' | sort)
+# Overlay files are partial patches, not whole resources; they are checked
+# through the kustomize builds below.
+mapfile -t files < <(find manifests -name '*.yaml' ! -name 'kustomization.yaml' ! -path 'manifests/overlays/*' | sort)
 echo "kubeconform: ${#files[@]} files (Kubernetes $K8S_VERSION)"
 kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" "${SCHEMAS[@]}" "${files[@]}"
 

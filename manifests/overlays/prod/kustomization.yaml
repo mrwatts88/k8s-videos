@@ -1,0 +1,13 @@
+# golinks as the company uses it (Episode 12). The base is already shaped for
+# production, so prod changes little. A release changes the tag here.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: golinks
+resources:
+  - ../../base
+labels:
+  - pairs:
+      environment: prod
+images:
+  - name: registry.corp.internal/platform/golinks
+    newTag: 0.1.0
