@@ -381,13 +381,22 @@ half gone, which is the question this episode answers.
   can only use the room the nodes have; with VMs, something like Cluster API
   with a vSphere or bare-metal provider can add nodes. Kept light.
 - Manifests: `golinks-hpa.yaml` in the base.
+- As built: `kubectl top pods` first, then the HPA manifest (with an explicit
+  five-minute scale-down window) and the formula with a worked example. The
+  Deployment loses `replicas: 2` so applies don't fight the HPA; line 9 now
+  holds a comment, so re-rendering Episodes 0 and 2 (which highlight line 9)
+  would show that comment. Load comes from `hey` on the laptop through the full
+  route; `kubectl get hpa -w | cut -c 32-` keeps the output inside 79 columns.
+  The new pods land on the agents only, since the server has 50m unrequested
+  (Episode 2). A diagram shows Pending pods when `maxReplicas` exceeds the
+  nodes, and node autoscaling stays a concept.
 
 ### Episode 12: Kustomize
 
 - The problem: the same app in dev and prod with small differences.
 - Refactor the series' manifests into `manifests/base` plus
-  `manifests/overlays/dev` and `manifests/overlays/prod` (replica counts,
-  hostnames, resource sizes, image tags).
+  `manifests/overlays/dev` and `manifests/overlays/prod` (the HPA's minimum
+  and maximum, hostnames, resource sizes, image tags).
 - `kubectl kustomize` to preview, `kubectl apply -k` to apply.
 
 ### Episode 13: Argo CD (GitOps)

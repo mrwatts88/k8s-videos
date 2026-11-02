@@ -44,7 +44,8 @@
       "match": "Kubernetes",
       "say": "Kubernetes",
       "heard": [
-        "kubernetes"
+        "kubernetes",
+        "cooper netties"
       ]
     },
     {
@@ -217,7 +218,8 @@
       "heard": [
         "argo cd",
         "argocd",
-        "argo c d"
+        "argo c d",
+        "argos cd"
       ]
     },
     {
@@ -1269,6 +1271,43 @@
         "jeerah",
         "jeera"
       ]
+    },
+    {
+      "match": "HPA",
+      "say": "H P A",
+      "heard": [
+        "hpa",
+        "h p a",
+        "h.p.a.",
+        "hpas"
+      ],
+      "ipa": "ˈeɪtʃ pˈiː ˈeɪ"
+    },
+    {
+      "match": "HorizontalPodAutoscaler",
+      "say": "Horizontal Pod Autoscaler",
+      "heard": [
+        "horizontal pod autoscaler",
+        "horizontalpodautoscaler",
+        "horizontal pod auto scaler"
+      ]
+    },
+    {
+      "match": "metrics-server",
+      "say": "metrics server",
+      "heard": [
+        "metrics server",
+        "metric server",
+        "metrics-server"
+      ]
+    },
+    {
+      "match": "Karpenter",
+      "say": "Karpenter",
+      "heard": [
+        "karpenter",
+        "carpenter"
+      ]
     }
   ],
   "rules": [
@@ -1527,6 +1566,7 @@
   "_endingsDoc": "espeak sometimes clips words ending in -ies or -ied (copies comes out kˈɑːpɪz, copied kˈɑːpɪd, where the ending should be iz or id). A narration word of six or more letters ending in -ies or -ied must be a lexicon term or listed in endingsChecked: check it with tools/pronounce.py --phonemes; if it ends in ɪz or ɪd, add a term with ipa ending in iz or id, otherwise add it here.",
   "endingsChecked": [
     "applied",
+    "applies",
     "authorities",
     "binaries",
     "bodies",

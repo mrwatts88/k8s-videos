@@ -1,4 +1,4 @@
-# The base every later overlay builds on (Episode 11). Episodes add files here
+# The base every later overlay builds on (Episode 12). Episodes add files here
 # as they introduce them.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -13,3 +13,4 @@ resources:
   - golinks-service.yaml
   - golinks-certificate.yaml
   - golinks-ingress.yaml
+  - golinks-hpa.yaml

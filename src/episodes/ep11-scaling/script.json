@@ -1,0 +1,1089 @@
+{
+  "id": "ep11-scaling",
+  "number": 11,
+  "title": "Scaling",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 11",
+      "title": "Scaling",
+      "subtitle": "More pods when the load climbs",
+      "lines": [
+        {
+          "text": "Nine o'clock on Monday, and the whole company opens go slash standup at once."
+        },
+        {
+          "text": "Two pods have been plenty so far. Today we let Kubernetes add more when the load climbs, and take them away again after.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "which",
+      "type": "diagram",
+      "title": "Bigger pods, or more of them",
+      "boxes": [
+        {
+          "id": "up",
+          "label": "scale up",
+          "sublabel": "a bigger pod",
+          "x": 60,
+          "y": 100,
+          "w": 700,
+          "h": 130
+        },
+        {
+          "id": "upn",
+          "kind": "note",
+          "label": "limited by the size of one node",
+          "x": 60,
+          "y": 250,
+          "w": 700,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "out",
+          "label": "scale out",
+          "sublabel": "more pods",
+          "x": 840,
+          "y": 100,
+          "w": 700,
+          "h": 130,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "outn",
+          "kind": "note",
+          "label": "spreads the load over every node",
+          "x": 840,
+          "y": 250,
+          "w": 700,
+          "h": 70,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "gl",
+          "label": "golinks",
+          "sublabel": "keeps nothing in the pod",
+          "x": 100,
+          "y": 430,
+          "w": 480,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "pg",
+          "label": "Postgres",
+          "sublabel": "one pod, holds the data",
+          "x": 1020,
+          "y": 430,
+          "w": 480,
+          "h": 130,
+          "hidden": true
+        },
+        {
+          "id": "pgn",
+          "kind": "note",
+          "label": "more golinks pods, more queries for the one database",
+          "x": 160,
+          "y": 640,
+          "w": 1280,
+          "h": 80,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "q",
+          "from": "gl",
+          "to": "pg",
+          "label": "queries",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "upn"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "out",
+            "outn"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "gl",
+            "pg",
+            "q"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "pgn"
+          ],
+          "flow": [
+            "q"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "There are two ways to handle more load. One is a bigger pod: more CPU for the same pod."
+        },
+        {
+          "text": "That only goes as far as the biggest node, and changing it means restarting the pod."
+        },
+        {
+          "text": "The other is more pods, sharing the work. That's horizontal scaling, and it's what we'll set up."
+        },
+        {
+          "text": "It works for golinks because the pods keep nothing of their own. Every link lives in Postgres, so any pod can answer any request.",
+          "say": "It works for go links because the pods keep nothing of their own. Every link lives in Postgres, so any pod can answer any request.",
+          "senses": {
+            "lives": "verb"
+          }
+        },
+        {
+          "text": "Postgres is different. It's one pod that holds the data, and a second copy would need replication, which Episode 4 left out of scope."
+        },
+        {
+          "text": "So more golinks pods means more queries for that one database. Scaling moves the pressure along; it doesn't make it disappear.",
+          "say": "So more go links pods means more queries for that one database. Scaling moves the pressure along; it doesn't make it disappear.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "top",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get deploy metrics-server -n kube-system",
+          "output": [
+            "NAME             READY   UP-TO-DATE   AVAILABLE   AGE",
+            "metrics-server   1/1     1            1           9d"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl top pods -n golinks",
+          "output": [
+            "NAME                       CPU(cores)   MEMORY(bytes)",
+            "golinks-6c9d7f8b5c-n4hzx   3m           22Mi",
+            "golinks-6c9d7f8b5c-r7tqw   4m           21Mi",
+            "postgres-0                 6m           41Mi"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "To scale on load, something has to measure it. k3s ships metrics-server, which asks every kubelet how much CPU and memory each pod is using."
+        },
+        {
+          "text": "kubectl top shows what it collects. CPU is in millicores: a thousand make one core."
+        },
+        {
+          "text": "So this pod is using 3 millicores. It asked for 100, a tenth of a core, back in Episode 2. That's 3 percent of its request.",
+          "say": "So this pod is using three millicores. It asked for a hundred, a tenth of a core, back in Episode 2. That's three percent of its request."
+        },
+        {
+          "text": "That percentage, use against request, is exactly what the autoscaler watches. It's why every pod that scales needs an honest CPU request.",
+          "senses": {
+            "use": "noun"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "hpa-yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-hpa.yaml",
+      "range": [
+        4,
+        28
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            4,
+            5
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            12,
+            15
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            16,
+            17
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            18,
+            24
+          ]
+        },
+        {
+          "at": 5,
+          "lines": [
+            25,
+            28
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here's the autoscaler, a HorizontalPodAutoscaler, or HPA for short. Version 2 of the autoscaling API."
+        },
+        {
+          "text": "It points at the golinks Deployment. It never touches pods itself; it only changes the Deployment's replica count.",
+          "say": "It points at the go links Deployment. It never touches pods itself; it only changes the Deployment's replica count."
+        },
+        {
+          "text": "Never fewer than two pods, so one can fail without an outage. Never more than six."
+        },
+        {
+          "text": "And the goal: average CPU use across the pods, at 70 percent of what they request.",
+          "senses": {
+            "use": "noun"
+          }
+        },
+        {
+          "text": "Why not 100? A new pod takes a little while to start and turn ready, and the others carry the extra load until it does."
+        },
+        {
+          "text": "Last, how fast it scales back down. It waits for five minutes of lower load before it removes any pods.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "loop",
+      "type": "diagram",
+      "title": "One more control loop",
+      "boxes": [
+        {
+          "id": "ms",
+          "label": "metrics-server",
+          "sublabel": "CPU per pod",
+          "x": 60,
+          "y": 110,
+          "w": 440,
+          "h": 130
+        },
+        {
+          "id": "hpa",
+          "label": "HPA controller",
+          "sublabel": "every 15 seconds",
+          "x": 580,
+          "y": 110,
+          "w": 440,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "dep",
+          "label": "Deployment",
+          "sublabel": "replicas",
+          "x": 1100,
+          "y": 110,
+          "w": 440,
+          "h": 130
+        },
+        {
+          "id": "f1",
+          "kind": "note",
+          "label": "wanted = pods × (use ÷ target), rounded up",
+          "x": 160,
+          "y": 330,
+          "w": 1280,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "f2",
+          "kind": "note",
+          "label": "2 × (182% ÷ 70%) = 5.2, so 6 pods",
+          "x": 160,
+          "y": 430,
+          "w": 1280,
+          "h": 80,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "f3",
+          "kind": "note",
+          "label": "within 10% of the target: no change",
+          "x": 160,
+          "y": 530,
+          "w": 1280,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "f4",
+          "kind": "note",
+          "label": "always between minReplicas and maxReplicas",
+          "x": 160,
+          "y": 630,
+          "w": 1280,
+          "h": 80,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "ms",
+          "to": "hpa",
+          "label": "reads"
+        },
+        {
+          "id": "a2",
+          "from": "hpa",
+          "to": "dep",
+          "label": "sets"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "f1"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "f2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "f3"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "f4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The HPA is one more controller, like the ones in Episode 0. Every 15 seconds it reads the numbers, and sets the replica count."
+        },
+        {
+          "text": "The math is simple. Take the number of pods, multiply by how far use is over or under the target, and round up.",
+          "senses": {
+            "use": "noun"
+          }
+        },
+        {
+          "text": "Two pods at 182 percent of their request: 182 over 70 is 2.6, times two pods, 5.2. Round up to six.",
+          "say": "Two pods at a hundred and eighty two percent of their request: a hundred and eighty two over seventy is two point six, times two pods, five point two. Round up to six."
+        },
+        {
+          "text": "If use is within 10 percent of the target, it leaves things alone, so small wobbles don't add and remove pods.",
+          "say": "If use is within ten percent of the target, it leaves things alone, so small wobbles don't add and remove pods.",
+          "senses": {
+            "use": "noun"
+          }
+        },
+        {
+          "text": "And the answer always stays between the minimum and the maximum.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "replicas",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        1,
+        16
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            8,
+            10
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "One change to the Deployment. Since Episode 2 it said replicas: 2. Now the HPA owns that number, so we take it out."
+        },
+        {
+          "text": "Otherwise, every apply of this file would set the count back to two, even at the busiest moment."
+        },
+        {
+          "text": "That matters even more in Episode 13, when Argo CD applies the files for us, again and again."
+        },
+        {
+          "text": "One catch: the first apply without it drops the count to one, the default, until the HPA's next check puts it back to two.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "apply",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -f manifests/base/golinks-hpa.yaml",
+          "output": [
+            "horizontalpodautoscaler.autoscaling/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl apply -f manifests/base/golinks-deployment.yaml",
+          "output": [
+            "deployment.apps/golinks configured"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get hpa golinks -n golinks | cut -c 32-",
+          "output": [
+            "TARGETS         MINPODS   MAXPODS   REPLICAS   AGE",
+            "cpu: 3%/70%     2         6         2          1m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply the HPA first, so it's already in charge."
+        },
+        {
+          "text": "Then the Deployment, without its replica count."
+        },
+        {
+          "text": "cut trims off the name columns, so it fits. 3 percent, against a target of 70, two pods, between two and six. Quiet, as expected.",
+          "say": "Cut trims off the name columns, so it fits. Three percent, against a target of seventy, two pods, between two and six. Quiet, as expected.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "load",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "URL=https://go.corp.internal/standup"
+        },
+        {
+          "at": 1,
+          "command": "hey -z 3m -c 50 -disable-redirects $URL > hey.txt &",
+          "output": [
+            "[1] 48213"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "kubectl get hpa golinks -n golinks -w | cut -c 32-",
+          "output": [
+            "TARGETS         MINPODS   MAXPODS   REPLICAS   AGE",
+            "cpu: 3%/70%     2         6         2          1m",
+            "cpu: 182%/70%   2         6         2          2m",
+            "cpu: 182%/70%   2         6         6          2m",
+            "cpu: 61%/70%    2         6         6          3m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now, Monday morning. The load test goes to the standup link, from the laptop, through every hop of the last episode."
+        },
+        {
+          "text": "hey sends requests from 50 workers at once, for three minutes, and doesn't follow the redirects, so only our cluster feels it.",
+          "say": "The hey tool sends requests from fifty workers at once, for three minutes, and doesn't follow the redirects, so only our cluster feels it."
+        },
+        {
+          "text": "And watch the HPA. The w flag prints a new line whenever it changes.",
+          "say": "And watch the HPA. The W flag prints a new line whenever it changes."
+        },
+        {
+          "text": "Soon, CPU is at 182 percent of the request. That's allowed: there's no CPU limit, so a busy pod can use more than it asked for.",
+          "say": "Soon, CPU is at a hundred and eighty two percent of the request. That's allowed: there's no CPU limit, so a busy pod can use more than it asked for.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "On its next check, the HPA does the math from before, and asks for six pods. It can add that many in one go, and it does."
+        },
+        {
+          "text": "Once the new pods are ready and sharing the work, the average settles at 61 percent, under the target. Six it stays.",
+          "say": "Once the new pods are ready and sharing the work, the average settles at sixty one percent, under the target. Six it stays.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "pods",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get pods -n golinks -o wide | awk '{print $1,$2,$5,$7}' | column -t",
+          "output": [
+            "NAME                      READY  AGE  NODE",
+            "golinks-6c9d7f8b5c-b8kq2  1/1    50s  k3s-agent-1",
+            "golinks-6c9d7f8b5c-m2xpd  1/1    50s  k3s-agent-2",
+            "golinks-6c9d7f8b5c-n4hzx  1/1    6h   k3s-agent-2",
+            "golinks-6c9d7f8b5c-r7tqw  1/1    6h   k3s-agent-1",
+            "golinks-6c9d7f8b5c-t9wfj  1/1    50s  k3s-agent-1",
+            "golinks-6c9d7f8b5c-z5cvl  1/1    50s  k3s-agent-2",
+            "postgres-0                1/1    6h   k3s-agent-1"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here they are: four new pods, 50 seconds old, three on each agent.",
+          "say": "Here they are: four new pods, fifty seconds old, three on each agent."
+        },
+        {
+          "text": "None went to the server. As in Episode 2, it has only 50 millicores left unrequested, and each pod asks for 100.",
+          "say": "None went to the server. As in Episode 2, it has only fifty millicores left unrequested, and each pod asks for a hundred."
+        },
+        {
+          "text": "Each new pod got traffic only once its readiness probe passed, and Traefik saw it in the EndpointSlice. Nobody touched the Ingress or the Service.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "down",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "grep -E 'Requests/sec|\\[302\\]' hey.txt",
+          "output": [
+            "  Requests/sec:  1214.6",
+            "  [302]  218628 responses"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get hpa golinks -n golinks -w | cut -c 32-",
+          "output": [
+            "TARGETS         MINPODS   MAXPODS   REPLICAS   AGE",
+            "cpu: 61%/70%    2         6         6          4m",
+            "cpu: 2%/70%     2         6         6          5m",
+            "cpu: 2%/70%     2         6         2          10m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Three minutes later, hey is done: about 1,200 requests a second, every one a 302.",
+          "say": "Three minutes later, hey is done: about twelve hundred requests a second, every one a three oh two."
+        },
+        {
+          "text": "Back to the HPA. The load is gone and CPU drops to 2 percent, but it keeps six pods.",
+          "say": "Back to the HPA. The load is gone and CPU drops to two percent, but it keeps six pods."
+        },
+        {
+          "text": "That's the five minute wait from the manifest. Real load often comes in waves, and removing pods just before the next wave would be the worst timing.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "Five minutes of quiet later, it goes straight back down to the minimum, two.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "type": "diagram",
+      "title": "On-prem, the nodes are the ceiling",
+      "boxes": [
+        {
+          "id": "g1",
+          "kind": "group",
+          "label": "k3s-agent-1",
+          "x": 60,
+          "y": 80,
+          "w": 600,
+          "h": 420
+        },
+        {
+          "id": "g2",
+          "kind": "group",
+          "label": "k3s-agent-2",
+          "x": 720,
+          "y": 80,
+          "w": 600,
+          "h": 420
+        },
+        {
+          "id": "p1",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 100,
+          "y": 150,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "p2",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 370,
+          "y": 150,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "p3",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 100,
+          "y": 240,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "o1",
+          "kind": "pod",
+          "label": "other apps",
+          "x": 370,
+          "y": 240,
+          "w": 250,
+          "h": 70
+        },
+        {
+          "id": "p7",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 100,
+          "y": 330,
+          "w": 250,
+          "h": 70,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p8",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 370,
+          "y": 330,
+          "w": 250,
+          "h": 70,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "p9",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 100,
+          "y": 420,
+          "w": 250,
+          "h": 60,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "o9",
+          "kind": "pod",
+          "label": "postgres-0",
+          "x": 370,
+          "y": 420,
+          "w": 250,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "p4",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 760,
+          "y": 150,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "p5",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 1030,
+          "y": 150,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "p6",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 760,
+          "y": 240,
+          "w": 250,
+          "h": 70,
+          "tone": "accent"
+        },
+        {
+          "id": "o2",
+          "kind": "pod",
+          "label": "other apps",
+          "x": 1030,
+          "y": 240,
+          "w": 250,
+          "h": 70
+        },
+        {
+          "id": "q7",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 760,
+          "y": 330,
+          "w": 250,
+          "h": 70,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "q8",
+          "kind": "pod",
+          "label": "golinks",
+          "x": 1030,
+          "y": 330,
+          "w": 250,
+          "h": 70,
+          "tone": "accent",
+          "hidden": true
+        },
+        {
+          "id": "q9",
+          "kind": "pod",
+          "label": "other apps",
+          "x": 760,
+          "y": 420,
+          "w": 520,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "pend",
+          "label": "Pending",
+          "sublabel": "no room",
+          "x": 1360,
+          "y": 150,
+          "w": 200,
+          "h": 250,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "msg",
+          "kind": "note",
+          "label": "0/3 nodes are available: 3 Insufficient cpu.",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 70,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "rule",
+          "kind": "note",
+          "label": "set maxReplicas to what the nodes can hold",
+          "x": 60,
+          "y": 660,
+          "w": 1480,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "p7",
+            "p8",
+            "p9",
+            "o9",
+            "q7",
+            "q8",
+            "q9"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "pend",
+            "msg"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "rule"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Six pods fit easily. But say we'd set the maximum to 60.",
+          "say": "Six pods fit easily. But say we'd set the maximum to sixty."
+        },
+        {
+          "text": "The scheduler places pods by their requests, and sooner or later the requests fill both agents."
+        },
+        {
+          "text": "The next pods stay Pending. The scheduler's message says why: no node has enough CPU left to promise."
+        },
+        {
+          "text": "In the cloud, that's when a new machine would appear. On-prem, the servers you have are the servers you have, and the HPA can only use the room that's on them.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "So set the maximum to what the nodes can really hold, with the other apps' requests counted, and leave space for a node to fail.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "nodes",
+      "type": "diagram",
+      "title": "Adding nodes: another controller",
+      "boxes": [
+        {
+          "id": "pend",
+          "label": "Pending pods",
+          "sublabel": "nowhere to fit",
+          "x": 60,
+          "y": 100,
+          "w": 400,
+          "h": 130,
+          "tone": "bad"
+        },
+        {
+          "id": "ca",
+          "label": "node autoscaler",
+          "sublabel": "watches for them",
+          "x": 600,
+          "y": 100,
+          "w": 400,
+          "h": 130,
+          "tone": "accent"
+        },
+        {
+          "id": "infra",
+          "label": "infrastructure",
+          "sublabel": "makes a machine",
+          "x": 1140,
+          "y": 100,
+          "w": 400,
+          "h": 130
+        },
+        {
+          "id": "node",
+          "label": "new node",
+          "sublabel": "joins, takes the pods",
+          "x": 1140,
+          "y": 360,
+          "w": 400,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "cloud",
+          "kind": "note",
+          "label": "cloud: Cluster Autoscaler, Karpenter",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "vm",
+          "kind": "note",
+          "label": "on-prem VMs: Cluster API, with a vSphere provider",
+          "x": 60,
+          "y": 630,
+          "w": 1480,
+          "h": 60,
+          "hidden": true
+        },
+        {
+          "id": "fixed",
+          "kind": "note",
+          "label": "fixed servers, like ours: nothing to add",
+          "x": 60,
+          "y": 700,
+          "w": 1480,
+          "h": 60,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "pend",
+          "to": "ca"
+        },
+        {
+          "id": "a2",
+          "from": "ca",
+          "to": "infra",
+          "label": "asks"
+        },
+        {
+          "id": "a3",
+          "from": "infra",
+          "to": "node",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "a1"
+          ]
+        },
+        {
+          "at": 1,
+          "flow": [
+            "a2"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "node",
+            "a3"
+          ],
+          "flow": [
+            "a3"
+          ]
+        },
+        {
+          "at": 4,
+          "flow": [],
+          "show": [
+            "cloud"
+          ]
+        },
+        {
+          "at": 5,
+          "show": [
+            "vm"
+          ]
+        },
+        {
+          "at": 6,
+          "show": [
+            "fixed"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Clusters that can add machines do it with one more controller. A node autoscaler watches for pods stuck Pending because nothing has room."
+        },
+        {
+          "text": "When it sees them, it asks the infrastructure underneath for another machine."
+        },
+        {
+          "text": "The machine boots, joins the cluster as a node, and the scheduler puts the waiting pods on it."
+        },
+        {
+          "text": "It works the other way too. When a node sits mostly empty, the autoscaler moves its pods elsewhere and gives the machine back."
+        },
+        {
+          "text": "In the cloud, that's the Cluster Autoscaler, or Karpenter, asking the cloud for virtual machines."
+        },
+        {
+          "text": "On-prem, it only works if machines can be made on demand: with virtual machines, Cluster API and a vSphere provider can create new nodes.",
+          "say": "On-prem, it only works if machines can be made on demand: with virtual machines, Cluster A P I and a V sphere provider can create new nodes."
+        },
+        {
+          "text": "With a fixed set of servers, like ours, there's nothing to add. Capacity is planned ahead, and the HPA works inside it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 12: Kustomize",
+      "subtitle": "One app, a dev and a prod",
+      "lines": [
+        {
+          "text": "So that's scaling: honest requests, an HPA that adds pods when they're busy, and a ceiling set by the nodes."
+        },
+        {
+          "text": "Next time: the same app in dev and in prod, with small differences, like this HPA's minimum and maximum. That's Kustomize.",
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}

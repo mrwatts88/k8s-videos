@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: golinks
 spec:
-  replicas: 2
+  # No replicas here: the HorizontalPodAutoscaler owns the count (Episode 11).
   selector:
     matchLabels:
       app.kubernetes.io/name: golinks

@@ -1,0 +1,28 @@
+# Adds and removes golinks pods to keep CPU use near 70% of what each pod
+# requests (Episode 11). metrics-server, which ships with k3s, supplies the
+# numbers.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: golinks
+  namespace: golinks
+  labels:
+    app.kubernetes.io/name: golinks
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: golinks
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      # Waits for five minutes of lower load before it removes pods.
+      stabilizationWindowSeconds: 300
