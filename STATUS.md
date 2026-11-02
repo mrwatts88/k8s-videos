@@ -16,7 +16,7 @@ Stages: planned → scripted → narrated → rendered → reviewed → publishe
 | 6 | Health checks: startup, liveness and readiness probes | `ep06-health-probes` | rendered | About 6 min 40 s; 14 scenes, 5 of them diagrams; database-down and frozen-process demos; pronunciation check clean |
 | 7 | Logs: where they go, on-prem | `ep07-logs` | rendered | About 7 min; 18 scenes, 6 of them diagrams; Alloy, Loki and Grafana as k3s HelmCharts; delete-a-pod demo; pronunciation check clean apart from "336 hours" written as digits |
 | 8 | TLS: cert-manager and the internal CA | `ep08-tls` | rendered | About 8.5 min; 18 scenes, 4 of them diagrams; cert-manager as a k3s HelmChart, a corp-ca ClusterIssuer on the cluster's intermediate CA, an explicit Certificate for go and the annotation shortcut for Grafana; pronunciation check clean |
-| 9 | Auth: Keycloak, kept light | `ep09-auth` | planned | |
+| 9 | Auth: Keycloak, kept light | `ep09-auth` | rendered | About 9 min; 18 scenes, 7 of them diagrams; client credentials for the release pipeline, a decoded JWT, the five checks (401 vs 403), the company root CA mounted from a ConfigMap, first links (release-notes, standup); pronunciation check clean |
 | 10 | One request, end to end | `ep10-end-to-end` | planned | |
 | 11 | Kustomize | `ep11-kustomize` | planned | Base already in place |
 | 12 | Argo CD | `ep12-argocd` | planned | |
