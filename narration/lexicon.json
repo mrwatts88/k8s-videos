@@ -940,6 +940,67 @@
         "core dot internal",
         "corp. internal"
       ]
+    },
+    {
+      "match": "failureThreshold",
+      "say": "failure threshold",
+      "heard": [
+        "failurethreshold",
+        "failure threshold"
+      ]
+    },
+    {
+      "match": "initialDelaySeconds",
+      "say": "initial delay seconds",
+      "heard": [
+        "initialdelayseconds",
+        "initial delay seconds"
+      ]
+    },
+    {
+      "match": "CrashLoopBackOff",
+      "say": "crash loop back off",
+      "heard": [
+        "crashloopbackoff",
+        "crash loop back off",
+        "crash loop backoff"
+      ]
+    },
+    {
+      "match": "gRPC",
+      "say": "G R P C",
+      "heard": [
+        "grpc",
+        "g r p c",
+        "grp c"
+      ]
+    },
+    {
+      "match": "TCP",
+      "say": "T C P",
+      "heard": [
+        "tcp",
+        "t c p"
+      ]
+    },
+    {
+      "match": "503",
+      "say": "five oh three",
+      "heard": [
+        "503",
+        "five oh three",
+        "5 o 3",
+        "five o three"
+      ]
+    },
+    {
+      "match": "399",
+      "say": "three ninety-nine",
+      "heard": [
+        "399",
+        "three ninety-nine",
+        "three ninety nine"
+      ]
     }
   ],
   "rules": [

@@ -1,0 +1,967 @@
+{
+  "id": "ep06-health-probes",
+  "number": 6,
+  "title": "Health checks",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 6",
+      "title": "Health checks",
+      "subtitle": "Startup, liveness and readiness probes",
+      "lines": [
+        {
+          "text": "Last time, one word kept coming up: only ready pods get traffic."
+        },
+        {
+          "text": "Today we look at who decides that, and at what Kubernetes does when a pod isn't healthy.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "probe",
+      "type": "diagram",
+      "title": "What a probe is",
+      "boxes": [
+        {
+          "id": "node",
+          "kind": "group",
+          "label": "k3s-agent-1",
+          "x": 60,
+          "y": 80,
+          "w": 900,
+          "h": 640
+        },
+        {
+          "id": "kubelet",
+          "label": "kubelet",
+          "sublabel": "runs the checks",
+          "x": 120,
+          "y": 260,
+          "w": 300,
+          "h": 120,
+          "tone": "accent"
+        },
+        {
+          "id": "pod",
+          "kind": "pod",
+          "label": "golinks pod",
+          "sublabel": "port 8080",
+          "x": 600,
+          "y": 270,
+          "w": 300,
+          "h": 100
+        },
+        {
+          "id": "kinds",
+          "kind": "note",
+          "label": "HTTP, TCP, gRPC or a command",
+          "x": 120,
+          "y": 560,
+          "w": 780,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "pass",
+          "kind": "note",
+          "label": "200 to 399: pass",
+          "x": 1040,
+          "y": 180,
+          "w": 500,
+          "h": 90,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "fail",
+          "kind": "note",
+          "label": "anything else, or no answer in time: fail",
+          "x": 1040,
+          "y": 340,
+          "w": 500,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "thr",
+          "kind": "note",
+          "label": "acts after failureThreshold misses in a row",
+          "x": 1040,
+          "y": 520,
+          "w": 500,
+          "h": 110,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "chk",
+          "from": "kubelet",
+          "to": "pod",
+          "label": "GET /healthz"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "focus": [
+            "kubelet"
+          ],
+          "flow": [
+            "chk"
+          ]
+        },
+        {
+          "at": 1,
+          "focus": [],
+          "show": [
+            "kinds"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "pass",
+            "fail"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "thr"
+          ],
+          "flow": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "A probe is a check that the kubelet, the agent on each node, runs against a container on a schedule."
+        },
+        {
+          "text": "It can make an HTTP request, open a TCP connection, make a gRPC call, or run a command inside the container. Ours are all HTTP."
+        },
+        {
+          "text": "Any status from 200 to 399 is a pass. Anything else, or no answer within the timeout, is a failure."
+        },
+        {
+          "text": "One miss means nothing. The kubelet acts only after failureThreshold misses in a row.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "three",
+      "type": "diagram",
+      "title": "Three probes, three jobs",
+      "boxes": [
+        {
+          "id": "st",
+          "label": "Startup",
+          "sublabel": "has it started yet?",
+          "x": 60,
+          "y": 80,
+          "w": 460,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "li",
+          "label": "Liveness",
+          "sublabel": "is it stuck for good?",
+          "x": 570,
+          "y": 80,
+          "w": 460,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "re",
+          "label": "Readiness",
+          "sublabel": "should it get traffic now?",
+          "x": 1080,
+          "y": 80,
+          "w": 460,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "st2",
+          "kind": "note",
+          "label": "the other two wait for it",
+          "x": 60,
+          "y": 330,
+          "w": 460,
+          "h": 80,
+          "hidden": true
+        },
+        {
+          "id": "st3",
+          "kind": "note",
+          "label": "fails: container restarted",
+          "x": 60,
+          "y": 490,
+          "w": 460,
+          "h": 80,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "li3",
+          "kind": "note",
+          "label": "fails: container restarted",
+          "x": 570,
+          "y": 490,
+          "w": 460,
+          "h": 80,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "re3",
+          "kind": "note",
+          "label": "fails: out of the Service",
+          "x": 1080,
+          "y": 490,
+          "w": 460,
+          "h": 80,
+          "tone": "warn",
+          "hidden": true
+        },
+        {
+          "id": "re4",
+          "kind": "note",
+          "label": "no restart, back when it passes",
+          "x": 1080,
+          "y": 620,
+          "w": 460,
+          "h": 80,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "st",
+            "st2",
+            "st3"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "li",
+            "li3"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "re",
+            "re3",
+            "re4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "There are three kinds of probe, and what matters most is what happens when each one fails."
+        },
+        {
+          "text": "The startup probe asks whether the app has finished starting. Until it passes, the other two wait. If it never passes, the container is restarted."
+        },
+        {
+          "text": "The liveness probe asks whether the process is stuck beyond repair. If it fails, the container is restarted."
+        },
+        {
+          "text": "The readiness probe asks whether the pod should get traffic right now. If it fails, the pod is taken out of the Service, and nothing restarts.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "yaml",
+      "type": "code",
+      "file": "manifests/base/golinks-deployment.yaml",
+      "range": [
+        33,
+        56
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            35,
+            40
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            41,
+            48
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            49,
+            56
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            37,
+            37
+          ]
+        },
+        {
+          "at": 4,
+          "lines": [
+            51,
+            51
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here they are in our Deployment. Startup checks healthz every 2 seconds and allows 30 misses: a full minute to start.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "Liveness checks the same healthz every 10 seconds, waits 2 seconds for an answer, and acts after 3 misses: about 30 seconds."
+        },
+        {
+          "text": "Readiness checks readyz every 5 seconds, and acts after 2 misses: about 10 seconds."
+        },
+        {
+          "text": "The paths differ on purpose. healthz answers only for the process itself."
+        },
+        {
+          "text": "readyz also checks the database with a quick query, because no request can succeed without it.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "stop-db",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl scale statefulset postgres -n golinks --replicas=0",
+          "output": [
+            "statefulset.apps/postgres scaled"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-5f8b6c7d9d-k4xzt   0/1     Running   0          21m",
+            "golinks-5f8b6c7d9d-p2rnm   0/1     Running   0          21m"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl describe pod golinks-5f8b6c7d9d-k4xzt -n golinks | grep Unhealthy",
+          "output": [
+            "  Warning  Unhealthy  2s (x4 over 17s)  kubelet  Readiness probe failed: HTTP probe failed with statuscode: 503"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Let's watch readiness work. We take the database away by scaling Postgres to zero."
+        },
+        {
+          "text": "Within seconds, both API pods show zero of one ready."
+        },
+        {
+          "text": "But look at RESTARTS: still zero. Nothing inside the pods is broken, so nothing is restarted.",
+          "say": "But look at restarts: still zero. Nothing inside the pods is broken, so nothing is restarted."
+        },
+        {
+          "text": "The events say why: readyz answered 503, the app's way of saying it can't reach its database.",
+          "say": "The events say why: ready Z answered with a five oh three, the app's way of saying it can't reach its database.",
+          "pauseAfter": 0.3
+        }
+      ]
+    },
+    {
+      "id": "out-of-service",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl describe endpointslices -n golinks | grep -E 'Addr|Ready'",
+          "output": [
+            "  - Addresses:  10.42.1.15",
+            "      Ready:    false",
+            "  - Addresses:  10.42.2.9",
+            "      Ready:    false"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "curl -i http://go.corp.internal/standup",
+          "output": [
+            "HTTP/1.1 404 Not Found",
+            "Content-Type: text/plain; charset=utf-8",
+            "X-Content-Type-Options: nosniff",
+            "Date: Mon, 02 Nov 2026 14:52:31 GMT",
+            "Content-Length: 19",
+            "",
+            "404 page not found"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The Service's EndpointSlice still lists both pods, but marks each one not ready, so the Service sends them nothing."
+        },
+        {
+          "text": "From outside, the request now gets Traefik's plain 404, the same one we saw in Episode 5 when no rule matched."
+        },
+        {
+          "text": "You might expect a 503. But Traefik leaves out any route whose Service has no ready pods, so no rule matches.",
+          "say": "You might expect a five oh three. But Traefik leaves out any route whose Service has no ready pods, so no rule matches."
+        },
+        {
+          "text": "Every pod is out because they all share one database. That's correct: without it, there's nothing useful they could do.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "db-back",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl scale statefulset postgres -n golinks --replicas=1",
+          "output": [
+            "statefulset.apps/postgres scaled"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n golinks",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS   AGE",
+            "golinks-5f8b6c7d9d-k4xzt   1/1     Running   0          22m",
+            "golinks-5f8b6c7d9d-p2rnm   1/1     Running   0          22m",
+            "postgres-0                 1/1     Running   0          24s"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "curl -i http://go.corp.internal/standup",
+          "output": [
+            "HTTP/1.1 404 Not Found",
+            "Content-Type: text/html; charset=utf-8",
+            "Date: Mon, 02 Nov 2026 14:53:40 GMT",
+            "Content-Length: 41",
+            "",
+            "<p>No link named <b>standup</b> yet.</p>"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now bring the database back."
+        },
+        {
+          "text": "Postgres starts, the next readiness checks pass, and both pods are back in the Service, still with zero restarts."
+        },
+        {
+          "text": "Postgres still has its data, too: scaling to zero left its volume alone."
+        },
+        {
+          "text": "And the request reaches our app again.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "why-not-db",
+      "type": "diagram",
+      "title": "Why liveness skips the database",
+      "boxes": [
+        {
+          "id": "pg",
+          "kind": "pod",
+          "label": "postgres-0",
+          "sublabel": "down",
+          "x": 600,
+          "y": 60,
+          "w": 400,
+          "h": 100,
+          "tone": "bad"
+        },
+        {
+          "id": "g1",
+          "kind": "pod",
+          "label": "golinks pod",
+          "x": 200,
+          "y": 300,
+          "w": 400,
+          "h": 100
+        },
+        {
+          "id": "g2",
+          "kind": "pod",
+          "label": "golinks pod",
+          "x": 1000,
+          "y": 300,
+          "w": 400,
+          "h": 100
+        },
+        {
+          "id": "n1",
+          "kind": "note",
+          "label": "readiness: step aside and wait",
+          "x": 400,
+          "y": 480,
+          "w": 800,
+          "h": 80,
+          "tone": "good"
+        },
+        {
+          "id": "n2",
+          "kind": "note",
+          "label": "liveness on the database: every pod restarts, again and again",
+          "x": 300,
+          "y": 620,
+          "w": 1000,
+          "h": 90,
+          "tone": "bad",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "c1",
+          "from": "g1",
+          "to": "pg",
+          "tone": "bad"
+        },
+        {
+          "id": "c2",
+          "from": "g2",
+          "to": "pg",
+          "tone": "bad"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "tone": {
+            "g1": "warn",
+            "g2": "warn"
+          }
+        },
+        {
+          "at": 1,
+          "show": [
+            "n2"
+          ],
+          "tone": {
+            "g1": "bad",
+            "g2": "bad"
+          }
+        },
+        {
+          "at": 2,
+          "focus": [
+            "n2"
+          ]
+        },
+        {
+          "at": 3,
+          "focus": [],
+          "tone": {
+            "g1": "good",
+            "g2": "good"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "text": "That demo also shows why liveness must not check the database."
+        },
+        {
+          "text": "If healthz had failed too, the kubelet would have restarted both pods, over and over, for as long as the database was down."
+        },
+        {
+          "text": "A restart can't fix a database. It only adds startup work and noise, right when things are already going wrong."
+        },
+        {
+          "text": "So liveness checks only what a restart can fix: the process itself.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "freeze",
+      "type": "terminal",
+      "title": "admin@k3s-agent-1",
+      "prompt": "$",
+      "steps": [
+        {
+          "at": 1,
+          "command": "pgrep -x golinks",
+          "output": [
+            "48211"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "sudo kill -STOP 48211",
+          "output": []
+        }
+      ],
+      "lines": [
+        {
+          "text": "What can a restart fix? A process that's stuck: a deadlock, say, or a loop that never ends."
+        },
+        {
+          "text": "We can fake one. On the node that runs one of our pods, we find the app's process,"
+        },
+        {
+          "text": "and pause it with a stop signal. It's still there, and its port is still open, but it will never answer again.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "freeze-watch",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl get pod golinks-5f8b6c7d9d-k4xzt -n golinks -w",
+          "output": [
+            "NAME                       READY   STATUS    RESTARTS     AGE",
+            "golinks-5f8b6c7d9d-k4xzt   1/1     Running   0            24m",
+            "golinks-5f8b6c7d9d-k4xzt   0/1     Running   0            24m",
+            "golinks-5f8b6c7d9d-k4xzt   0/1     Running   1 (1s ago)   25m",
+            "golinks-5f8b6c7d9d-k4xzt   1/1     Running   1 (5s ago)   25m"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Back on our machine, we watch that pod."
+        },
+        {
+          "text": "About 10 seconds in, readiness gives up first. The pod leaves the Service, and the other pod takes all the traffic."
+        },
+        {
+          "text": "Liveness needs three misses in a row, 10 seconds apart. Then the kubelet kills the container and starts a new one, and RESTARTS goes to 1.",
+          "say": "Liveness needs three misses in a row, 10 seconds apart. Then the kubelet kills the container and starts a new one, and restarts goes to one."
+        },
+        {
+          "text": "The new process passes its probes, and the pod is ready again. Nobody had to step in.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "freeze-why",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl describe pod golinks-5f8b6c7d9d-k4xzt -n golinks | grep -E 'Liveness|Killing'",
+          "output": [
+            "  Warning  Unhealthy  52s (x3 over 72s)  kubelet  Liveness probe failed: Get \"http://10.42.1.15:8080/healthz\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+            "  Normal   Killing    52s                kubelet  Container golinks failed liveness probe, will be restarted"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl logs golinks-5f8b6c7d9d-k4xzt -n golinks --previous --tail=2",
+          "output": [
+            "{\"time\":\"2026-11-02T14:55:05Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":1}",
+            "{\"time\":\"2026-11-02T14:55:10Z\",\"level\":\"DEBUG\",\"msg\":\"GET /readyz\",\"status\":200,\"ms\":2}"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "describe shows why it restarted: three liveness checks timed out, and then the kubelet killed the container."
+        },
+        {
+          "text": "To see what the old container was doing, add --previous to kubectl logs. These are the last lines it wrote before it froze.",
+          "say": "To see what the old container was doing, add the previous flag to kubectl logs. These are the last lines it wrote before it froze."
+        },
+        {
+          "text": "If a container keeps failing, its status becomes CrashLoopBackOff, and the kubelet waits longer before each new try, up to five minutes.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "startup",
+      "type": "diagram",
+      "title": "A slow start: 40 s of migrations",
+      "boxes": [
+        {
+          "id": "w",
+          "kind": "note",
+          "label": "with a startup probe",
+          "x": 40,
+          "y": 150,
+          "w": 300,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "w1",
+          "label": "migrations",
+          "sublabel": "40 s",
+          "x": 380,
+          "y": 150,
+          "w": 560,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "w2",
+          "label": "startup passes",
+          "x": 960,
+          "y": 150,
+          "w": 280,
+          "h": 110,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "w3",
+          "label": "liveness and readiness",
+          "x": 1260,
+          "y": 150,
+          "w": 300,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "o",
+          "kind": "note",
+          "label": "without one",
+          "x": 40,
+          "y": 450,
+          "w": 300,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "o1",
+          "label": "migrations",
+          "sublabel": "cut off",
+          "x": 380,
+          "y": 450,
+          "w": 420,
+          "h": 110,
+          "hidden": true
+        },
+        {
+          "id": "o2",
+          "label": "killed at 30 s",
+          "x": 820,
+          "y": 450,
+          "w": 320,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "o3",
+          "label": "starts over",
+          "sublabel": "never comes up",
+          "x": 1160,
+          "y": 450,
+          "w": 400,
+          "h": 110,
+          "tone": "warn",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "w",
+            "w1",
+            "w2",
+            "w3"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "o",
+            "o1",
+            "o2",
+            "o3"
+          ]
+        },
+        {
+          "at": 3,
+          "focus": [
+            "w2"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Last, the startup probe. Say a new release has migrations that take 40 seconds before the app can answer at all."
+        },
+        {
+          "text": "With our startup probe, the kubelet checks every 2 seconds for up to a minute. At 40 seconds it passes, and the strict liveness checks begin.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "Without it, liveness starts checking straight away. After about 30 seconds with no answer, it kills the container mid-migration, the next try starts over, and the pod never comes up."
+        },
+        {
+          "text": "You could hold liveness back with initialDelaySeconds instead, but that's a fixed guess. The startup probe ends the moment the app is up.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "mistakes",
+      "type": "diagram",
+      "title": "Four common mistakes",
+      "boxes": [
+        {
+          "id": "m1",
+          "label": "liveness that checks the database",
+          "x": 200,
+          "y": 80,
+          "w": 1200,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "m2",
+          "label": "no startup probe on a slow start",
+          "x": 200,
+          "y": 240,
+          "w": 1200,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "m3",
+          "label": "a timeout shorter than a slow but healthy answer",
+          "x": 200,
+          "y": 400,
+          "w": 1200,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "m4",
+          "label": "the same check for liveness and readiness",
+          "x": 200,
+          "y": 560,
+          "w": 1200,
+          "h": 110,
+          "tone": "bad",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "m1"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "m2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "m3"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "m4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "To sum up, four mistakes to avoid."
+        },
+        {
+          "text": "A liveness check that looks at the database, or any other service."
+        },
+        {
+          "text": "No startup probe on an app that's slow to start."
+        },
+        {
+          "text": "A timeout shorter than a slow but healthy answer, so a busy pod gets restarted."
+        },
+        {
+          "text": "And the same check for liveness and readiness, so a pod that should just step aside gets restarted instead.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "type": "title",
+      "kicker": "Coming up",
+      "title": "Episode 7: Logs",
+      "subtitle": "Where they go, on-prem",
+      "lines": [
+        {
+          "text": "So: startup waits for the app, liveness restarts a stuck process, and readiness decides who gets traffic."
+        },
+        {
+          "text": "Rolling updates wait on readiness too, so a release that never gets ready never replaces the old pods."
+        },
+        {
+          "text": "That restart left a question. The old container's logs were nearly gone. Next time: where logs actually live, and how to keep them.",
+          "senses": {
+            "live": "verb"
+          },
+          "pauseAfter": 0.6
+        }
+      ]
+    }
+  ]
+}
