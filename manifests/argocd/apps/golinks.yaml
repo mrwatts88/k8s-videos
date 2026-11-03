@@ -1,0 +1,19 @@
+# golinks in prod, as Git says it should be (Episode 13).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: golinks
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://git.corp.internal/platform/k8s-videos.git
+    targetRevision: main
+    path: manifests/overlays/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: golinks
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

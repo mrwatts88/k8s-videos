@@ -418,6 +418,17 @@ half gone, which is the question this episode answers.
 - Sync, drift detection and self-heal: someone runs `kubectl scale` by hand and
   Argo CD puts it back.
 - Checks: `argocd app get golinks`, `kubectl get applications -n argocd`.
+- As built: Argo CD 3.5 from the argo-cd chart as a k3s HelmChart in
+  `manifests/argocd/` (plain `argocd-*` names, Dex off, the company root CA
+  trusted for git.corp.internal), and two Applications in
+  `manifests/argocd/apps/`, prod and dev, each automated with prune and self
+  heal. The repo token is a hand-made Secret, never in Git. The drift demo
+  patches LOG_LEVEL in the prod ConfigMap and Argo CD puts it back; the
+  `kubectl scale` case is shown as a diagram instead, because Git has no
+  `replicas` (the HPA owns it, Episode 11), so Argo CD leaves it alone and the
+  HPA restores the count. A release is a one-line tag change merged to main,
+  picked up on Argo CD's two-to-three-minute poll. The episode ends with a
+  recap of the series.
 
 ## Manifests layout
 
@@ -447,6 +458,8 @@ manifests/
   overlays/            (Episode 12)
     dev/
     prod/
+  argocd/              (Episode 13: the Argo CD HelmChart)
+    apps/              (Episode 13: the golinks Applications, applied second)
 ```
 
 ## Video format

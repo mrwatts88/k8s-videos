@@ -1,0 +1,19 @@
+# golinks in dev: the same Application, pointed at the dev overlay.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: golinks-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://git.corp.internal/platform/k8s-videos.git
+    targetRevision: main
+    path: manifests/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: golinks-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
