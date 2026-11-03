@@ -1,0 +1,36 @@
+# Argo CD (Episode 13) keeps the cluster matching what's in Git. Like the
+# logging stack and cert-manager, k3s' Helm controller installs it from here.
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argo-cd
+  namespace: kube-system
+spec:
+  repo: https://argoproj.github.io/argo-helm
+  chart: argo-cd
+  version: 10.11.6
+  targetNamespace: argocd
+  valuesContent: |-
+    # Plain names: argocd-server, argocd-repo-server, and so on.
+    fullnameOverride: argocd
+    # The series uses the argocd CLI with kubectl's own access, so Argo CD's
+    # bundled sign-in service (Dex) isn't needed.
+    dex:
+      enabled: false
+    configs:
+      tls:
+        # Trust the company root CA (Episode 9) when fetching from Git.
+        certificates:
+          git.corp.internal: |
+            -----BEGIN CERTIFICATE-----
+            MIIBsDCCAVegAwIBAgIUQdid85PJZtI3S0ANJr9bYzbgY/IwCgYIKoZIzj0EAwIw
+            JjENMAsGA1UECgwEQ29ycDEVMBMGA1UEAwwMQ29ycCBSb290IENBMB4XDTI2MTEw
+            MjE1NTgyMVoXDTQ2MTEwMjE1NTgyMVowJjENMAsGA1UECgwEQ29ycDEVMBMGA1UE
+            AwwMQ29ycCBSb290IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9thIfk2g
+            z4cLfs5xf5WlAYEFPJDOIO68B4SqkRps8QmtLEvd2mvBkewXy9SDI3DlcebItFg0
+            3m8m4wRGKRl766NjMGEwHQYDVR0OBBYEFDBCXSbAD71B5mE1g36e6aztLvRkMB8G
+            A1UdIwQYMBaAFDBCXSbAD71B5mE1g36e6aztLvRkMA8GA1UdEwEB/wQFMAMBAf8w
+            DgYDVR0PAQH/BAQDAgEGMAoGCCqGSM49BAMCA0cAMEQCIBYfuhj9QETKWurMt/gF
+            0F9VPaikOsRzHmolfh4mMUfTAiBLeJixykfInMNmpHzrhJm76ohoKrYu9h2stPuJ
+            JcdONg==
+            -----END CERTIFICATE-----

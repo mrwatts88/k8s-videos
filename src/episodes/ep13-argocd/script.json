@@ -1,0 +1,1235 @@
+{
+  "id": "ep13-argocd",
+  "number": 13,
+  "title": "Argo CD",
+  "scenes": [
+    {
+      "id": "title",
+      "type": "title",
+      "kicker": "Episode 13",
+      "title": "Argo CD",
+      "subtitle": "Git becomes the spec",
+      "lines": [
+        {
+          "text": "Last time ended with one step still done by hand: someone running kubectl apply from their laptop.",
+          "say": "Last time ended with one step still done by hand: someone running cube control apply from their laptop."
+        },
+        {
+          "text": "Today a controller takes that job, and Git becomes the one place that says what should be running.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "by-hand",
+      "type": "diagram",
+      "title": "What goes wrong with apply by hand",
+      "boxes": [
+        {
+          "id": "laptop",
+          "label": "a laptop",
+          "sublabel": "kubectl apply -k",
+          "x": 60,
+          "y": 110,
+          "w": 440,
+          "h": 130,
+          "tone": "warn"
+        },
+        {
+          "id": "cluster",
+          "label": "the cluster",
+          "sublabel": "whatever was applied last",
+          "x": 1100,
+          "y": 110,
+          "w": 440,
+          "h": 130
+        },
+        {
+          "id": "p1",
+          "kind": "note",
+          "label": "who applied this, and from which copy of the files?",
+          "x": 60,
+          "y": 330,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "p2",
+          "kind": "note",
+          "label": "a quick fix made in the cluster, never put back in Git",
+          "x": 60,
+          "y": 420,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "p3",
+          "kind": "note",
+          "label": "does the cluster match main right now? nobody can say",
+          "x": 60,
+          "y": 510,
+          "w": 1480,
+          "h": 70,
+          "tone": "bad",
+          "hidden": true
+        },
+        {
+          "id": "p4",
+          "kind": "note",
+          "label": "and everyone who deploys needs write access to prod",
+          "x": 60,
+          "y": 600,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a",
+          "from": "laptop",
+          "to": "cluster",
+          "label": "push",
+          "tone": "warn"
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "flow": [
+            "a"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "p1"
+          ],
+          "flow": []
+        },
+        {
+          "at": 2,
+          "show": [
+            "p2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "p3"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "p4"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Applying by hand works, and it's how we've built everything so far. But it pushes from wherever someone happens to be."
+        },
+        {
+          "text": "Was that applied from main, or from a branch that never merged? The cluster can't tell you."
+        },
+        {
+          "text": "Someone fixes something in a hurry, straight in the cluster, and the fix never makes it back to Git. The next apply quietly undoes it."
+        },
+        {
+          "text": "After a few months, nobody can say for sure whether prod matches what's in the repo."
+        },
+        {
+          "text": "And everyone who deploys needs write access to the production cluster.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "loop",
+      "type": "diagram",
+      "title": "The reconcile loop, one level up",
+      "boxes": [
+        {
+          "id": "git",
+          "label": "Git",
+          "sublabel": "manifests/overlays/prod",
+          "x": 60,
+          "y": 120,
+          "w": 380,
+          "h": 140,
+          "tone": "accent"
+        },
+        {
+          "id": "argo",
+          "label": "Argo CD",
+          "sublabel": "compare, then sync",
+          "x": 610,
+          "y": 120,
+          "w": 380,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "cluster",
+          "label": "the cluster",
+          "sublabel": "what's actually running",
+          "x": 1160,
+          "y": 120,
+          "w": 380,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "ep0",
+          "kind": "note",
+          "label": "Episode 0: desired state, actual state, and a controller closing the gap",
+          "x": 60,
+          "y": 380,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "pull",
+          "kind": "note",
+          "label": "it pulls from Git: nobody outside needs to reach the cluster",
+          "x": 60,
+          "y": 470,
+          "w": 1480,
+          "h": 70,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "inside",
+          "kind": "note",
+          "label": "it runs inside the cluster, as pods, like everything else",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "read",
+          "from": "argo",
+          "to": "git",
+          "label": "reads",
+          "hidden": true
+        },
+        {
+          "id": "apply",
+          "from": "argo",
+          "to": "cluster",
+          "label": "applies",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "argo",
+            "cluster",
+            "read",
+            "apply"
+          ],
+          "flow": [
+            "read",
+            "apply"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "ep0"
+          ],
+          "flow": []
+        },
+        {
+          "at": 3,
+          "show": [
+            "pull"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "inside"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Argo CD flips it around. Its desired state is a folder in a Git repository: for us, the prod overlay from last time."
+        },
+        {
+          "text": "It reads that folder, compares it with what's in the cluster, and applies the difference."
+        },
+        {
+          "text": "That's the reconcile loop from Episode 0. A Deployment controller keeps pods matching a Deployment. Argo CD keeps the whole cluster matching Git."
+        },
+        {
+          "text": "And it pulls. Nothing outside the cluster pushes to it, so no laptop or pipeline needs prod credentials."
+        },
+        {
+          "text": "Argo CD itself is just more pods, in its own namespace, installed like everything else.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "install-yaml",
+      "type": "code",
+      "file": "manifests/argocd/argo-cd.yaml",
+      "range": [
+        1,
+        26
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            3,
+            12
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            14,
+            15
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            16,
+            19
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            20,
+            26
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "We install it the way we installed Loki and cert-manager: a HelmChart resource, which k3s' Helm controller turns into a release, in the argocd namespace.",
+          "say": "We install it the way we installed Loki and cert-manager: a Helm Chart resource, which K three S's Helm controller turns into a release, in the Argo C D namespace."
+        },
+        {
+          "text": "A few values. Plain names for the parts, so the pods are called argocd-server and so on, without the release name in front.",
+          "say": "A few values. Plain names for the parts, so the pods are called Argo C D server and so on, without the release name in front."
+        },
+        {
+          "text": "Argo CD has a web UI with its own sign-in, which could go through Keycloak. We'll use the command line instead, so the bundled sign-in service is off.",
+          "senses": {
+            "use": "verb"
+          }
+        },
+        {
+          "text": "And the company's root certificate from Episode 9, so Argo CD trusts git.corp.internal when it fetches the repo over HTTPS.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "install",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/argocd",
+          "output": [
+            "namespace/argocd created",
+            "helmchart.helm.cattle.io/argo-cd created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get pods -n argocd",
+          "output": [
+            "NAME                                               READY   STATUS    AGE",
+            "argocd-application-controller-0                    1/1     Running   94s",
+            "argocd-applicationset-controller-6d9f8b7c54-k2xvq  1/1     Running   94s",
+            "argocd-notifications-controller-7c5f6d9b8-mz4tn    1/1     Running   94s",
+            "argocd-redis-5b8c7d9f6-wq7rp                       1/1     Running   94s",
+            "argocd-repo-server-84f6c9d7b5-tl9xj                1/1     Running   94s",
+            "argocd-server-6f7b9c8d4-pn3hs                      1/1     Running   94s"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Apply it, and k3s starts the install.",
+          "say": "Apply it, and K three S starts the install."
+        },
+        {
+          "text": "A minute and a half later, six pods. Two matter most today.",
+          "senses": {
+            "minute": "time"
+          }
+        },
+        {
+          "text": "The repo server fetches the repository and renders it, running Kustomize for us."
+        },
+        {
+          "text": "The application controller is the loop itself: it compares what the repo server rendered with the cluster, and applies the difference.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "app-yaml",
+      "type": "code",
+      "file": "manifests/argocd/apps/golinks.yaml",
+      "range": [
+        1,
+        19
+      ],
+      "highlights": [
+        {
+          "at": 0,
+          "lines": [
+            2,
+            6
+          ]
+        },
+        {
+          "at": 1,
+          "lines": [
+            9,
+            12
+          ]
+        },
+        {
+          "at": 2,
+          "lines": [
+            13,
+            15
+          ]
+        },
+        {
+          "at": 3,
+          "lines": [
+            16,
+            17
+          ]
+        },
+        {
+          "at": 4,
+          "lines": [
+            18,
+            18
+          ]
+        },
+        {
+          "at": 5,
+          "lines": [
+            19,
+            19
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Argo CD adds a new kind of object: an Application. It tells Argo CD what to watch, and where to put it.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "The source: our repository on the company's Git server, the main branch, and the prod overlay."
+        },
+        {
+          "text": "The destination: this same cluster, in the golinks namespace.",
+          "say": "The destination: this same cluster, in the go links namespace."
+        },
+        {
+          "text": "Then the sync policy. Automated means Argo CD applies changes itself, instead of waiting for someone to press a button."
+        },
+        {
+          "text": "Prune means a file deleted from Git gets its object deleted from the cluster too.",
+          "senses": {
+            "object": "noun"
+          }
+        },
+        {
+          "text": "And self heal means a change made straight in the cluster gets put back. A second Application does the same for dev, from the dev overlay.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "access",
+      "type": "diagram",
+      "title": "What Argo CD needs to reach Git",
+      "boxes": [
+        {
+          "id": "argo",
+          "label": "Argo CD",
+          "sublabel": "repo server",
+          "x": 60,
+          "y": 120,
+          "w": 440,
+          "h": 140
+        },
+        {
+          "id": "git",
+          "label": "git.corp.internal",
+          "sublabel": "platform/k8s-videos",
+          "x": 1100,
+          "y": 120,
+          "w": 440,
+          "h": 140,
+          "tone": "accent"
+        },
+        {
+          "id": "tok",
+          "kind": "note",
+          "label": "a read-only token, in a Secret made by hand: never in Git",
+          "x": 60,
+          "y": 380,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "ca",
+          "kind": "note",
+          "label": "the company root CA, from the chart's values, to trust its HTTPS",
+          "x": 60,
+          "y": 470,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "ro",
+          "kind": "note",
+          "label": "read access is all it needs: it never writes to the repo",
+          "x": 60,
+          "y": 560,
+          "w": 1480,
+          "h": 70,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a",
+          "from": "argo",
+          "to": "git",
+          "label": "HTTPS",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "a"
+          ],
+          "flow": [
+            "a"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "tok"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "ca"
+          ],
+          "flow": []
+        },
+        {
+          "at": 3,
+          "show": [
+            "ro"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "The repository is private, so Argo CD needs a way in."
+        },
+        {
+          "text": "A read-only token from the Git server goes in a Secret, labeled so Argo CD finds it. Like the Postgres password, it's made by hand and never committed."
+        },
+        {
+          "text": "The CA certificate we already saw lets it check the server's HTTPS."
+        },
+        {
+          "text": "Read access is enough. Argo CD never writes to the repository; people do, through pull requests.",
+          "senses": {
+            "read": "present"
+          },
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "apply-apps",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl apply -k manifests/argocd/apps",
+          "output": [
+            "application.argoproj.io/golinks-dev created",
+            "application.argoproj.io/golinks created"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get applications -n argocd",
+          "output": [
+            "NAME          SYNC STATUS   HEALTH STATUS",
+            "golinks       Synced        Healthy",
+            "golinks-dev   Synced        Healthy"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "This is the last kubectl apply for golinks. Two Applications, one for each environment.",
+          "say": "This is the last cube control apply for go links. Two Applications, one for each environment."
+        },
+        {
+          "text": "Both read as synced and healthy. Everything was already running, so Argo CD compared, found it all matching, and simply took over.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "Synced means the cluster matches Git. Healthy means the objects themselves are fine: pods ready, Deployments rolled out.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "app-get",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl config set-context --current --namespace=argocd",
+          "output": [
+            "Context \"default\" modified."
+          ]
+        },
+        {
+          "at": 1,
+          "command": "argocd login --core",
+          "output": [
+            "Context 'kubernetes' updated"
+          ]
+        },
+        {
+          "at": 2,
+          "command": "argocd app get golinks | grep -E '^(Name|- Repo|  Path|Sync|Health)'",
+          "output": [
+            "Name:               argocd/golinks",
+            "- Repo:             https://git.corp.internal/platform/k8s-videos.git",
+            "  Path:             manifests/overlays/prod",
+            "SyncWindow:         Sync Allowed",
+            "Sync Policy:        Automated (Prune)",
+            "Sync Status:        Synced to main (a1c9e04)",
+            "Health Status:      Healthy"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "For more detail, there's the argocd command line. In core mode it uses kubectl's own access, so the namespace has to point at argocd first.",
+          "senses": {
+            "uses": "verb"
+          },
+          "say": "For more detail, there's the Argo C D command line. In core mode it uses cube control's own access, so the namespace has to point at Argo C D first."
+        },
+        {
+          "text": "Log in with the core flag. No password: it talks straight to the cluster's API."
+        },
+        {
+          "text": "argocd app get shows one Application. Here filtered to the useful lines.",
+          "say": "Argo C D app get shows one Application. Here filtered to the useful lines."
+        },
+        {
+          "text": "The repo and the path, the automated policy, and the exact commit the cluster matches right now. That's the question nobody could answer before.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "drift",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "kubectl patch cm golinks-config -n golinks -p '{data: {LOG_LEVEL: debug}}'",
+          "output": [
+            "configmap/golinks-config patched"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get app golinks -n argocd -w",
+          "output": [
+            "NAME      SYNC STATUS   HEALTH STATUS",
+            "golinks   OutOfSync     Healthy",
+            "golinks   Synced        Healthy",
+            "^C"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl get cm golinks-config -n golinks -o jsonpath='{..LOG_LEVEL}'; echo",
+          "output": [
+            "info"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Now the drift test. Someone turns on debug logging in prod, straight in the cluster, with kubectl patch.",
+          "say": "Now the drift test. Someone turns on debug logging in prod, straight in the cluster, with cube control patch."
+        },
+        {
+          "text": "Watch the Application. Argo CD watches the objects it manages, so it sees the change at once, and marks the app out of sync."
+        },
+        {
+          "text": "Self heal kicks in, and a few seconds later it's synced again."
+        },
+        {
+          "text": "LOG_LEVEL is back to info, as Git says. The running pods read their config at start, so they never even saw the change.",
+          "say": "Log level is back to info, as Git says. The running pods read their config at start, so they never even saw the change.",
+          "senses": {
+            "read": "present"
+          }
+        },
+        {
+          "text": "To really turn on debug logging in prod, change the overlay and open a pull request. That's the point.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "not-drift",
+      "type": "diagram",
+      "title": "Argo CD only guards what Git says",
+      "boxes": [
+        {
+          "id": "cmd",
+          "kind": "note",
+          "label": "kubectl scale deployment golinks -n golinks --replicas=1",
+          "x": 60,
+          "y": 100,
+          "w": 1480,
+          "h": 70,
+          "tone": "warn"
+        },
+        {
+          "id": "git",
+          "label": "the Deployment in Git",
+          "sublabel": "no replicas field",
+          "x": 60,
+          "y": 260,
+          "w": 440,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "argo",
+          "label": "Argo CD",
+          "sublabel": "nothing to compare: still synced",
+          "x": 580,
+          "y": 260,
+          "w": 440,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "hpa",
+          "label": "the HPA",
+          "sublabel": "back to at least 2",
+          "x": 1100,
+          "y": 260,
+          "w": 440,
+          "h": 140,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "rule",
+          "kind": "note",
+          "label": "a field Git doesn't set is left to whoever owns it",
+          "x": 60,
+          "y": 520,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "git",
+          "to": "argo",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "git"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "argo",
+            "a1"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "hpa"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "rule"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "A second test teaches something. Someone scales golinks down to one pod by hand.",
+          "say": "A second test teaches something. Someone scales go links down to one pod by hand."
+        },
+        {
+          "text": "Remember Episode 11: the Deployment in Git has no replicas field, because the HPA owns the count."
+        },
+        {
+          "text": "So Argo CD has nothing to compare. The app stays synced, and Argo CD leaves it alone."
+        },
+        {
+          "text": "The HPA puts it back instead, to at least two pods, within a few seconds."
+        },
+        {
+          "text": "That's the rule. Argo CD only guards the fields that Git sets, and anything Git leaves out belongs to someone else, which is exactly what we want here.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "type": "diagram",
+      "title": "A release, from now on",
+      "boxes": [
+        {
+          "id": "pr",
+          "label": "a pull request",
+          "sublabel": "newTag: 0.2.0 in prod",
+          "x": 60,
+          "y": 110,
+          "w": 340,
+          "h": 140,
+          "tone": "accent"
+        },
+        {
+          "id": "merge",
+          "label": "reviewed, merged",
+          "sublabel": "main moves",
+          "x": 440,
+          "y": 110,
+          "w": 340,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "argo",
+          "label": "Argo CD notices",
+          "sublabel": "within about 3 minutes",
+          "x": 820,
+          "y": 110,
+          "w": 340,
+          "h": 140,
+          "hidden": true
+        },
+        {
+          "id": "roll",
+          "label": "rolling update",
+          "sublabel": "probes gate each pod",
+          "x": 1200,
+          "y": 110,
+          "w": 340,
+          "h": 140,
+          "tone": "good",
+          "hidden": true
+        },
+        {
+          "id": "hook",
+          "kind": "note",
+          "label": "a webhook from the Git server makes it immediate",
+          "x": 60,
+          "y": 360,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "back",
+          "kind": "note",
+          "label": "rolling back is git revert: the same road, in reverse",
+          "x": 60,
+          "y": 450,
+          "w": 1480,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "ro",
+          "kind": "note",
+          "label": "people can keep read-only access to prod",
+          "x": 60,
+          "y": 540,
+          "w": 1480,
+          "h": 70,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [
+        {
+          "id": "a1",
+          "from": "pr",
+          "to": "merge",
+          "hidden": true
+        },
+        {
+          "id": "a2",
+          "from": "merge",
+          "to": "argo",
+          "hidden": true
+        },
+        {
+          "id": "a3",
+          "from": "argo",
+          "to": "roll",
+          "hidden": true
+        }
+      ],
+      "steps": [
+        {
+          "at": 1,
+          "show": [
+            "merge",
+            "a1"
+          ],
+          "flow": [
+            "a1"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "argo",
+            "a2"
+          ],
+          "flow": [
+            "a2"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "roll",
+            "a3"
+          ],
+          "flow": [
+            "a3"
+          ]
+        },
+        {
+          "at": 4,
+          "show": [
+            "hook"
+          ],
+          "flow": []
+        },
+        {
+          "at": 5,
+          "show": [
+            "back"
+          ]
+        },
+        {
+          "at": 6,
+          "show": [
+            "ro"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "So here's a release now. Version 0.2.0 has been fine on go-dev, so someone opens a pull request that changes one line: the tag in the prod overlay.",
+          "say": "So here's a release now. Version zero point two point zero has been fine on go dev, so someone opens a pull request that changes one line: the tag in the prod overlay."
+        },
+        {
+          "text": "A teammate reviews it, and then it's merged."
+        },
+        {
+          "text": "Argo CD checks the repository every two to three minutes, sees the new commit, and syncs."
+        },
+        {
+          "text": "The Deployment rolls out as usual, with the probes from Episode 6 deciding when each new pod gets traffic."
+        },
+        {
+          "text": "A webhook from the Git server can tell Argo CD the moment main moves, instead of waiting."
+        },
+        {
+          "text": "Rolling back is a git revert, which goes through the same review and the same sync."
+        },
+        {
+          "text": "And since nobody applies by hand anymore, people can have read-only access to prod.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "release-run",
+      "type": "terminal",
+      "title": "~/k8s-videos",
+      "steps": [
+        {
+          "at": 0,
+          "command": "git log -1 --oneline origin/main",
+          "output": [
+            "4be21c7 Release golinks 0.2.0 to prod (#42)"
+          ]
+        },
+        {
+          "at": 1,
+          "command": "kubectl get app golinks -n argocd -w",
+          "output": [
+            "NAME      SYNC STATUS   HEALTH STATUS",
+            "golinks   OutOfSync     Healthy",
+            "golinks   Synced        Progressing",
+            "golinks   Synced        Healthy",
+            "^C"
+          ]
+        },
+        {
+          "at": 3,
+          "command": "kubectl get deploy golinks -n golinks -o jsonpath='{..image}'; echo",
+          "output": [
+            "registry.corp.internal/platform/golinks:0.2.0"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "Here it is. The release commit is on main."
+        },
+        {
+          "text": "Within a couple of minutes, golinks goes out of sync: Git has a new tag, the cluster has the old one.",
+          "say": "Within a couple of minutes, go links goes out of sync: Git has a new tag, the cluster has the old one."
+        },
+        {
+          "text": "Argo CD syncs. Health reads progressing while the new pods start and pass their probes, then healthy."
+        },
+        {
+          "text": "And the Deployment runs 0.2.0. Nobody touched the cluster.",
+          "say": "And the Deployment runs zero point two point zero. Nobody touched the cluster.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "series",
+      "type": "diagram",
+      "title": "What we built",
+      "boxes": [
+        {
+          "id": "b1",
+          "kind": "note",
+          "label": "k3s on three machines",
+          "x": 60,
+          "y": 90,
+          "w": 720,
+          "h": 70
+        },
+        {
+          "id": "b2",
+          "kind": "note",
+          "label": "golinks, its config, and Postgres",
+          "x": 820,
+          "y": 90,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b3",
+          "kind": "note",
+          "label": "Services, Traefik, and go.corp.internal",
+          "x": 60,
+          "y": 180,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b4",
+          "kind": "note",
+          "label": "probes, and logs in Loki",
+          "x": 820,
+          "y": 180,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b5",
+          "kind": "note",
+          "label": "TLS from the company CA",
+          "x": 60,
+          "y": 270,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b6",
+          "kind": "note",
+          "label": "tokens from Keycloak",
+          "x": 820,
+          "y": 270,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b7",
+          "kind": "note",
+          "label": "scaling with the HPA",
+          "x": 60,
+          "y": 360,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b8",
+          "kind": "note",
+          "label": "dev and prod with Kustomize",
+          "x": 820,
+          "y": 360,
+          "w": 720,
+          "h": 70,
+          "hidden": true
+        },
+        {
+          "id": "b9",
+          "label": "all of it kept in sync from Git, by Argo CD",
+          "sublabel": "the same loop as Episode 0",
+          "x": 60,
+          "y": 480,
+          "w": 1480,
+          "h": 130,
+          "tone": "good",
+          "hidden": true
+        }
+      ],
+      "arrows": [],
+      "steps": [
+        {
+          "at": 0,
+          "show": [
+            "b2",
+            "b3"
+          ]
+        },
+        {
+          "at": 1,
+          "show": [
+            "b4",
+            "b5",
+            "b6"
+          ]
+        },
+        {
+          "at": 2,
+          "show": [
+            "b7",
+            "b8"
+          ]
+        },
+        {
+          "at": 3,
+          "show": [
+            "b9"
+          ]
+        }
+      ],
+      "lines": [
+        {
+          "text": "That's the whole road. A small k3s cluster, a real service with its database, and a name people can type.",
+          "say": "That's the whole road. A small K three S cluster, a real service with its database, and a name people can type."
+        },
+        {
+          "text": "Health checks and logs, so you know when it's sick. Certificates from the company's own CA, and tokens from Keycloak."
+        },
+        {
+          "text": "Scaling with load, and a dev copy to try things in first."
+        },
+        {
+          "text": "And now all of it held in place from Git, by the same kind of loop we started with.",
+          "pauseAfter": 0.4
+        }
+      ]
+    },
+    {
+      "id": "end",
+      "type": "title",
+      "kicker": "The end",
+      "title": "Thanks for watching",
+      "subtitle": "Kubernetes, one go link at a time",
+      "lines": [
+        {
+          "text": "A last tip: Argo CD, cert-manager and the logging stack are still applied by hand. They can be Applications too, even Argo CD itself, so the whole cluster lives in Git.",
+          "senses": {
+            "lives": "verb"
+          }
+        },
+        {
+          "text": "Thanks for following along.",
+          "pauseAfter": 0.8
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Argo CD itself. Apply this first: the Applications in apps/ use a resource
+# type that only exists once the chart has installed it.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - argo-cd.yaml

@@ -1,0 +1,6 @@
+# The Applications Argo CD keeps in sync. Apply after manifests/argocd.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - golinks.yaml
+  - golinks-dev.yaml
